@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Club Deportivo Los Morruos - Bola Canaria Fuerteventura" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+  <title>Los Morruos | Bola Canaria</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: '#F5C518',
+            'gold-dark': '#D4A017',
+            dark: '#0A0A0A',
+            'dark-card': '#141414',
+            'dark-border': '#2A2A2A',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0A0A0A;
+      color: #f5f5f5;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+      margin: 0;
+    }
+    .font-display { font-family: 'Oswald', sans-serif; letter-spacing: 0.02em; }
+    .drawer { transform: translateX(-100%); transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1); }
+    .drawer.open { transform: translateX(0); }
+    .drawer-overlay { opacity: 0; pointer-events: none; transition: opacity 0.28s ease; }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+    .menu-item {
+      display: flex; align-items: center; gap: 14px; padding: 13px 16px;
+      border-radius: 12px; color: #a3a3a3; font-weight: 500; font-size: 15px;
+      transition: all 0.15s ease; width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;
+    }
+    .menu-item:hover, .menu-item:active { background: #1f1f1f; color: #fff; }
+    .menu-item.active {
+      background: linear-gradient(90deg, rgba(245,197,24,0.15), transparent);
+      color: #F5C518; border-left: 3px solid #F5C518;
+    }
+    .menu-item svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .card { background: #141414; border: 1px solid #2A2A2A; border-radius: 16px; }
+    .tab-content { display: none; animation: fadeIn 0.22s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .badge-win { background: #14532d; color: #86efac; }
+    .badge-draw { background: #713f12; color: #fde68a; }
+    .badge-loss { background: #7f1d1d; color: #fca5a5; }
+    .player-avatar { background: linear-gradient(135deg, #F5C518 0%, #D4A017 100%); }
+    .chat-messages { height: calc(100vh - 200px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .chat-bubble-me { background: linear-gradient(135deg, #F5C518, #D4A017); color: #0A0A0A; border-radius: 18px 18px 4px 18px; }
+    .chat-bubble-other { background: #1f1f1f; border: 1px solid #2A2A2A; border-radius: 18px 18px 18px 4px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .admin-input {
+      width: 100%; background: #1a1a1a; border: 1px solid #333; border-radius: 10px;
+      padding: 10px 12px; color: #fff; font-size: 14px; outline: none;
+    }
+    .admin-input:focus { border-color: #F5C518; }
+    .admin-btn {
+      background: #F5C518; color: #0A0A0A; font-weight: 600; border-radius: 10px;
+      padding: 10px 16px; border: none; cursor: pointer; font-size: 14px;
+    }
+    .admin-btn-secondary {
+      background: #2a2a2a; color: #ddd; font-weight: 500; border-radius: 10px;
+      padding: 8px 14px; border: 1px solid #3a3a3a; cursor: pointer; font-size: 13px;
+    }
+    .admin-btn-danger { background: #7f1d1d; color: #fca5a5; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <div id="drawer-overlay" class="drawer-overlay fixed inset-0 bg-black/60 z-40" onclick="closeDrawer()"></div>
+
+  <aside id="drawer" class="drawer fixed top-0 left-0 h-full w-[280px] max-w-[85vw] bg-[#0f0f0f] z-50 flex flex-col border-r border-dark-border shadow-2xl">
+    <div class="p-5 border-b border-dark-border flex items-center gap-3">
+      <img src="logo.png" alt="Los Morruos" class="w-12 h-12 rounded-full object-cover border-2 border-gold" />
+      <div>
+        <h2 class="font-display text-lg text-gold leading-tight">LOS MORRUOS</h2>
+        <p class="text-xs text-gray-500">Bola Canaria · Fuerteventura</p>
+      </div>
+    </div>
+    <nav class="flex-1 overflow-y-auto p-3 space-y-1">
+      <button onclick="goTo('home')" class="menu-item active" data-menu="home">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Inicio
+      </button>
+      <button onclick="goTo('noticias')" class="menu-item" data-menu="noticias">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+        Noticias
+      </button>
+      <button onclick="goTo('clasificacion')" class="menu-item" data-menu="clasificacion">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Clasificación Liga
+      </button>
+      <button onclick="goTo('torneo')" class="menu-item" data-menu="torneo">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+        Torneo
+      </button>
+      <button onclick="goTo('ligas')" class="menu-item" data-menu="ligas">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        Ligas
+      </button>
+      <button onclick="goTo('copa')" class="menu-item" data-menu="copa">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        Copa
+      </button>
+      <button onclick="goTo('calendario')" class="menu-item" data-menu="calendario">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Calendario
+      </button>
+      <button onclick="goTo('resultados')" class="menu-item" data-menu="resultados">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Resultados
+      </button>
+      <button onclick="goTo('jugadores')" class="menu-item" data-menu="jugadores">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        Plantilla
+      </button>
+      <div class="my-3 border-t border-dark-border"></div>
+      <button onclick="goTo('redes')" class="menu-item" data-menu="redes">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+        Redes Sociales
+      </button>
+      <button onclick="goTo('chat')" class="menu-item" data-menu="chat">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        Chat del Club
+      </button>
+      <button onclick="goTo('club')" class="menu-item" data-menu="club">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        El Club
+      </button>
+      <div class="my-3 border-t border-dark-border"></div>
+      <button onclick="goTo('admin')" class="menu-item" data-menu="admin">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Administración
+      </button>
+    </nav>
+    <div class="p-4 border-t border-dark-border text-center">
+      <p class="text-[10px] text-gray-600">App Club Deportivo Los Morruos</p>
+    </div>
+  </aside>
+
+  <header class="sticky top-0 z-30 bg-dark/95 backdrop-blur-md border-b border-dark-border">
+    <div class="flex items-center justify-between px-3 py-2.5">
+      <button onclick="openDrawer()" class="p-2 -ml-1 rounded-xl hover:bg-dark-card active:scale-95 transition">
+        <svg class="w-6 h-6 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+      <div class="flex items-center gap-2">
+        <img src="logo.png" alt="" class="w-8 h-8 rounded-full object-cover border border-gold/60" />
+        <span class="font-display text-base text-gold tracking-wide">LOS MORRUOS</span>
+      </div>
+      <button onclick="goTo('chat')" class="p-2 -mr-1 rounded-xl hover:bg-dark-card relative">
+        <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="px-4 pt-4 pb-10 max-w-lg mx-auto">
+
+    <section id="tab-home" class="tab-content active">
+      <div class="card p-4 mb-5 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-gold/15 via-transparent to-transparent"></div>
+        <div class="relative">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] uppercase tracking-widest text-gold font-semibold">Próximo partido</span>
+            <span class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full" id="home-comp">Liga Insular</span>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <div class="text-center flex-1">
+              <p class="font-display text-xl font-bold text-gold">LOS MORRUOS</p>
+              <p class="text-[11px] text-gray-500 mt-0.5" id="home-home-label">Local</p>
+            </div>
+            <div class="px-3 py-1.5 bg-gold text-dark font-bold rounded-xl text-sm shadow-lg shadow-gold/20">VS</div>
+            <div class="text-center flex-1">
+              <p class="font-display text-xl font-bold" id="home-rival">C.D. Tefía</p>
+              <p class="text-[11px] text-gray-500 mt-0.5" id="home-away-label">Visitante</p>
+            </div>
+          </div>
+          <div class="mt-4 text-center">
+            <p class="text-sm font-medium" id="home-datetime">Sábado 6 Sep · 18:00</p>
+            <p class="text-xs text-gray-500 mt-0.5" id="home-place">Cancha Municipal · Puerto del Rosario</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-display text-lg text-gold">Últimos resultados</h2>
+        <button onclick="goTo('resultados')" class="text-xs text-gray-400">Ver todos →</button>
+      </div>
+      <div class="space-y-2.5 mb-6" id="home-results"></div>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-display text-lg text-gold">Clasificación</h2>
+        <button onclick="goTo('clasificacion')" class="text-xs text-gray-400">Completa →</button>
+      </div>
+      <p class="text-[11px] text-gray-500 mb-1">1ª Categoría · Morro Jable A</p>
+      <div class="card overflow-hidden mb-3">
+        <table class="w-full text-sm">
+          <thead class="bg-dark-border/40 text-gray-500 text-[11px]">
+            <tr><th class="py-2 px-3 text-left">#</th><th class="py-2 px-3 text-left">Equipo</th><th class="py-2 px-3 text-center">Pts</th></tr>
+          </thead>
+          <tbody id="home-standings-a"></tbody>
+        </table>
+      </div>
+      <p class="text-[11px] text-gray-500 mb-1">2ª Categoría · Morro Jable B</p>
+      <div class="card overflow-hidden mb-6">
+        <table class="w-full text-sm">
+          <thead class="bg-dark-border/40 text-gray-500 text-[11px]">
+            <tr><th class="py-2 px-3 text-left">#</th><th class="py-2 px-3 text-left">Equipo</th><th class="py-2 px-3 text-center">Pts</th></tr>
+          </thead>
+          <tbody id="home-standings-b"></tbody>
+        </table>
+      </div>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-display text-lg text-gold">Últimas noticias</h2>
+        <button onclick="goTo('noticias')" class="text-xs text-gray-400">Ver todas →</button>
+      </div>
+      <div class="space-y-3" id="home-news"></div>
+    </section>
+
+    <section id="tab-noticias" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-4">Noticias</h2>
+      <div class="space-y-4" id="noticias-list"></div>
+    </section>
+
+    <section id="tab-clasificacion" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-1">Clasificación Liga</h2>
+      <p class="text-sm text-gray-400 mb-3">Liga Insular Fuerteventura · 2025/26</p>
+      <div class="flex gap-2 mb-4">
+        <button id="btn-cat1" onclick="showCategory(1)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg">1ª Categoría</button>
+        <button id="btn-cat2" onclick="showCategory(2)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300">2ª Categoría</button>
+      </div>
+      <div id="cat1-block">
+        <p class="text-xs text-gold mb-2 font-medium">Morro Jable A · 1ª Categoría</p>
+        <div class="card overflow-hidden">
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="w-full text-sm min-w-[340px]">
+              <thead class="bg-dark-border/50 text-gray-500 text-[11px]">
+                <tr>
+                  <th class="py-3 px-2 text-left">#</th>
+                  <th class="py-3 px-2 text-left">Equipo</th>
+                  <th class="py-3 px-2 text-center">PJ</th>
+                  <th class="py-3 px-2 text-center">G</th>
+                  <th class="py-3 px-2 text-center">E</th>
+                  <th class="py-3 px-2 text-center">P</th>
+                  <th class="py-3 px-2 text-center">Pts</th>
+                </tr>
+              </thead>
+              <tbody id="standings-body-a"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div id="cat2-block" class="hidden">
+        <p class="text-xs text-gold mb-2 font-medium">Morro Jable B · 2ª Categoría</p>
+        <div class="card overflow-hidden">
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="w-full text-sm min-w-[340px]">
+              <thead class="bg-dark-border/50 text-gray-500 text-[11px]">
+                <tr>
+                  <th class="py-3 px-2 text-left">#</th>
+                  <th class="py-3 px-2 text-left">Equipo</th>
+                  <th class="py-3 px-2 text-center">PJ</th>
+                  <th class="py-3 px-2 text-center">G</th>
+                  <th class="py-3 px-2 text-center">E</th>
+                  <th class="py-3 px-2 text-center">P</th>
+                  <th class="py-3 px-2 text-center">Pts</th>
+                </tr>
+              </thead>
+              <tbody id="standings-body-b"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-torneo" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-4">Torneo</h2>
+      <div id="torneo-list" class="space-y-3"></div>
+    </section>
+
+    <section id="tab-ligas" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-4">Ligas</h2>
+      <div class="space-y-3">
+        <div class="card p-4 flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-gold/15 flex items-center justify-center text-2xl shrink-0">🏝️</div>
+          <div class="flex-1">
+            <h3 class="font-semibold">Liga Insular Fuerteventura</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Categoría principal · En curso</p>
+          </div>
+          <button onclick="goTo('clasificacion')" class="text-gold text-sm font-medium">Ver →</button>
+        </div>
+        <div class="card p-4 flex items-center gap-4 opacity-70">
+          <div class="w-14 h-14 rounded-2xl bg-dark-border flex items-center justify-center text-2xl shrink-0">🇮🇨</div>
+          <div class="flex-1">
+            <h3 class="font-semibold">Liga Autonómica</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Federación Canaria · Próximamente</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-copa" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-4">Copa</h2>
+      <div class="card p-5 text-center mb-4">
+        <div class="text-5xl mb-3">🏆</div>
+        <h3 class="font-display text-xl">Copa Presidente</h3>
+        <p class="text-sm text-gray-400 mt-1">Competición autonómica de bola canaria</p>
+        <div class="mt-4 inline-flex items-center gap-2 bg-gold/15 text-gold text-sm px-3 py-1.5 rounded-full">
+          <span class="w-2 h-2 bg-gold rounded-full animate-pulse"></span>
+          Fase pendiente
+        </div>
+      </div>
+      <div class="card p-4">
+        <p class="text-sm text-gray-400 leading-relaxed">Cuando se publiquen cuadros y fechas aparecerán aquí los emparejamientos de Los Morruos.</p>
+      </div>
+    </section>
+
+    <section id="tab-calendario" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-4">Calendario</h2>
+      <div class="space-y-3" id="calendario-list"></div>
+    </section>
+
+    <section id="tab-resultados" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-4">Resultados</h2>
+      <div class="space-y-3" id="resultados-list"></div>
+    </section>
+
+    <section id="tab-jugadores" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-4">Plantilla</h2>
+      <div class="grid grid-cols-2 gap-3" id="players-grid"></div>
+    </section>
+
+    <section id="tab-redes" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-4">Redes Sociales</h2>
+      <p class="text-sm text-gray-400 mb-5">Síguenos y comparte el día a día del club.</p>
+      <div class="space-y-3" id="redes-list"></div>
+    </section>
+
+    <section id="tab-chat" class="tab-content">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-display text-xl text-gold">Chat del Club</h2>
+        <span class="text-[11px] bg-green-900/50 text-green-400 px-2 py-0.5 rounded-full">Demo local</span>
+      </div>
+      <div id="chat-messages" class="chat-messages space-y-3 mb-3 pr-1"></div>
+      <div class="flex gap-2 sticky bottom-0 bg-dark pt-2">
+        <input id="chat-input" type="text" placeholder="Escribe un mensaje..." 
+               class="flex-1 bg-dark-card border border-dark-border rounded-full px-4 py-2.5 text-sm outline-none focus:border-gold/50"
+               onkeydown="if(event.key==='Enter') sendMessage()" />
+        <button onclick="sendMessage()" class="w-11 h-11 rounded-full bg-gold text-dark flex items-center justify-center shrink-0 active:scale-95 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <section id="tab-club" class="tab-content">
+      <div class="text-center mb-6">
+        <img src="logo.png" alt="Logo" class="w-28 h-28 mx-auto rounded-2xl object-cover border-2 border-gold shadow-xl shadow-gold/10" />
+        <h2 class="font-display text-2xl text-gold mt-4">Club Deportivo Los Morruos</h2>
+        <p class="text-gray-400 text-sm">Fuerteventura · Bola Canaria</p>
+      </div>
+      <div class="card p-4 mb-4">
+        <h3 class="font-display text-gold mb-2">Sobre el club</h3>
+        <p class="text-sm text-gray-300 leading-relaxed" id="club-about"></p>
+      </div>
+      <div class="card p-4 mb-4">
+        <h3 class="font-display text-gold mb-3">Datos</h3>
+        <div class="space-y-2.5 text-sm" id="club-data"></div>
+      </div>
+      <div class="card p-4">
+        <h3 class="font-display text-gold mb-2">Contacto</h3>
+        <p class="text-sm text-gray-400" id="club-contact"></p>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="tab-admin" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-2">Administración</h2>
+      <p class="text-xs text-gray-500 mb-4">Solo administrador. Los cambios se guardan en este dispositivo.</p>
+
+      <div id="admin-login" class="card p-5">
+        <p class="text-sm text-gray-300 mb-3">Contraseña de administrador:</p>
+        <input type="password" id="admin-pass" class="admin-input mb-3" placeholder="Contraseña" onkeydown="if(event.key==='Enter') adminLogin()" />
+        <button onclick="adminLogin()" class="admin-btn w-full">Entrar</button>
+        <p class="text-[11px] text-gray-600 mt-3 text-center">Por defecto: <strong class="text-gray-400">morruos2026</strong></p>
+      </div>
+
+      <div id="admin-panel" class="hidden space-y-5">
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-green-400 font-medium">✓ Sesión admin activa</span>
+          <button onclick="adminLogout()" class="admin-btn-secondary text-xs">Cerrar sesión</button>
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          <button onclick="showAdminTab('next')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="next">Próximo partido</button>
+          <button onclick="showAdminTab('standings')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="standings">Clasificación</button>
+          <button onclick="showAdminTab('matches')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="matches">Partidos</button>
+          <button onclick="showAdminTab('players')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="players">Jugadores</button>
+          <button onclick="showAdminTab('news')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="news">Noticias</button>
+          <button onclick="showAdminTab('club')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="club">Club / Redes</button>
+        </div>
+
+        <div id="atab-next" class="admin-tab-content">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Próximo partido (Inicio)</h3>
+            <div><label class="text-xs text-gray-400">Rival</label><input id="a-next-rival" class="admin-input mt-1" /></div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><label class="text-xs text-gray-400">Fecha (YYYY-MM-DD)</label><input id="a-next-date" class="admin-input mt-1" placeholder="2026-09-06" /></div>
+              <div><label class="text-xs text-gray-400">Hora</label><input id="a-next-time" class="admin-input mt-1" placeholder="18:00" /></div>
+            </div>
+            <div><label class="text-xs text-gray-400">Lugar</label><input id="a-next-place" class="admin-input mt-1" /></div>
+            <div>
+              <label class="text-xs text-gray-400">¿Somos locales?</label>
+              <select id="a-next-home" class="admin-input mt-1"><option value="true">Sí (Local)</option><option value="false">No (Visitante)</option></select>
+            </div>
+            <div><label class="text-xs text-gray-400">Competición</label><input id="a-next-comp" class="admin-input mt-1" placeholder="Liga Insular" /></div>
+            <button onclick="saveNextMatch()" class="admin-btn w-full">Guardar próximo partido</button>
+          </div>
+        </div>
+
+        <div id="atab-standings" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3 mb-4">
+            <h3 class="font-semibold text-gold">1ª Categoría · Morro Jable A</h3>
+            <p class="text-xs text-gray-500">Una línea por equipo: Posición|Equipo|PJ|G|E|P|Pts</p>
+            <textarea id="a-standings-a" class="admin-input h-40 font-mono text-xs"></textarea>
+          </div>
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">2ª Categoría · Morro Jable B</h3>
+            <p class="text-xs text-gray-500">Una línea por equipo: Posición|Equipo|PJ|G|E|P|Pts</p>
+            <textarea id="a-standings-b" class="admin-input h-40 font-mono text-xs"></textarea>
+            <button onclick="saveStandings()" class="admin-btn w-full">Guardar ambas clasificaciones</button>
+          </div>
+        </div>
+
+        <div id="atab-matches" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Partidos</h3>
+            <p class="text-xs text-gray-500">Fecha|Hora|Rival|Local(1/0)|Resultado|Jornada<br>Ej: 2026-08-24|18:00|C.D. Corralejo|1|13-9|12</p>
+            <textarea id="a-matches" class="admin-input h-56 font-mono text-xs"></textarea>
+            <button onclick="saveMatches()" class="admin-btn w-full">Guardar partidos</button>
+          </div>
+        </div>
+
+        <div id="atab-players" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Plantilla</h3>
+            <p class="text-xs text-gray-500">Nombre|Posición|Número|Edad (una línea por jugador)</p>
+            <textarea id="a-players" class="admin-input h-48 font-mono text-xs"></textarea>
+            <button onclick="savePlayers()" class="admin-btn w-full">Guardar plantilla</button>
+          </div>
+        </div>
+
+        <div id="atab-news" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Noticias</h3>
+            <p class="text-xs text-gray-500">Fecha|Título|Texto (una línea por noticia)</p>
+            <textarea id="a-news" class="admin-input h-48 font-mono text-xs"></textarea>
+            <button onclick="saveNews()" class="admin-btn w-full">Guardar noticias</button>
+          </div>
+        </div>
+
+        <div id="atab-club" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Club y redes</h3>
+            <textarea id="a-club-about" class="admin-input h-24 text-sm"></textarea>
+            <div><label class="text-xs text-gray-400">Contacto</label><input id="a-club-contact" class="admin-input mt-1" /></div>
+            <div><label class="text-xs text-gray-400">Instagram</label><input id="a-ig" class="admin-input mt-1" /></div>
+            <div><label class="text-xs text-gray-400">Facebook</label><input id="a-fb" class="admin-input mt-1" /></div>
+            <div><label class="text-xs text-gray-400">X / Twitter</label><input id="a-x" class="admin-input mt-1" /></div>
+            <button onclick="saveClub()" class="admin-btn w-full">Guardar club y redes</button>
+          </div>
+        </div>
+
+        <div class="card p-4 space-y-3">
+          <h3 class="font-semibold text-gold text-sm">Sincronización online (para que todos vean los cambios)</h3>
+          <p class="text-[11px] text-gray-500 leading-relaxed">
+            1. Entra en <strong>jsonbin.io</strong> (gratis) → CLAVES API.<br>
+            2. Copia solo tu <strong>Master Key</strong> y pégala abajo.<br>
+            3. Pulsa <strong>Guardar y publicar</strong> (la app crea el contenedor sola).<br>
+            4. Si te muestra un Bin ID, cópialo y envíamelo.
+          </p>
+          <div>
+            <label class="text-xs text-gray-400">Master Key (obligatoria)</label>
+            <input id="a-api-key" type="password" class="admin-input mt-1" placeholder="Pega aquí la Master Key" />
+          </div>
+          <div>
+            <label class="text-xs text-gray-400">Bin ID (se rellena solo al publicar)</label>
+            <input id="a-bin-id" class="admin-input mt-1" placeholder="Se crea automáticamente" />
+          </div>
+          <button onclick="saveRemoteSettings()" class="admin-btn w-full">Guardar y publicar</button>
+          <button onclick="publishNow()" class="admin-btn-secondary w-full">Publicar datos ahora</button>
+          <button onclick="clearRemoteCfg()" class="admin-btn-secondary admin-btn-danger w-full">Borrar configuración online</button>
+          <p id="sync-status" class="text-[11px] text-gray-500 text-center"></p>
+        </div>
+
+        <div class="card p-4 space-y-2">
+          <h3 class="font-semibold text-gold text-sm">Utilidades</h3>
+          <button onclick="exportData()" class="admin-btn-secondary w-full">Exportar datos (JSON)</button>
+          <button onclick="document.getElementById('import-file').click()" class="admin-btn-secondary w-full">Importar datos (JSON)</button>
+          <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)" />
+          <button onclick="resetData()" class="admin-btn-secondary admin-btn-danger w-full">Restaurar datos de ejemplo</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const DEFAULT = {
+      nextMatch: { rival: "C.D. Tefía", date: "2026-09-06", time: "18:00", place: "Cancha Municipal · Puerto del Rosario", home: true, comp: "Liga Insular" },
+      standingsA: [
+        { pos: 1, team: "C.D. Corralejo", pj: 12, g: 9, e: 0, p: 3, pts: 27 },
+        { pos: 2, team: "Morro Jable A", pj: 12, g: 8, e: 0, p: 4, pts: 24 },
+        { pos: 3, team: "C.D. Tefía", pj: 12, g: 7, e: 0, p: 5, pts: 21 },
+        { pos: 4, team: "C.D. Betancuria", pj: 12, g: 6, e: 1, p: 5, pts: 19 },
+        { pos: 5, team: "C.D. La Oliva", pj: 12, g: 5, e: 0, p: 7, pts: 15 },
+        { pos: 6, team: "C.D. Antigua", pj: 12, g: 4, e: 1, p: 7, pts: 13 },
+        { pos: 7, team: "C.D. Pájara", pj: 12, g: 3, e: 0, p: 9, pts: 9 },
+        { pos: 8, team: "C.D. Gran Tarajal", pj: 12, g: 2, e: 0, p: 10, pts: 6 },
+      ],
+      standingsB: [
+        { pos: 1, team: "C.D. Puerto del Rosario B", pj: 10, g: 8, e: 0, p: 2, pts: 24 },
+        { pos: 2, team: "Morro Jable B", pj: 10, g: 7, e: 0, p: 3, pts: 21 },
+        { pos: 3, team: "C.D. Corralejo B", pj: 10, g: 6, e: 1, p: 3, pts: 19 },
+        { pos: 4, team: "C.D. Tefía B", pj: 10, g: 5, e: 0, p: 5, pts: 15 },
+        { pos: 5, team: "C.D. Antigua B", pj: 10, g: 4, e: 0, p: 6, pts: 12 },
+        { pos: 6, team: "C.D. La Oliva B", pj: 10, g: 3, e: 1, p: 6, pts: 10 },
+        { pos: 7, team: "C.D. Pájara B", pj: 10, g: 2, e: 0, p: 8, pts: 6 },
+        { pos: 8, team: "C.D. Gran Tarajal B", pj: 10, g: 1, e: 0, p: 9, pts: 3 },
+      ],
+      // compatibilidad con datos antiguos
+      standings: [],
+      matches: [
+        { date: "2026-09-06", time: "18:00", rival: "C.D. Tefía", home: true, result: null, jornada: 13 },
+        { date: "2026-09-20", time: "17:30", rival: "C.D. Antigua", home: false, result: null, jornada: 14 },
+        { date: "2026-10-04", time: "18:00", rival: "C.D. Pájara", home: true, result: null, jornada: 15 },
+        { date: "2026-08-24", time: "18:00", rival: "C.D. Corralejo", home: true, result: "13-9", jornada: 12 },
+        { date: "2026-08-17", time: "17:00", rival: "C.D. Betancuria", home: false, result: "11-12", jornada: 11 },
+        { date: "2026-08-10", time: "18:00", rival: "C.D. La Oliva", home: true, result: "13-7", jornada: 10 },
+        { date: "2026-08-03", time: "17:30", rival: "C.D. Gran Tarajal", home: false, result: "13-5", jornada: 9 },
+        { date: "2026-07-27", time: "18:00", rival: "C.D. Tefía", home: false, result: "10-13", jornada: 8 },
+      ],
+      players: [
+        { name: "Juan Pérez", pos: "Tirador", num: 1, age: 34 },
+        { name: "Manuel Rodríguez", pos: "Apoyo", num: 2, age: 28 },
+        { name: "Antonio García", pos: "Tirador", num: 3, age: 41 },
+        { name: "Francisco Díaz", pos: "Apoyo", num: 4, age: 25 },
+        { name: "José Hernández", pos: "Tirador", num: 5, age: 37 },
+        { name: "Pedro Cabrera", pos: "Apoyo", num: 6, age: 31 },
+        { name: "Luis Morales", pos: "Tirador", num: 7, age: 29 },
+        { name: "Carlos Medina", pos: "Apoyo", num: 8, age: 44 },
+      ],
+      news: [
+        { date: "2026-08-24", title: "Victoria 13-9 frente a C.D. Corralejo", text: "Los Morruos consiguieron una importante victoria en casa ante el líder de la clasificación." },
+        { date: "2026-08-18", title: "Publicado el calendario de septiembre", text: "Ya está disponible el calendario de partidos del mes de septiembre." },
+        { date: "2026-08-10", title: "Inicio de la pretemporada", text: "El equipo ha comenzado los entrenamientos con la vista puesta en la nueva temporada." },
+      ],
+      torneos: [
+        { title: "Torneo Social Los Morruos", date: "11 Octubre 2026", desc: "Jornada de puertas abiertas y partida amistosa." },
+        { title: "Tiro de Precisión Insular", date: "Pendiente de fechas", desc: "Participación del club en la prueba de tiro de precisión." },
+      ],
+      club: {
+        about: "Club Deportivo Los Morruos es un club de bola canaria de Fuerteventura con dos equipos: Morro Jable A (1ª Categoría) y Morro Jable B (2ª Categoría). Nuestros colores son el negro y el dorado, y nuestro símbolo es la cabra majorera.",
+        contact: "Añade teléfono, email o dirección desde Administración.",
+        ig: "", fb: "", x: ""
+      },
+      chat: [
+        { me: false, user: "Admin", text: "¡Bienvenidos al chat de Los Morruos! 🐐", time: "10:00" },
+        { me: false, user: "Juan", text: "¿Alguien va al partido del sábado?", time: "10:12" },
+      ]
+    };
+
+    const ADMIN_PASS = "morruos2026";
+    const STORAGE_KEY = "morruos_data_v1";
+    const REMOTE_CFG_KEY = "morruos_remote_cfg";
+    // Bin ID compartido (se rellena al publicar; también se puede pegar a mano)
+    let data = null;
+    let adminOk = false;
+    const DEFAULT_BIN_ID = "6a90afa0f5f4af5e294b62be";
+    let remoteCfg = { binId: DEFAULT_BIN_ID, apiKey: "" };
+
+    function loadRemoteCfg() {
+      try {
+        const raw = localStorage.getItem(REMOTE_CFG_KEY);
+        if (raw) remoteCfg = { binId: "", apiKey: "", ...JSON.parse(raw) };
+      } catch {}
+      if (!remoteCfg.binId) remoteCfg.binId = DEFAULT_BIN_ID;
+    }
+    function saveRemoteCfg() {
+      localStorage.setItem(REMOTE_CFG_KEY, JSON.stringify({
+        binId: (remoteCfg.binId || "").trim(),
+        apiKey: (remoteCfg.apiKey || "").trim()
+      }));
+    }
+
+    async function fetchRemote() {
+      const binId = (remoteCfg.binId || DEFAULT_BIN_ID || "").trim();
+      if (!binId) return null;
+      try {
+        const headers = { "X-Bin-Meta": "false" };
+        if (remoteCfg.apiKey) headers["X-Master-Key"] = remoteCfg.apiKey;
+        const res = await fetch("https://api.jsonbin.io/v3/b/" + binId + "/latest", { headers });
+        if (!res.ok) return null;
+        const json = await res.json();
+        const record = json.record || json;
+        if (!record || typeof record !== "object") return null;
+        if (!record.standings && !record.standingsA && !record.matches && !record.nextMatch && !record.players) return null;
+        return record;
+      } catch (e) {
+        console.warn("Remote fetch failed", e);
+        return null;
+      }
+    }
+
+    async function createPublicBin() {
+      const res = await fetch("https://api.jsonbin.io/v3/b", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": remoteCfg.apiKey,
+          "X-Bin-Private": "false",
+          "X-Bin-Name": "Los Morruos App"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(res.status + " " + t);
+      }
+      const json = await res.json();
+      const id = json?.metadata?.id || json?.id;
+      if (!id) throw new Error("No se recibió Bin ID");
+      return id;
+    }
+
+    async function pushRemote() {
+      if (!remoteCfg.apiKey) {
+        return { ok: false, msg: "Pega tu Master Key en Sincronización." };
+      }
+      try {
+        let binId = (remoteCfg.binId || "").trim();
+        // Si no hay bin o el actual falla, crear uno público nuevo
+        if (!binId) {
+          binId = await createPublicBin();
+          remoteCfg.binId = binId;
+          saveRemoteCfg();
+          const binInput = document.getElementById("a-bin-id");
+          if (binInput) binInput.value = binId;
+          return { ok: true, msg: "Contenedor creado y datos publicados ✓\n\nBin ID: " + binId + "\n\nCopia este Bin ID y envíamelo para que todos vean los cambios." };
+        }
+        const res = await fetch("https://api.jsonbin.io/v3/b/" + binId, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": remoteCfg.apiKey,
+            "X-Bin-Private": "false",
+            "X-Bin-Versioning": "false"
+          },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) {
+          // Si el bin no existe, crear uno nuevo
+          if (res.status === 404) {
+            binId = await createPublicBin();
+            remoteCfg.binId = binId;
+            saveRemoteCfg();
+            const binInput = document.getElementById("a-bin-id");
+            if (binInput) binInput.value = binId;
+            return { ok: true, msg: "Se creó un contenedor nuevo y se publicaron los datos ✓\n\nBin ID: " + binId + "\n\nCopia este Bin ID y envíamelo." };
+          }
+          const t = await res.text();
+          return { ok: false, msg: "Error al publicar: " + res.status + " " + t };
+        }
+        return { ok: true, msg: "Publicado online ✓\nBin ID: " + binId };
+      } catch (e) {
+        return { ok: false, msg: "Error: " + e.message };
+      }
+    }
+
+    async function loadData() {
+      loadRemoteCfg();
+      const remote = await fetchRemote();
+      if (remote) {
+        data = {
+          ...JSON.parse(JSON.stringify(DEFAULT)),
+          ...remote,
+          nextMatch: remote.nextMatch || DEFAULT.nextMatch,
+          standings: remote.standings || DEFAULT.standings,
+          standingsA: remote.standingsA || remote.standings || DEFAULT.standingsA,
+          standingsB: remote.standingsB || DEFAULT.standingsB,
+          matches: remote.matches || DEFAULT.matches,
+          players: remote.players || DEFAULT.players,
+          news: remote.news || DEFAULT.news,
+          torneos: remote.torneos || DEFAULT.torneos,
+          club: { ...DEFAULT.club, ...(remote.club || {}) },
+          chat: remote.chat || DEFAULT.chat
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        return;
+      }
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        data = raw ? { ...JSON.parse(JSON.stringify(DEFAULT)), ...JSON.parse(raw) } : JSON.parse(JSON.stringify(DEFAULT));
+      } catch {
+        data = JSON.parse(JSON.stringify(DEFAULT));
+      }
+    }
+
+    function saveDataLocal() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    async function saveData() {
+      saveDataLocal();
+      if (remoteCfg.apiKey) return await pushRemote();
+      return { ok: true, msg: "Guardado en este dispositivo. Pega la Master Key en Sincronización para publicarlo a todos." };
+    }
+
+    function formatDate(iso) {
+      if (!iso) return "";
+      return new Date(iso + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+    }
+    function formatDateLong(iso) {
+      if (!iso) return "";
+      return new Date(iso + "T12:00:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "short" });
+    }
+
+    function renderAll() {
+      renderHome(); renderStandings(); renderCalendario(); renderResultados();
+      renderPlayers(); renderNews(); renderTorneos(); renderClub(); renderRedes(); renderChat();
+      if (adminOk) fillAdminForms();
+    }
+
+    function renderHome() {
+      const n = data.nextMatch || {};
+      document.getElementById("home-rival").textContent = n.rival || "—";
+      document.getElementById("home-datetime").textContent = (n.date ? formatDateLong(n.date) : "—") + " · " + (n.time || "");
+      document.getElementById("home-place").textContent = n.place || "";
+      document.getElementById("home-comp").textContent = n.comp || "Liga";
+      document.getElementById("home-home-label").textContent = n.home ? "Local" : "Visitante";
+      document.getElementById("home-away-label").textContent = n.home ? "Visitante" : "Local";
+
+      const past = (data.matches || []).filter(m => m.result).sort((a,b) => b.date.localeCompare(a.date)).slice(0, 3);
+      document.getElementById("home-results").innerHTML = past.map(m => {
+        const [g1, g2] = m.result.split("-").map(Number);
+        const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
+        const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
+        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">Los Morruos <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - ${m.home ? g2 : g1} ${m.rival}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)}</p></div><span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
+      }).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
+
+      const rowHome = (s, club) => `
+        <tr class="border-t border-dark-border ${isClubTeam(s.team) ? 'bg-gold/10' : ''}">
+          <td class="py-2.5 px-3 ${isClubTeam(s.team) ? 'font-bold text-gold' : 'text-gray-400'}">${s.pos}</td>
+          <td class="py-2.5 px-3 ${isClubTeam(s.team) ? 'font-semibold text-gold' : ''}">${s.team}</td>
+          <td class="py-2.5 px-3 text-center font-semibold ${isClubTeam(s.team) ? 'text-gold' : ''}">${s.pts}</td>
+        </tr>`;
+      document.getElementById("home-standings-a").innerHTML = getStandingsA().slice(0, 3).map(s => rowHome(s)).join("") || '<tr><td colspan="3" class="py-3 px-3 text-gray-500 text-sm">Sin datos</td></tr>';
+      document.getElementById("home-standings-b").innerHTML = getStandingsB().slice(0, 3).map(s => rowHome(s)).join("") || '<tr><td colspan="3" class="py-3 px-3 text-gray-500 text-sm">Sin datos</td></tr>';
+
+      document.getElementById("home-news").innerHTML = (data.news || []).slice(0, 2).map(n => `
+        <div class="card p-3 flex gap-3" onclick="goTo('noticias')">
+          <div class="w-14 h-14 rounded-xl bg-gold/20 flex items-center justify-center shrink-0 text-2xl">📰</div>
+          <div><p class="font-medium text-sm leading-snug">${n.title}</p><p class="text-[11px] text-gray-500 mt-1">${formatDate(n.date)}</p></div>
+        </div>`).join("");
+    }
+
+    function isClubTeam(name) {
+      if (!name) return false;
+      const n = name.toLowerCase();
+      return n.includes("morro jable") || n.includes("morruos") || n.includes("los morruos");
+    }
+    function getStandingsA() {
+      if (data.standingsA && data.standingsA.length) return data.standingsA;
+      if (data.standings && data.standings.length) return data.standings; // datos antiguos
+      return [];
+    }
+    function getStandingsB() {
+      return (data.standingsB && data.standingsB.length) ? data.standingsB : [];
+    }
+    function showCategory(n) {
+      document.getElementById("cat1-block").classList.toggle("hidden", n !== 1);
+      document.getElementById("cat2-block").classList.toggle("hidden", n !== 2);
+      const b1 = document.getElementById("btn-cat1");
+      const b2 = document.getElementById("btn-cat2");
+      if (n === 1) {
+        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
+        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
+      } else {
+        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
+        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
+      }
+    }
+    function rowStanding(s) {
+      const club = isClubTeam(s.team);
+      return `<tr class="border-t border-dark-border ${club ? 'bg-gold/10' : ''}">
+          <td class="py-2.5 px-2 font-bold ${club ? 'text-gold' : 'text-gray-400'}">${s.pos}</td>
+          <td class="py-2.5 px-2 ${club ? 'font-semibold text-gold' : ''}">${s.team}</td>
+          <td class="py-2.5 px-2 text-center text-gray-400">${s.pj}</td>
+          <td class="py-2.5 px-2 text-center">${s.g}</td>
+          <td class="py-2.5 px-2 text-center">${s.e}</td>
+          <td class="py-2.5 px-2 text-center">${s.p}</td>
+          <td class="py-2.5 px-2 text-center font-bold ${club ? 'text-gold' : ''}">${s.pts}</td>
+        </tr>`;
+    }
+    function renderStandings() {
+      document.getElementById("standings-body-a").innerHTML = getStandingsA().map(rowStanding).join("") || '<tr><td colspan="7" class="py-4 px-3 text-gray-500 text-sm">Sin clasificación</td></tr>';
+      document.getElementById("standings-body-b").innerHTML = getStandingsB().map(rowStanding).join("") || '<tr><td colspan="7" class="py-4 px-3 text-gray-500 text-sm">Sin clasificación</td></tr>';
+    }
+
+    function renderCalendario() {
+      const sorted = [...(data.matches || [])].sort((a, b) => a.date.localeCompare(b.date));
+      document.getElementById("calendario-list").innerHTML = sorted.map(m => {
+        const isPast = !!m.result;
+        const [g1, g2] = m.result ? m.result.split("-").map(Number) : [null, null];
+        const won = isPast && ((m.home && g1 > g2) || (!m.home && g2 > g1));
+        const lost = isPast && ((m.home && g1 < g2) || (!m.home && g2 < g1));
+        return `<div class="card p-3"><div class="flex justify-between mb-1"><span class="text-[11px] text-gray-500">Jornada ${m.jornada || "—"}</span><span class="text-[11px] ${isPast ? 'text-gray-500' : 'text-gold'}">${formatDate(m.date)} · ${m.time || ""}</span></div>
+          <div class="flex items-center justify-between"><p class="font-medium text-sm">${m.home ? '<span class="text-gold">Los Morruos</span>' : m.rival}${isPast ? ` <span class="text-gold">${m.home ? g1 : g2}</span>` : ''}<span class="text-gray-500 mx-1">vs</span>${m.home ? m.rival : '<span class="text-gold">Los Morruos</span>'}${isPast ? ` <span class="text-gold">${m.home ? g2 : g1}</span>` : ''}</p>
+          ${isPast ? `<span class="text-[11px] px-2 py-0.5 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span>` : '<span class="text-[11px] text-gold">Pendiente</span>'}</div></div>`;
+      }).join("") || '<p class="text-sm text-gray-500">Sin partidos</p>';
+    }
+
+    function renderResultados() {
+      const past = (data.matches || []).filter(m => m.result).sort((a, b) => b.date.localeCompare(a.date));
+      document.getElementById("resultados-list").innerHTML = past.map(m => {
+        const [g1, g2] = m.result.split("-").map(Number);
+        const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
+        const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
+        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${m.home ? 'Los Morruos' : m.rival} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - <span class="text-gold font-bold">${m.home ? g2 : g1}</span> ${m.home ? m.rival : 'Los Morruos'}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)} · Jornada ${m.jornada || "—"}</p></div>
+          <span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
+      }).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
+    }
+
+    function renderPlayers() {
+      document.getElementById("players-grid").innerHTML = (data.players || []).map(p => `
+        <div class="card p-3 text-center"><div class="player-avatar w-14 h-14 rounded-full mx-auto flex items-center justify-center text-dark font-display text-xl font-bold mb-2">${p.num}</div>
+          <p class="font-semibold text-sm leading-tight">${p.name}</p><p class="text-[11px] text-gold mt-0.5">${p.pos}</p><p class="text-[11px] text-gray-500">${p.age} años</p></div>`).join("") || '<p class="text-sm text-gray-500 col-span-2">Sin jugadores</p>';
+    }
+
+    function renderNews() {
+      document.getElementById("noticias-list").innerHTML = (data.news || []).map(n => `
+        <article class="card overflow-hidden"><div class="h-28 bg-gradient-to-br from-gold/25 to-dark-card flex items-center justify-center text-4xl">📰</div>
+          <div class="p-4"><p class="text-[11px] text-gold uppercase tracking-wide mb-1">${formatDate(n.date)}</p><h3 class="font-display text-lg leading-tight">${n.title}</h3><p class="text-sm text-gray-400 mt-2 leading-relaxed">${n.text}</p></div></article>`).join("") || '<p class="text-sm text-gray-500">Sin noticias</p>';
+    }
+
+    function renderTorneos() {
+      document.getElementById("torneo-list").innerHTML = (data.torneos || []).map(t => `
+        <div class="card p-4"><div class="flex items-center gap-3 mb-2"><div class="w-11 h-11 rounded-xl bg-gold/20 flex items-center justify-center text-xl">🏆</div>
+          <div><h3 class="font-display text-lg">${t.title}</h3><p class="text-xs text-gray-400">${t.date}</p></div></div><p class="text-sm text-gray-300">${t.desc}</p></div>`).join("") || '<p class="text-sm text-gray-500">Sin torneos</p>';
+    }
+
+    function renderClub() {
+      document.getElementById("club-about").textContent = data.club?.about || "";
+      document.getElementById("club-contact").textContent = data.club?.contact || "";
+      document.getElementById("club-data").innerHTML = `
+        <div class="flex justify-between"><span class="text-gray-400">Isla</span><span>Fuerteventura</span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Colores</span><span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-black border border-gray-600"></span><span class="w-3 h-3 rounded-full bg-gold"></span> Negro y Dorado</span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Competición</span><span>Liga Insular</span></div>`;
+    }
+
+    function renderRedes() {
+      const c = data.club || {};
+      const items = [
+        { name: "Instagram", val: c.ig, color: "from-purple-600 to-pink-500", icon: "📷" },
+        { name: "Facebook", val: c.fb, color: "bg-blue-600", icon: "f" },
+        { name: "X (Twitter)", val: c.x, color: "bg-black border border-gray-700", icon: "𝕏" },
+      ];
+      document.getElementById("redes-list").innerHTML = items.map(i => `
+        <a href="${i.val && i.val.startsWith('http') ? i.val : '#'}" class="card p-4 flex items-center gap-4" ${!i.val ? 'onclick="event.preventDefault()"' : 'target="_blank"'}>
+          <div class="w-12 h-12 rounded-xl ${i.color.includes('from') ? 'bg-gradient-to-br '+i.color : i.color} flex items-center justify-center text-white font-bold">${i.icon}</div>
+          <div><p class="font-semibold">${i.name}</p><p class="text-xs text-gray-500">${i.val || "Pendiente de configurar"}</p></div></a>`).join("");
+    }
+
+    function renderChat() {
+      const box = document.getElementById("chat-messages");
+      box.innerHTML = (data.chat || []).map(m => `
+        <div class="flex ${m.me ? 'justify-end' : 'justify-start'}"><div class="max-w-[80%] ${m.me ? 'chat-bubble-me' : 'chat-bubble-other'} px-3.5 py-2">
+          ${!m.me ? `<p class="text-[11px] font-semibold text-gold mb-0.5">${m.user}</p>` : ''}<p class="text-sm leading-snug">${m.text}</p>
+          <p class="text-[10px] ${m.me ? 'text-black/50' : 'text-gray-500'} text-right mt-1">${m.time}</p></div></div>`).join("");
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("chat-input");
+      const text = input.value.trim();
+      if (!text) return;
+      const now = new Date();
+      const time = now.getHours().toString().padStart(2,"0") + ":" + now.getMinutes().toString().padStart(2,"0");
+      if (!data.chat) data.chat = [];
+      data.chat.push({ me: true, user: "Tú", text, time });
+      input.value = "";
+      saveDataLocal();
+      renderChat();
+    }
+
+    function openDrawer() {
+      document.getElementById("drawer").classList.add("open");
+      document.getElementById("drawer-overlay").classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+    function closeDrawer() {
+      document.getElementById("drawer").classList.remove("open");
+      document.getElementById("drawer-overlay").classList.remove("open");
+      document.body.style.overflow = "";
+    }
+    function goTo(name) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      const tab = document.getElementById("tab-" + name);
+      if (tab) tab.classList.add("active");
+      document.querySelectorAll(".menu-item").forEach(el => el.classList.toggle("active", el.dataset.menu === name));
+      closeDrawer();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (name === "chat") renderChat();
+      if (name === "admin") {
+        document.getElementById("admin-login").classList.toggle("hidden", adminOk);
+        document.getElementById("admin-panel").classList.toggle("hidden", !adminOk);
+        if (adminOk) fillAdminForms();
+      }
+    }
+
+    function adminLogin() {
+      if (document.getElementById("admin-pass").value === ADMIN_PASS) {
+        adminOk = true;
+        sessionStorage.setItem("morruos_admin", "1");
+        document.getElementById("admin-login").classList.add("hidden");
+        document.getElementById("admin-panel").classList.remove("hidden");
+        fillAdminForms();
+      } else alert("Contraseña incorrecta");
+    }
+    function adminLogout() {
+      adminOk = false;
+      sessionStorage.removeItem("morruos_admin");
+      document.getElementById("admin-login").classList.remove("hidden");
+      document.getElementById("admin-panel").classList.add("hidden");
+      document.getElementById("admin-pass").value = "";
+    }
+    function showAdminTab(name) {
+      document.querySelectorAll(".admin-tab-content").forEach(el => el.classList.add("hidden"));
+      document.getElementById("atab-" + name).classList.remove("hidden");
+      document.querySelectorAll(".admin-tab").forEach(el => {
+        el.classList.toggle("bg-gold", el.dataset.atab === name);
+        el.classList.toggle("text-dark", el.dataset.atab === name);
+      });
+    }
+
+    function fillAdminForms() {
+      const n = data.nextMatch || {};
+      document.getElementById("a-next-rival").value = n.rival || "";
+      document.getElementById("a-next-date").value = n.date || "";
+      document.getElementById("a-next-time").value = n.time || "";
+      document.getElementById("a-next-place").value = n.place || "";
+      document.getElementById("a-next-home").value = n.home ? "true" : "false";
+      document.getElementById("a-next-comp").value = n.comp || "";
+      const fmt = s => `${s.pos}|${s.team}|${s.pj}|${s.g}|${s.e}|${s.p}|${s.pts}`;
+      const elA = document.getElementById("a-standings-a");
+      const elB = document.getElementById("a-standings-b");
+      if (elA) elA.value = getStandingsA().map(fmt).join("\n");
+      if (elB) elB.value = getStandingsB().map(fmt).join("\n");
+      document.getElementById("a-matches").value = (data.matches || []).map(m => `${m.date}|${m.time || ""}|${m.rival}|${m.home ? 1 : 0}|${m.result || ""}|${m.jornada || ""}`).join("\n");
+      document.getElementById("a-players").value = (data.players || []).map(p => `${p.name}|${p.pos}|${p.num}|${p.age}`).join("\n");
+      document.getElementById("a-news").value = (data.news || []).map(n => `${n.date}|${n.title}|${n.text}`).join("\n");
+      document.getElementById("a-club-about").value = data.club?.about || "";
+      document.getElementById("a-club-contact").value = data.club?.contact || "";
+      document.getElementById("a-ig").value = data.club?.ig || "";
+      document.getElementById("a-fb").value = data.club?.fb || "";
+      document.getElementById("a-x").value = data.club?.x || "";
+      const binEl = document.getElementById("a-bin-id");
+      const keyEl = document.getElementById("a-api-key");
+      if (binEl) binEl.value = remoteCfg.binId || "";
+      if (keyEl) keyEl.value = remoteCfg.apiKey || "";
+      const st = document.getElementById("sync-status");
+      if (st) st.textContent = remoteCfg.binId ? "Sincronización configurada ✓" : "Sin sincronización online";
+    }
+
+    async function afterSave(label) {
+      renderAll();
+      const r = await saveData();
+      alert((label || "Guardado") + "\n\n" + (r?.msg || ""));
+    }
+
+    async function saveNextMatch() {
+      data.nextMatch = {
+        rival: document.getElementById("a-next-rival").value.trim(),
+        date: document.getElementById("a-next-date").value.trim(),
+        time: document.getElementById("a-next-time").value.trim(),
+        place: document.getElementById("a-next-place").value.trim(),
+        home: document.getElementById("a-next-home").value === "true",
+        comp: document.getElementById("a-next-comp").value.trim()
+      };
+      await afterSave("Próximo partido guardado ✓");
+    }
+    async function saveStandings() {
+      const parse = (raw) => raw.trim().split("\n").filter(Boolean).map(line => {
+        const [pos, team, pj, g, e, p, pts] = line.split("|").map(s => s.trim());
+        return { pos: +pos, team, pj: +pj, g: +g, e: +e, p: +p, pts: +pts };
+      });
+      data.standingsA = parse(document.getElementById("a-standings-a").value);
+      data.standingsB = parse(document.getElementById("a-standings-b").value);
+      data.standings = data.standingsA;
+      await afterSave("Clasificaciones guardadas ✓");
+    }
+    async function saveMatches() {
+      data.matches = document.getElementById("a-matches").value.trim().split("\n").filter(Boolean).map(line => {
+        const [date, time, rival, home, result, jornada] = line.split("|").map(s => s.trim());
+        return { date, time, rival, home: home === "1" || home === "true", result: result || null, jornada: jornada ? +jornada : null };
+      });
+      await afterSave("Partidos guardados ✓");
+    }
+    async function savePlayers() {
+      data.players = document.getElementById("a-players").value.trim().split("\n").filter(Boolean).map(line => {
+        const [name, pos, num, age] = line.split("|").map(s => s.trim());
+        return { name, pos, num: +num, age: +age };
+      });
+      await afterSave("Plantilla guardada ✓");
+    }
+    async function saveNews() {
+      data.news = document.getElementById("a-news").value.trim().split("\n").filter(Boolean).map(line => {
+        const parts = line.split("|");
+        return { date: parts[0]?.trim() || "", title: parts[1]?.trim() || "", text: parts.slice(2).join("|").trim() || "" };
+      });
+      await afterSave("Noticias guardadas ✓");
+    }
+    async function saveClub() {
+      data.club = {
+        about: document.getElementById("a-club-about").value.trim(),
+        contact: document.getElementById("a-club-contact").value.trim(),
+        ig: document.getElementById("a-ig").value.trim(),
+        fb: document.getElementById("a-fb").value.trim(),
+        x: document.getElementById("a-x").value.trim()
+      };
+      await afterSave("Club y redes guardados ✓");
+    }
+
+    async function saveRemoteSettings() {
+      remoteCfg.apiKey = document.getElementById("a-api-key").value.trim();
+      remoteCfg.binId = document.getElementById("a-bin-id").value.trim();
+      saveRemoteCfg();
+      const r = await pushRemote();
+      const binInput = document.getElementById("a-bin-id");
+      if (binInput) binInput.value = remoteCfg.binId || "";
+      const st = document.getElementById("sync-status");
+      if (st) st.textContent = remoteCfg.binId ? ("Bin: " + remoteCfg.binId) : "";
+      alert(r.msg);
+    }
+
+    function clearRemoteCfg() {
+      if (!confirm("¿Borrar configuración online de este dispositivo?")) return;
+      remoteCfg = { binId: "", apiKey: "" };
+      localStorage.removeItem(REMOTE_CFG_KEY);
+      const binInput = document.getElementById("a-bin-id");
+      const keyInput = document.getElementById("a-api-key");
+      if (binInput) binInput.value = "";
+      if (keyInput) keyInput.value = "";
+      const st = document.getElementById("sync-status");
+      if (st) st.textContent = "Sin sincronización";
+      alert("Configuración borrada. Vuelve a pegar la Master Key y publica.");
+    }
+
+    async function publishNow() {
+      saveDataLocal();
+      const r = await pushRemote();
+      alert(r.msg);
+    }
+
+    function exportData() {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+      a.download = "los-morruos-datos.json";
+      a.click();
+    }
+    function importData(ev) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          data = { ...DEFAULT, ...JSON.parse(e.target.result) };
+          saveDataLocal();
+          await pushRemote();
+          renderAll(); fillAdminForms();
+          alert("Datos importados ✓");
+        } catch { alert("Archivo no válido"); }
+      };
+      reader.readAsText(file);
+    }
+    async function resetData() {
+      if (!confirm("¿Restaurar datos de ejemplo? Se perderán los cambios.")) return;
+      data = JSON.parse(JSON.stringify(DEFAULT));
+      saveDataLocal();
+      await pushRemote();
+      renderAll(); fillAdminForms();
+      alert("Datos restaurados");
+    }
+
+    (async function init() {
+      await loadData();
+      if (sessionStorage.getItem("morruos_admin") === "1") adminOk = true;
+      renderAll();
+      if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+    })();
+  </script>
+</body>
+</html>
