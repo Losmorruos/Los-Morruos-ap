@@ -756,8 +756,8 @@
       return {
         ok: true,
         msg: githubConfigured()
-          ? "Guardado en este dispositivo. Pega tu token de GitHub en Sincronización para publicarlo a todos automáticamente."
-          : "Guardado en este dispositivo. Configura tu repositorio y token de GitHub en Sincronización para publicar los cambios a todos."
+          ? "Guardado en este dispositivo.\n\nPara que se vea en todos los teléfonos, pega tu token de GitHub en Admin → Sincronización."
+          : "Guardado solo en este dispositivo.\n\nConfigura usuario, repositorio y token de GitHub en Admin → Sincronización para publicar a todos."
       };
     }
 
@@ -925,7 +925,7 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    function sendMessage() {
+    async function sendMessage() {
       const input = document.getElementById("chat-input");
       const text = input.value.trim();
       if (!text) return;
@@ -934,8 +934,19 @@
       if (!data.chat) data.chat = [];
       data.chat.push({ me: true, user: "Tú", text, time });
       input.value = "";
-      saveDataLocal();
+      saveDataLocal();          // siempre guarda en este dispositivo
       renderChat();
+
+      // Si hay token configurado, intenta publicar también a GitHub
+      // (así el resto de teléfonos ven el mensaje al recargar)
+      if (githubWriteConfigured()) {
+        try {
+          const r = await pushRemote();
+          if (!r.ok) console.warn("No se pudo publicar el chat:", r.msg);
+        } catch (e) {
+          console.warn("Error publicando chat:", e);
+        }
+      }
     }
 
     function openDrawer() {
@@ -1156,6 +1167,16 @@
       if (sessionStorage.getItem("morruos_admin") === "1") adminOk = true;
       renderAll();
       if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+      // Guardado automático local al salir o al pasar la app a segundo plano
+      // (ayuda especialmente en iOS y cuando se cierra la PWA)
+      const autoSaveLocal = () => {
+        try { if (data) saveDataLocal(); } catch (_) {}
+      };
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") autoSaveLocal();
+      });
+      window.addEventListener("pagehide", autoSaveLocal);
     })();
   </script>
 </body>
