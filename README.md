@@ -16,15 +16,16 @@ App web progresiva (PWA) para el Club Deportivo **Los Morruos** de bola canaria 
 
 ## Contenido actual (datos de ejemplo)
 - **Inicio**: próximo partido, últimos resultados, clasificación rápida y eventos.
-- **Calendario**: partidos de la temporada.
-- **Clasificación**: tabla de la Liga Insular de Fuerteventura.
-- **Resultados**: histórico de partidos.
-- **Eventos**: partidos + entrenamientos + actos sociales.
+- **Calendario**: partidos separados por **1ª Categoría (Morro Jable A)** y **2ª Categoría (Morro Jable B)**.
+- **Clasificación**: tablas de 1ª y 2ª Categoría.
+- **Resultados**: históricos separados de Morro Jable A y Morro Jable B.
+- **Eventos / Torneos / Ligas / Copa**.
 - **Plantilla**: 8 jugadores de ejemplo.
 - **El Club**: info básica + logo.
 
 ## Cómo actualizar los datos
-Todos los datos de ejemplo están en el `<script>` de `index.html` (arrays `standings`, `matches`, `events` y `players`).  
+Todos los datos de ejemplo están en el `<script>` de `index.html` (arrays `standingsA`/`standingsB`, `matches` con campo `cat: "A"|"B"`, etc.).  
+En Administración → Partidos el formato es: `Fecha|Hora|Rival|Local(1/0)|Resultado|Jornada|Cat(A/B)`.  
 Sustituye los nombres, fechas y resultados por los reales cuando los tengas.
 
 ## Colores

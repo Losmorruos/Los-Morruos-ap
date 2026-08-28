@@ -339,12 +339,34 @@
 
     <section id="tab-calendario" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-4">Calendario</h2>
-      <div class="space-y-3" id="calendario-list"></div>
+      <div class="flex gap-2 mb-4">
+        <button id="btn-cal-cat1" onclick="showCalCategory(1)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg">1ª Categoría</button>
+        <button id="btn-cal-cat2" onclick="showCalCategory(2)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300">2ª Categoría</button>
+      </div>
+      <div id="cal-cat1-block">
+        <p class="text-xs text-gold mb-2 font-medium">Morro Jable A · 1ª Categoría</p>
+        <div class="space-y-3" id="calendario-list-a"></div>
+      </div>
+      <div id="cal-cat2-block" class="hidden">
+        <p class="text-xs text-gold mb-2 font-medium">Morro Jable B · 2ª Categoría</p>
+        <div class="space-y-3" id="calendario-list-b"></div>
+      </div>
     </section>
 
     <section id="tab-resultados" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-4">Resultados</h2>
-      <div class="space-y-3" id="resultados-list"></div>
+      <div class="flex gap-2 mb-4">
+        <button id="btn-res-cat1" onclick="showResCategory(1)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg">Morro Jable A</button>
+        <button id="btn-res-cat2" onclick="showResCategory(2)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300">Morro Jable B</button>
+      </div>
+      <div id="res-cat1-block">
+        <p class="text-xs text-gold mb-2 font-medium">Morro Jable A · 1ª Categoría</p>
+        <div class="space-y-3" id="resultados-list-a"></div>
+      </div>
+      <div id="res-cat2-block" class="hidden">
+        <p class="text-xs text-gold mb-2 font-medium">Morro Jable B · 2ª Categoría</p>
+        <div class="space-y-3" id="resultados-list-b"></div>
+      </div>
     </section>
 
     <section id="tab-jugadores" class="tab-content">
@@ -456,7 +478,7 @@
         <div id="atab-matches" class="admin-tab-content hidden">
           <div class="card p-4 space-y-3">
             <h3 class="font-semibold text-gold">Partidos</h3>
-            <p class="text-xs text-gray-500">Fecha|Hora|Rival|Local(1/0)|Resultado|Jornada<br>Ej: 2026-08-24|18:00|C.D. Corralejo|1|13-9|12</p>
+            <p class="text-xs text-gray-500">Fecha|Hora|Rival|Local(1/0)|Resultado|Jornada|Cat(A/B)<br>Ej: 2026-08-24|18:00|C.D. Corralejo|1|13-9|12|A</p>
             <textarea id="a-matches" class="admin-input h-56 font-mono text-xs"></textarea>
             <button onclick="saveMatches()" class="admin-btn w-full">Guardar partidos</button>
           </div>
@@ -552,14 +574,22 @@
       // compatibilidad con datos antiguos
       standings: [],
       matches: [
-        { date: "2026-09-06", time: "18:00", rival: "C.D. Tefía", home: true, result: null, jornada: 13 },
-        { date: "2026-09-20", time: "17:30", rival: "C.D. Antigua", home: false, result: null, jornada: 14 },
-        { date: "2026-10-04", time: "18:00", rival: "C.D. Pájara", home: true, result: null, jornada: 15 },
-        { date: "2026-08-24", time: "18:00", rival: "C.D. Corralejo", home: true, result: "13-9", jornada: 12 },
-        { date: "2026-08-17", time: "17:00", rival: "C.D. Betancuria", home: false, result: "11-12", jornada: 11 },
-        { date: "2026-08-10", time: "18:00", rival: "C.D. La Oliva", home: true, result: "13-7", jornada: 10 },
-        { date: "2026-08-03", time: "17:30", rival: "C.D. Gran Tarajal", home: false, result: "13-5", jornada: 9 },
-        { date: "2026-07-27", time: "18:00", rival: "C.D. Tefía", home: false, result: "10-13", jornada: 8 },
+        // Morro Jable A · 1ª Categoría
+        { date: "2026-09-06", time: "18:00", rival: "C.D. Tefía", home: true, result: null, jornada: 13, cat: "A" },
+        { date: "2026-09-20", time: "17:30", rival: "C.D. Antigua", home: false, result: null, jornada: 14, cat: "A" },
+        { date: "2026-10-04", time: "18:00", rival: "C.D. Pájara", home: true, result: null, jornada: 15, cat: "A" },
+        { date: "2026-08-24", time: "18:00", rival: "C.D. Corralejo", home: true, result: "13-9", jornada: 12, cat: "A" },
+        { date: "2026-08-17", time: "17:00", rival: "C.D. Betancuria", home: false, result: "11-12", jornada: 11, cat: "A" },
+        { date: "2026-08-10", time: "18:00", rival: "C.D. La Oliva", home: true, result: "13-7", jornada: 10, cat: "A" },
+        { date: "2026-08-03", time: "17:30", rival: "C.D. Gran Tarajal", home: false, result: "13-5", jornada: 9, cat: "A" },
+        { date: "2026-07-27", time: "18:00", rival: "C.D. Tefía", home: false, result: "10-13", jornada: 8, cat: "A" },
+        // Morro Jable B · 2ª Categoría
+        { date: "2026-09-13", time: "17:00", rival: "C.D. Puerto del Rosario B", home: false, result: null, jornada: 11, cat: "B" },
+        { date: "2026-09-27", time: "18:00", rival: "C.D. Corralejo B", home: true, result: null, jornada: 12, cat: "B" },
+        { date: "2026-08-23", time: "17:30", rival: "C.D. Tefía B", home: true, result: "13-8", jornada: 10, cat: "B" },
+        { date: "2026-08-16", time: "17:00", rival: "C.D. Antigua B", home: false, result: "12-11", jornada: 9, cat: "B" },
+        { date: "2026-08-09", time: "18:00", rival: "C.D. La Oliva B", home: true, result: "13-6", jornada: 8, cat: "B" },
+        { date: "2026-08-02", time: "17:00", rival: "C.D. Pájara B", home: false, result: "9-13", jornada: 7, cat: "B" },
       ],
       players: [
         { name: "Juan Pérez", pos: "Tirador", num: 1, age: 34 },
@@ -766,7 +796,8 @@
         const [g1, g2] = m.result.split("-").map(Number);
         const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
         const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
-        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">Los Morruos <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - ${m.home ? g2 : g1} ${m.rival}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)}</p></div><span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
+        const us = (m.cat === "B") ? "Morro Jable B" : "Morro Jable A";
+        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${us} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - ${m.home ? g2 : g1} ${m.rival}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)}</p></div><span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
       }).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
 
       const rowHome = (s, club) => `
@@ -828,28 +859,67 @@
       document.getElementById("standings-body-b").innerHTML = getStandingsB().map(rowStanding).join("") || '<tr><td colspan="7" class="py-4 px-3 text-gray-500 text-sm">Sin clasificación</td></tr>';
     }
 
-    function renderCalendario() {
-      const sorted = [...(data.matches || [])].sort((a, b) => a.date.localeCompare(b.date));
-      document.getElementById("calendario-list").innerHTML = sorted.map(m => {
-        const isPast = !!m.result;
-        const [g1, g2] = m.result ? m.result.split("-").map(Number) : [null, null];
-        const won = isPast && ((m.home && g1 > g2) || (!m.home && g2 > g1));
-        const lost = isPast && ((m.home && g1 < g2) || (!m.home && g2 < g1));
-        return `<div class="card p-3"><div class="flex justify-between mb-1"><span class="text-[11px] text-gray-500">Jornada ${m.jornada || "—"}</span><span class="text-[11px] ${isPast ? 'text-gray-500' : 'text-gold'}">${formatDate(m.date)} · ${m.time || ""}</span></div>
-          <div class="flex items-center justify-between"><p class="font-medium text-sm">${m.home ? '<span class="text-gold">Los Morruos</span>' : m.rival}${isPast ? ` <span class="text-gold">${m.home ? g1 : g2}</span>` : ''}<span class="text-gray-500 mx-1">vs</span>${m.home ? m.rival : '<span class="text-gold">Los Morruos</span>'}${isPast ? ` <span class="text-gold">${m.home ? g2 : g1}</span>` : ''}</p>
-          ${isPast ? `<span class="text-[11px] px-2 py-0.5 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span>` : '<span class="text-[11px] text-gold">Pendiente</span>'}</div></div>`;
-      }).join("") || '<p class="text-sm text-gray-500">Sin partidos</p>';
+    function teamLabel(cat) {
+      return (cat === "B") ? "Morro Jable B" : "Morro Jable A";
     }
-
+    function matchCard(m) {
+      const isPast = !!m.result;
+      const [g1, g2] = m.result ? m.result.split("-").map(Number) : [null, null];
+      const won = isPast && ((m.home && g1 > g2) || (!m.home && g2 > g1));
+      const lost = isPast && ((m.home && g1 < g2) || (!m.home && g2 < g1));
+      const us = teamLabel(m.cat);
+      return `<div class="card p-3"><div class="flex justify-between mb-1"><span class="text-[11px] text-gray-500">Jornada ${m.jornada || "—"}</span><span class="text-[11px] ${isPast ? 'text-gray-500' : 'text-gold'}">${formatDate(m.date)} · ${m.time || ""}</span></div>
+        <div class="flex items-center justify-between"><p class="font-medium text-sm">${m.home ? `<span class="text-gold">${us}</span>` : m.rival}${isPast ? ` <span class="text-gold">${m.home ? g1 : g2}</span>` : ''}<span class="text-gray-500 mx-1">vs</span>${m.home ? m.rival : `<span class="text-gold">${us}</span>`}${isPast ? ` <span class="text-gold">${m.home ? g2 : g1}</span>` : ''}</p>
+        ${isPast ? `<span class="text-[11px] px-2 py-0.5 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span>` : '<span class="text-[11px] text-gold">Pendiente</span>'}</div></div>`;
+    }
+    function resultCard(m) {
+      const [g1, g2] = m.result.split("-").map(Number);
+      const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
+      const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
+      const us = teamLabel(m.cat);
+      return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${m.home ? us : m.rival} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - <span class="text-gold font-bold">${m.home ? g2 : g1}</span> ${m.home ? m.rival : us}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)} · Jornada ${m.jornada || "—"}</p></div>
+        <span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
+    }
+    function getMatchesByCat(cat) {
+      return (data.matches || []).filter(m => (m.cat || "A") === cat);
+    }
+    function showCalCategory(n) {
+      document.getElementById("cal-cat1-block").classList.toggle("hidden", n !== 1);
+      document.getElementById("cal-cat2-block").classList.toggle("hidden", n !== 2);
+      const b1 = document.getElementById("btn-cal-cat1");
+      const b2 = document.getElementById("btn-cal-cat2");
+      if (n === 1) {
+        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
+        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
+      } else {
+        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
+        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
+      }
+    }
+    function showResCategory(n) {
+      document.getElementById("res-cat1-block").classList.toggle("hidden", n !== 1);
+      document.getElementById("res-cat2-block").classList.toggle("hidden", n !== 2);
+      const b1 = document.getElementById("btn-res-cat1");
+      const b2 = document.getElementById("btn-res-cat2");
+      if (n === 1) {
+        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
+        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
+      } else {
+        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
+        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
+      }
+    }
+    function renderCalendario() {
+      const sortedA = getMatchesByCat("A").sort((a, b) => a.date.localeCompare(b.date));
+      const sortedB = getMatchesByCat("B").sort((a, b) => a.date.localeCompare(b.date));
+      document.getElementById("calendario-list-a").innerHTML = sortedA.map(matchCard).join("") || '<p class="text-sm text-gray-500">Sin partidos</p>';
+      document.getElementById("calendario-list-b").innerHTML = sortedB.map(matchCard).join("") || '<p class="text-sm text-gray-500">Sin partidos</p>';
+    }
     function renderResultados() {
-      const past = (data.matches || []).filter(m => m.result).sort((a, b) => b.date.localeCompare(a.date));
-      document.getElementById("resultados-list").innerHTML = past.map(m => {
-        const [g1, g2] = m.result.split("-").map(Number);
-        const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
-        const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
-        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${m.home ? 'Los Morruos' : m.rival} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - <span class="text-gold font-bold">${m.home ? g2 : g1}</span> ${m.home ? m.rival : 'Los Morruos'}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)} · Jornada ${m.jornada || "—"}</p></div>
-          <span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
-      }).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
+      const pastA = getMatchesByCat("A").filter(m => m.result).sort((a, b) => b.date.localeCompare(a.date));
+      const pastB = getMatchesByCat("B").filter(m => m.result).sort((a, b) => b.date.localeCompare(a.date));
+      document.getElementById("resultados-list-a").innerHTML = pastA.map(resultCard).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
+      document.getElementById("resultados-list-b").innerHTML = pastB.map(resultCard).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
     }
 
     function renderPlayers() {
@@ -977,7 +1047,7 @@
       const elB = document.getElementById("a-standings-b");
       if (elA) elA.value = getStandingsA().map(fmt).join("\n");
       if (elB) elB.value = getStandingsB().map(fmt).join("\n");
-      document.getElementById("a-matches").value = (data.matches || []).map(m => `${m.date}|${m.time || ""}|${m.rival}|${m.home ? 1 : 0}|${m.result || ""}|${m.jornada || ""}`).join("\n");
+      document.getElementById("a-matches").value = (data.matches || []).map(m => `${m.date}|${m.time || ""}|${m.rival}|${m.home ? 1 : 0}|${m.result || ""}|${m.jornada || ""}|${m.cat || "A"}`).join("\n");
       document.getElementById("a-players").value = (data.players || []).map(p => `${p.name}|${p.pos}|${p.num}|${p.age}`).join("\n");
       document.getElementById("a-news").value = (data.news || []).map(n => `${n.date}|${n.title}|${n.text}`).join("\n");
       document.getElementById("a-club-about").value = data.club?.about || "";
@@ -1022,8 +1092,15 @@
     }
     async function saveMatches() {
       data.matches = document.getElementById("a-matches").value.trim().split("\n").filter(Boolean).map(line => {
-        const [date, time, rival, home, result, jornada] = line.split("|").map(s => s.trim());
-        return { date, time, rival, home: home === "1" || home === "true", result: result || null, jornada: jornada ? +jornada : null };
+        const parts = line.split("|").map(s => s.trim());
+        const [date, time, rival, home, result, jornada, cat] = parts;
+        return {
+          date, time, rival,
+          home: home === "1" || home === "true",
+          result: result || null,
+          jornada: jornada ? +jornada : null,
+          cat: (cat === "B" || cat === "b") ? "B" : "A"
+        };
       });
       await afterSave("Partidos guardados ✓");
     }
