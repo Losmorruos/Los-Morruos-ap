@@ -609,8 +609,8 @@
     // Rellena esto UNA VEZ con tu usuario y repositorio de GitHub.
     // Ejemplo: si tu repo es https://github.com/juanperez/los-morruos-datos
     // entonces GITHUB_OWNER = "juanperez" y GITHUB_REPO = "los-morruos-datos"
-    const GITHUB_OWNER = "Losmorruos";
-    const GITHUB_REPO = "Los-Morruos-ap";
+    const GITHUB_OWNER = "TU-USUARIO";
+    const GITHUB_REPO = "TU-REPOSITORIO";
     const GITHUB_BRANCH = "main";
     const GITHUB_PATH = "data.json";
 
@@ -664,6 +664,19 @@
 
     // Escribe data.json directamente en el repositorio usando la API de GitHub.
     // Requiere un token de acceso personal con permiso de escritura en "Contents".
+    async function fetchCurrentSha(headers) {
+      const getRes = await fetch(githubApiUrl() + "?ref=" + encodeURIComponent(remoteCfg.branch), { headers, cache: "no-store" });
+      if (getRes.ok) {
+        const json = await getRes.json();
+        return json.sha || null;
+      } else if (getRes.status === 404) {
+        return null;
+      } else {
+        const t = await getRes.text();
+        throw new Error("Error al leer el archivo actual: " + getRes.status + " " + t);
+      }
+    }
+
     async function pushRemote() {
       if (!githubConfigured()) {
         return { ok: false, msg: "Configura primero tu usuario y repositorio de GitHub." };
@@ -671,38 +684,34 @@
       if (!remoteCfg.token) {
         return { ok: false, msg: "Pega tu token de acceso personal de GitHub para poder publicar desde la app." };
       }
+      const headers = {
+        "Authorization": "Bearer " + remoteCfg.token,
+        "Accept": "application/vnd.github+json"
+      };
       try {
-        const headers = {
-          "Authorization": "Bearer " + remoteCfg.token,
-          "Accept": "application/vnd.github+json"
-        };
-        // 1) Obtener el sha actual del archivo (obligatorio para actualizarlo)
-        let sha = null;
-        const getRes = await fetch(githubApiUrl() + "?ref=" + encodeURIComponent(remoteCfg.branch), { headers });
-        if (getRes.ok) {
-          const json = await getRes.json();
-          sha = json.sha || null;
-        } else if (getRes.status !== 404) {
-          const t = await getRes.text();
-          return { ok: false, msg: "Error al leer el archivo actual: " + getRes.status + " " + t };
-        }
-        // 2) Escribir el archivo nuevo (crea o actualiza según si había sha)
-        const body = {
-          message: "Actualizar datos desde la app (" + new Date().toISOString() + ")",
-          content: utf8ToBase64(JSON.stringify(data, null, 2)),
-          branch: remoteCfg.branch
-        };
-        if (sha) body.sha = sha;
-        const putRes = await fetch(githubApiUrl(), {
-          method: "PUT",
-          headers: { ...headers, "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        if (!putRes.ok) {
+        // Intenta publicar; si el sha ha cambiado mientras tanto (409), vuelve a leerlo y reintenta una vez.
+        for (let attempt = 0; attempt < 2; attempt++) {
+          const sha = await fetchCurrentSha(headers);
+          const body = {
+            message: "Actualizar datos desde la app (" + new Date().toISOString() + ")",
+            content: utf8ToBase64(JSON.stringify(data, null, 2)),
+            branch: remoteCfg.branch
+          };
+          if (sha) body.sha = sha;
+          const putRes = await fetch(githubApiUrl(), {
+            method: "PUT",
+            headers: { ...headers, "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+          if (putRes.ok) {
+            return { ok: true, msg: "Publicado en GitHub ✓\nTodos los dispositivos verán el cambio en unos segundos." };
+          }
+          if (putRes.status === 409 && attempt === 0) {
+            continue; // reintenta con el sha actualizado
+          }
           const t = await putRes.text();
           return { ok: false, msg: "Error al publicar: " + putRes.status + " " + t };
         }
-        return { ok: true, msg: "Publicado en GitHub ✓\nTodos los dispositivos verán el cambio en unos segundos." };
       } catch (e) {
         return { ok: false, msg: "Error: " + e.message };
       }
