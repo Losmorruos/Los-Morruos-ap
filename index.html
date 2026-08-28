@@ -339,34 +339,12 @@
 
     <section id="tab-calendario" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-4">Calendario</h2>
-      <div class="flex gap-2 mb-4">
-        <button id="btn-cal-cat1" onclick="showCalCategory(1)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg">1ª Categoría</button>
-        <button id="btn-cal-cat2" onclick="showCalCategory(2)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300">2ª Categoría</button>
-      </div>
-      <div id="cal-cat1-block">
-        <p class="text-xs text-gold mb-2 font-medium">Morro Jable A · 1ª Categoría</p>
-        <div class="space-y-3" id="calendario-list-a"></div>
-      </div>
-      <div id="cal-cat2-block" class="hidden">
-        <p class="text-xs text-gold mb-2 font-medium">Morro Jable B · 2ª Categoría</p>
-        <div class="space-y-3" id="calendario-list-b"></div>
-      </div>
+      <div class="space-y-3" id="calendario-list"></div>
     </section>
 
     <section id="tab-resultados" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-4">Resultados</h2>
-      <div class="flex gap-2 mb-4">
-        <button id="btn-res-cat1" onclick="showResCategory(1)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg">Morro Jable A</button>
-        <button id="btn-res-cat2" onclick="showResCategory(2)" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300">Morro Jable B</button>
-      </div>
-      <div id="res-cat1-block">
-        <p class="text-xs text-gold mb-2 font-medium">Morro Jable A · 1ª Categoría</p>
-        <div class="space-y-3" id="resultados-list-a"></div>
-      </div>
-      <div id="res-cat2-block" class="hidden">
-        <p class="text-xs text-gold mb-2 font-medium">Morro Jable B · 2ª Categoría</p>
-        <div class="space-y-3" id="resultados-list-b"></div>
-      </div>
+      <div class="space-y-3" id="resultados-list"></div>
     </section>
 
     <section id="tab-jugadores" class="tab-content">
@@ -478,7 +456,7 @@
         <div id="atab-matches" class="admin-tab-content hidden">
           <div class="card p-4 space-y-3">
             <h3 class="font-semibold text-gold">Partidos</h3>
-            <p class="text-xs text-gray-500">Fecha|Hora|Rival|Local(1/0)|Resultado|Jornada|Cat(A/B)<br>Ej: 2026-08-24|18:00|C.D. Corralejo|1|13-9|12|A</p>
+            <p class="text-xs text-gray-500">Fecha|Hora|Rival|Local(1/0)|Resultado|Jornada<br>Ej: 2026-08-24|18:00|C.D. Corralejo|1|13-9|12</p>
             <textarea id="a-matches" class="admin-input h-56 font-mono text-xs"></textarea>
             <button onclick="saveMatches()" class="admin-btn w-full">Guardar partidos</button>
           </div>
@@ -515,24 +493,32 @@
         </div>
 
         <div class="card p-4 space-y-3">
-          <h3 class="font-semibold text-gold text-sm">Sincronización online (para que todos vean los cambios)</h3>
+          <h3 class="font-semibold text-gold text-sm">Publicar cambios a todos (GitHub)</h3>
           <p class="text-[11px] text-gray-500 leading-relaxed">
-            1. Entra en <strong>jsonbin.io</strong> (gratis) → CLAVES API.<br>
-            2. Copia solo tu <strong>Master Key</strong> y pégala abajo.<br>
-            3. Pulsa <strong>Guardar y publicar</strong> (la app crea el contenedor sola).<br>
-            4. Si te muestra un Bin ID, cópialo y envíamelo.
+            Configura esto una vez en tu móvil. A partir de ahí, cada vez que pulses "Guardar" en cualquier pestaña,
+            la app escribirá directamente el archivo <strong>data.json</strong> en tu repositorio de GitHub, y todos
+            los que abran la app verán el cambio.
           </p>
           <div>
-            <label class="text-xs text-gray-400">Master Key (obligatoria)</label>
-            <input id="a-api-key" type="password" class="admin-input mt-1" placeholder="Pega aquí la Master Key" />
+            <label class="text-xs text-gray-400">Usuario de GitHub</label>
+            <input id="a-gh-owner" class="admin-input mt-1" placeholder="ej. juanperez" />
           </div>
           <div>
-            <label class="text-xs text-gray-400">Bin ID (se rellena solo al publicar)</label>
-            <input id="a-bin-id" class="admin-input mt-1" placeholder="Se crea automáticamente" />
+            <label class="text-xs text-gray-400">Repositorio</label>
+            <input id="a-gh-repo" class="admin-input mt-1" placeholder="ej. los-morruos-datos" />
           </div>
-          <button onclick="saveRemoteSettings()" class="admin-btn w-full">Guardar y publicar</button>
-          <button onclick="publishNow()" class="admin-btn-secondary w-full">Publicar datos ahora</button>
-          <button onclick="clearRemoteCfg()" class="admin-btn-secondary admin-btn-danger w-full">Borrar configuración online</button>
+          <div>
+            <label class="text-xs text-gray-400">Rama (branch)</label>
+            <input id="a-gh-branch" class="admin-input mt-1" placeholder="main" />
+          </div>
+          <div>
+            <label class="text-xs text-gray-400">Token de acceso personal (fine-grained, con permiso de escritura en "Contents")</label>
+            <input id="a-gh-token" type="password" class="admin-input mt-1" placeholder="github_pat_..." />
+          </div>
+          <button onclick="saveGithubSettings()" class="admin-btn w-full">Guardar configuración</button>
+          <button onclick="publishNow()" class="admin-btn-secondary w-full">Publicar ahora en GitHub</button>
+          <button onclick="window.open(githubEditUrl(), '_blank')" class="admin-btn-secondary w-full">Editar data.json en GitHub (manual)</button>
+          <button onclick="clearGithubToken()" class="admin-btn-secondary admin-btn-danger w-full">Borrar token de este dispositivo</button>
           <p id="sync-status" class="text-[11px] text-gray-500 text-center"></p>
         </div>
 
@@ -574,22 +560,14 @@
       // compatibilidad con datos antiguos
       standings: [],
       matches: [
-        // Morro Jable A · 1ª Categoría
-        { date: "2026-09-06", time: "18:00", rival: "C.D. Tefía", home: true, result: null, jornada: 13, cat: "A" },
-        { date: "2026-09-20", time: "17:30", rival: "C.D. Antigua", home: false, result: null, jornada: 14, cat: "A" },
-        { date: "2026-10-04", time: "18:00", rival: "C.D. Pájara", home: true, result: null, jornada: 15, cat: "A" },
-        { date: "2026-08-24", time: "18:00", rival: "C.D. Corralejo", home: true, result: "13-9", jornada: 12, cat: "A" },
-        { date: "2026-08-17", time: "17:00", rival: "C.D. Betancuria", home: false, result: "11-12", jornada: 11, cat: "A" },
-        { date: "2026-08-10", time: "18:00", rival: "C.D. La Oliva", home: true, result: "13-7", jornada: 10, cat: "A" },
-        { date: "2026-08-03", time: "17:30", rival: "C.D. Gran Tarajal", home: false, result: "13-5", jornada: 9, cat: "A" },
-        { date: "2026-07-27", time: "18:00", rival: "C.D. Tefía", home: false, result: "10-13", jornada: 8, cat: "A" },
-        // Morro Jable B · 2ª Categoría
-        { date: "2026-09-13", time: "17:00", rival: "C.D. Puerto del Rosario B", home: false, result: null, jornada: 11, cat: "B" },
-        { date: "2026-09-27", time: "18:00", rival: "C.D. Corralejo B", home: true, result: null, jornada: 12, cat: "B" },
-        { date: "2026-08-23", time: "17:30", rival: "C.D. Tefía B", home: true, result: "13-8", jornada: 10, cat: "B" },
-        { date: "2026-08-16", time: "17:00", rival: "C.D. Antigua B", home: false, result: "12-11", jornada: 9, cat: "B" },
-        { date: "2026-08-09", time: "18:00", rival: "C.D. La Oliva B", home: true, result: "13-6", jornada: 8, cat: "B" },
-        { date: "2026-08-02", time: "17:00", rival: "C.D. Pájara B", home: false, result: "9-13", jornada: 7, cat: "B" },
+        { date: "2026-09-06", time: "18:00", rival: "C.D. Tefía", home: true, result: null, jornada: 13 },
+        { date: "2026-09-20", time: "17:30", rival: "C.D. Antigua", home: false, result: null, jornada: 14 },
+        { date: "2026-10-04", time: "18:00", rival: "C.D. Pájara", home: true, result: null, jornada: 15 },
+        { date: "2026-08-24", time: "18:00", rival: "C.D. Corralejo", home: true, result: "13-9", jornada: 12 },
+        { date: "2026-08-17", time: "17:00", rival: "C.D. Betancuria", home: false, result: "11-12", jornada: 11 },
+        { date: "2026-08-10", time: "18:00", rival: "C.D. La Oliva", home: true, result: "13-7", jornada: 10 },
+        { date: "2026-08-03", time: "17:30", rival: "C.D. Gran Tarajal", home: false, result: "13-5", jornada: 9 },
+        { date: "2026-07-27", time: "18:00", rival: "C.D. Tefía", home: false, result: "10-13", jornada: 8 },
       ],
       players: [
         { name: "Juan Pérez", pos: "Tirador", num: 1, age: 34 },
@@ -624,36 +602,57 @@
     const ADMIN_PASS = "morruos2026";
     const STORAGE_KEY = "morruos_data_v1";
     const REMOTE_CFG_KEY = "morruos_remote_cfg";
-    // Bin ID compartido (se rellena al publicar; también se puede pegar a mano)
     let data = null;
     let adminOk = false;
-    const DEFAULT_BIN_ID = "6a90afa0f5f4af5e294b62be";
-    let remoteCfg = { binId: DEFAULT_BIN_ID, apiKey: "" };
+
+    // ── Configuración del repositorio de GitHub donde vive data.json ──
+    // Rellena esto UNA VEZ con tu usuario y repositorio de GitHub.
+    // Ejemplo: si tu repo es https://github.com/juanperez/los-morruos-datos
+    // entonces GITHUB_OWNER = "juanperez" y GITHUB_REPO = "los-morruos-datos"
+    const GITHUB_OWNER = "TU-USUARIO";
+    const GITHUB_REPO = "TU-REPOSITORIO";
+    const GITHUB_BRANCH = "main";
+    const GITHUB_PATH = "data.json";
+
+    let remoteCfg = { owner: GITHUB_OWNER, repo: GITHUB_REPO, branch: GITHUB_BRANCH, path: GITHUB_PATH, token: "" };
 
     function loadRemoteCfg() {
       try {
         const raw = localStorage.getItem(REMOTE_CFG_KEY);
-        if (raw) remoteCfg = { binId: "", apiKey: "", ...JSON.parse(raw) };
+        if (raw) remoteCfg = { ...remoteCfg, ...JSON.parse(raw) };
       } catch {}
-      if (!remoteCfg.binId) remoteCfg.binId = DEFAULT_BIN_ID;
     }
     function saveRemoteCfg() {
-      localStorage.setItem(REMOTE_CFG_KEY, JSON.stringify({
-        binId: (remoteCfg.binId || "").trim(),
-        apiKey: (remoteCfg.apiKey || "").trim()
-      }));
+      localStorage.setItem(REMOTE_CFG_KEY, JSON.stringify(remoteCfg));
+    }
+    function githubConfigured() {
+      return remoteCfg.owner && remoteCfg.repo && remoteCfg.owner !== "TU-USUARIO" && remoteCfg.repo !== "TU-REPOSITORIO";
+    }
+    function githubWriteConfigured() {
+      return githubConfigured() && !!remoteCfg.token;
+    }
+    function githubRawUrl() {
+      return `https://raw.githubusercontent.com/${remoteCfg.owner}/${remoteCfg.repo}/${remoteCfg.branch}/${remoteCfg.path}?t=${Date.now()}`;
+    }
+    function githubApiUrl() {
+      return `https://api.github.com/repos/${remoteCfg.owner}/${remoteCfg.repo}/contents/${remoteCfg.path}`;
+    }
+    function githubEditUrl() {
+      return `https://github.com/${remoteCfg.owner}/${remoteCfg.repo}/edit/${remoteCfg.branch}/${remoteCfg.path}`;
+    }
+    // Codifica un string UTF-8 (con acentos, emojis, etc.) a base64 de forma segura.
+    function utf8ToBase64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
     }
 
+    // Descarga siempre la versión más reciente de data.json publicada en GitHub.
+    // El parámetro ?t= evita que el navegador o GitHub sirvan una copia en caché.
     async function fetchRemote() {
-      const binId = (remoteCfg.binId || DEFAULT_BIN_ID || "").trim();
-      if (!binId) return null;
+      if (!githubConfigured()) return null;
       try {
-        const headers = { "X-Bin-Meta": "false" };
-        if (remoteCfg.apiKey) headers["X-Master-Key"] = remoteCfg.apiKey;
-        const res = await fetch("https://api.jsonbin.io/v3/b/" + binId + "/latest", { headers });
+        const res = await fetch(githubRawUrl(), { cache: "no-store" });
         if (!res.ok) return null;
-        const json = await res.json();
-        const record = json.record || json;
+        const record = await res.json();
         if (!record || typeof record !== "object") return null;
         if (!record.standings && !record.standingsA && !record.matches && !record.nextMatch && !record.players) return null;
         return record;
@@ -663,66 +662,47 @@
       }
     }
 
-    async function createPublicBin() {
-      const res = await fetch("https://api.jsonbin.io/v3/b", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": remoteCfg.apiKey,
-          "X-Bin-Private": "false",
-          "X-Bin-Name": "Los Morruos App"
-        },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) {
-        const t = await res.text();
-        throw new Error(res.status + " " + t);
-      }
-      const json = await res.json();
-      const id = json?.metadata?.id || json?.id;
-      if (!id) throw new Error("No se recibió Bin ID");
-      return id;
-    }
-
+    // Escribe data.json directamente en el repositorio usando la API de GitHub.
+    // Requiere un token de acceso personal con permiso de escritura en "Contents".
     async function pushRemote() {
-      if (!remoteCfg.apiKey) {
-        return { ok: false, msg: "Pega tu Master Key en Sincronización." };
+      if (!githubConfigured()) {
+        return { ok: false, msg: "Configura primero tu usuario y repositorio de GitHub." };
+      }
+      if (!remoteCfg.token) {
+        return { ok: false, msg: "Pega tu token de acceso personal de GitHub para poder publicar desde la app." };
       }
       try {
-        let binId = (remoteCfg.binId || "").trim();
-        // Si no hay bin o el actual falla, crear uno público nuevo
-        if (!binId) {
-          binId = await createPublicBin();
-          remoteCfg.binId = binId;
-          saveRemoteCfg();
-          const binInput = document.getElementById("a-bin-id");
-          if (binInput) binInput.value = binId;
-          return { ok: true, msg: "Contenedor creado y datos publicados ✓\n\nBin ID: " + binId + "\n\nCopia este Bin ID y envíamelo para que todos vean los cambios." };
+        const headers = {
+          "Authorization": "Bearer " + remoteCfg.token,
+          "Accept": "application/vnd.github+json"
+        };
+        // 1) Obtener el sha actual del archivo (obligatorio para actualizarlo)
+        let sha = null;
+        const getRes = await fetch(githubApiUrl() + "?ref=" + encodeURIComponent(remoteCfg.branch), { headers });
+        if (getRes.ok) {
+          const json = await getRes.json();
+          sha = json.sha || null;
+        } else if (getRes.status !== 404) {
+          const t = await getRes.text();
+          return { ok: false, msg: "Error al leer el archivo actual: " + getRes.status + " " + t };
         }
-        const res = await fetch("https://api.jsonbin.io/v3/b/" + binId, {
+        // 2) Escribir el archivo nuevo (crea o actualiza según si había sha)
+        const body = {
+          message: "Actualizar datos desde la app (" + new Date().toISOString() + ")",
+          content: utf8ToBase64(JSON.stringify(data, null, 2)),
+          branch: remoteCfg.branch
+        };
+        if (sha) body.sha = sha;
+        const putRes = await fetch(githubApiUrl(), {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Master-Key": remoteCfg.apiKey,
-            "X-Bin-Private": "false",
-            "X-Bin-Versioning": "false"
-          },
-          body: JSON.stringify(data)
+          headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify(body)
         });
-        if (!res.ok) {
-          // Si el bin no existe, crear uno nuevo
-          if (res.status === 404) {
-            binId = await createPublicBin();
-            remoteCfg.binId = binId;
-            saveRemoteCfg();
-            const binInput = document.getElementById("a-bin-id");
-            if (binInput) binInput.value = binId;
-            return { ok: true, msg: "Se creó un contenedor nuevo y se publicaron los datos ✓\n\nBin ID: " + binId + "\n\nCopia este Bin ID y envíamelo." };
-          }
-          const t = await res.text();
-          return { ok: false, msg: "Error al publicar: " + res.status + " " + t };
+        if (!putRes.ok) {
+          const t = await putRes.text();
+          return { ok: false, msg: "Error al publicar: " + putRes.status + " " + t };
         }
-        return { ok: true, msg: "Publicado online ✓\nBin ID: " + binId };
+        return { ok: true, msg: "Publicado en GitHub ✓\nTodos los dispositivos verán el cambio en unos segundos." };
       } catch (e) {
         return { ok: false, msg: "Error: " + e.message };
       }
@@ -763,8 +743,13 @@
 
     async function saveData() {
       saveDataLocal();
-      if (remoteCfg.apiKey) return await pushRemote();
-      return { ok: true, msg: "Guardado en este dispositivo. Pega la Master Key en Sincronización para publicarlo a todos." };
+      if (githubWriteConfigured()) return await pushRemote();
+      return {
+        ok: true,
+        msg: githubConfigured()
+          ? "Guardado en este dispositivo. Pega tu token de GitHub en Sincronización para publicarlo a todos automáticamente."
+          : "Guardado en este dispositivo. Configura tu repositorio y token de GitHub en Sincronización para publicar los cambios a todos."
+      };
     }
 
     function formatDate(iso) {
@@ -796,8 +781,7 @@
         const [g1, g2] = m.result.split("-").map(Number);
         const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
         const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
-        const us = (m.cat === "B") ? "Morro Jable B" : "Morro Jable A";
-        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${us} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - ${m.home ? g2 : g1} ${m.rival}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)}</p></div><span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
+        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">Los Morruos <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - ${m.home ? g2 : g1} ${m.rival}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)}</p></div><span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
       }).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
 
       const rowHome = (s, club) => `
@@ -859,67 +843,28 @@
       document.getElementById("standings-body-b").innerHTML = getStandingsB().map(rowStanding).join("") || '<tr><td colspan="7" class="py-4 px-3 text-gray-500 text-sm">Sin clasificación</td></tr>';
     }
 
-    function teamLabel(cat) {
-      return (cat === "B") ? "Morro Jable B" : "Morro Jable A";
-    }
-    function matchCard(m) {
-      const isPast = !!m.result;
-      const [g1, g2] = m.result ? m.result.split("-").map(Number) : [null, null];
-      const won = isPast && ((m.home && g1 > g2) || (!m.home && g2 > g1));
-      const lost = isPast && ((m.home && g1 < g2) || (!m.home && g2 < g1));
-      const us = teamLabel(m.cat);
-      return `<div class="card p-3"><div class="flex justify-between mb-1"><span class="text-[11px] text-gray-500">Jornada ${m.jornada || "—"}</span><span class="text-[11px] ${isPast ? 'text-gray-500' : 'text-gold'}">${formatDate(m.date)} · ${m.time || ""}</span></div>
-        <div class="flex items-center justify-between"><p class="font-medium text-sm">${m.home ? `<span class="text-gold">${us}</span>` : m.rival}${isPast ? ` <span class="text-gold">${m.home ? g1 : g2}</span>` : ''}<span class="text-gray-500 mx-1">vs</span>${m.home ? m.rival : `<span class="text-gold">${us}</span>`}${isPast ? ` <span class="text-gold">${m.home ? g2 : g1}</span>` : ''}</p>
-        ${isPast ? `<span class="text-[11px] px-2 py-0.5 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span>` : '<span class="text-[11px] text-gold">Pendiente</span>'}</div></div>`;
-    }
-    function resultCard(m) {
-      const [g1, g2] = m.result.split("-").map(Number);
-      const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
-      const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
-      const us = teamLabel(m.cat);
-      return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${m.home ? us : m.rival} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - <span class="text-gold font-bold">${m.home ? g2 : g1}</span> ${m.home ? m.rival : us}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)} · Jornada ${m.jornada || "—"}</p></div>
-        <span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
-    }
-    function getMatchesByCat(cat) {
-      return (data.matches || []).filter(m => (m.cat || "A") === cat);
-    }
-    function showCalCategory(n) {
-      document.getElementById("cal-cat1-block").classList.toggle("hidden", n !== 1);
-      document.getElementById("cal-cat2-block").classList.toggle("hidden", n !== 2);
-      const b1 = document.getElementById("btn-cal-cat1");
-      const b2 = document.getElementById("btn-cal-cat2");
-      if (n === 1) {
-        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
-        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
-      } else {
-        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
-        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
-      }
-    }
-    function showResCategory(n) {
-      document.getElementById("res-cat1-block").classList.toggle("hidden", n !== 1);
-      document.getElementById("res-cat2-block").classList.toggle("hidden", n !== 2);
-      const b1 = document.getElementById("btn-res-cat1");
-      const b2 = document.getElementById("btn-res-cat2");
-      if (n === 1) {
-        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
-        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
-      } else {
-        b2.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gold text-dark-bg";
-        b1.className = "flex-1 py-2.5 rounded-xl text-sm font-semibold bg-dark-card border border-dark-border text-gray-300";
-      }
-    }
     function renderCalendario() {
-      const sortedA = getMatchesByCat("A").sort((a, b) => a.date.localeCompare(b.date));
-      const sortedB = getMatchesByCat("B").sort((a, b) => a.date.localeCompare(b.date));
-      document.getElementById("calendario-list-a").innerHTML = sortedA.map(matchCard).join("") || '<p class="text-sm text-gray-500">Sin partidos</p>';
-      document.getElementById("calendario-list-b").innerHTML = sortedB.map(matchCard).join("") || '<p class="text-sm text-gray-500">Sin partidos</p>';
+      const sorted = [...(data.matches || [])].sort((a, b) => a.date.localeCompare(b.date));
+      document.getElementById("calendario-list").innerHTML = sorted.map(m => {
+        const isPast = !!m.result;
+        const [g1, g2] = m.result ? m.result.split("-").map(Number) : [null, null];
+        const won = isPast && ((m.home && g1 > g2) || (!m.home && g2 > g1));
+        const lost = isPast && ((m.home && g1 < g2) || (!m.home && g2 < g1));
+        return `<div class="card p-3"><div class="flex justify-between mb-1"><span class="text-[11px] text-gray-500">Jornada ${m.jornada || "—"}</span><span class="text-[11px] ${isPast ? 'text-gray-500' : 'text-gold'}">${formatDate(m.date)} · ${m.time || ""}</span></div>
+          <div class="flex items-center justify-between"><p class="font-medium text-sm">${m.home ? '<span class="text-gold">Los Morruos</span>' : m.rival}${isPast ? ` <span class="text-gold">${m.home ? g1 : g2}</span>` : ''}<span class="text-gray-500 mx-1">vs</span>${m.home ? m.rival : '<span class="text-gold">Los Morruos</span>'}${isPast ? ` <span class="text-gold">${m.home ? g2 : g1}</span>` : ''}</p>
+          ${isPast ? `<span class="text-[11px] px-2 py-0.5 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span>` : '<span class="text-[11px] text-gold">Pendiente</span>'}</div></div>`;
+      }).join("") || '<p class="text-sm text-gray-500">Sin partidos</p>';
     }
+
     function renderResultados() {
-      const pastA = getMatchesByCat("A").filter(m => m.result).sort((a, b) => b.date.localeCompare(a.date));
-      const pastB = getMatchesByCat("B").filter(m => m.result).sort((a, b) => b.date.localeCompare(a.date));
-      document.getElementById("resultados-list-a").innerHTML = pastA.map(resultCard).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
-      document.getElementById("resultados-list-b").innerHTML = pastB.map(resultCard).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
+      const past = (data.matches || []).filter(m => m.result).sort((a, b) => b.date.localeCompare(a.date));
+      document.getElementById("resultados-list").innerHTML = past.map(m => {
+        const [g1, g2] = m.result.split("-").map(Number);
+        const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
+        const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
+        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${m.home ? 'Los Morruos' : m.rival} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - <span class="text-gold font-bold">${m.home ? g2 : g1}</span> ${m.home ? m.rival : 'Los Morruos'}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)} · Jornada ${m.jornada || "—"}</p></div>
+          <span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
+      }).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
     }
 
     function renderPlayers() {
@@ -1047,7 +992,7 @@
       const elB = document.getElementById("a-standings-b");
       if (elA) elA.value = getStandingsA().map(fmt).join("\n");
       if (elB) elB.value = getStandingsB().map(fmt).join("\n");
-      document.getElementById("a-matches").value = (data.matches || []).map(m => `${m.date}|${m.time || ""}|${m.rival}|${m.home ? 1 : 0}|${m.result || ""}|${m.jornada || ""}|${m.cat || "A"}`).join("\n");
+      document.getElementById("a-matches").value = (data.matches || []).map(m => `${m.date}|${m.time || ""}|${m.rival}|${m.home ? 1 : 0}|${m.result || ""}|${m.jornada || ""}`).join("\n");
       document.getElementById("a-players").value = (data.players || []).map(p => `${p.name}|${p.pos}|${p.num}|${p.age}`).join("\n");
       document.getElementById("a-news").value = (data.news || []).map(n => `${n.date}|${n.title}|${n.text}`).join("\n");
       document.getElementById("a-club-about").value = data.club?.about || "";
@@ -1055,12 +1000,20 @@
       document.getElementById("a-ig").value = data.club?.ig || "";
       document.getElementById("a-fb").value = data.club?.fb || "";
       document.getElementById("a-x").value = data.club?.x || "";
-      const binEl = document.getElementById("a-bin-id");
-      const keyEl = document.getElementById("a-api-key");
-      if (binEl) binEl.value = remoteCfg.binId || "";
-      if (keyEl) keyEl.value = remoteCfg.apiKey || "";
+      const ownerEl = document.getElementById("a-gh-owner");
+      const repoEl = document.getElementById("a-gh-repo");
+      const branchEl = document.getElementById("a-gh-branch");
+      const tokenEl = document.getElementById("a-gh-token");
+      if (ownerEl) ownerEl.value = remoteCfg.owner === "TU-USUARIO" ? "" : (remoteCfg.owner || "");
+      if (repoEl) repoEl.value = remoteCfg.repo === "TU-REPOSITORIO" ? "" : (remoteCfg.repo || "");
+      if (branchEl) branchEl.value = remoteCfg.branch || "main";
+      if (tokenEl) tokenEl.value = remoteCfg.token || "";
       const st = document.getElementById("sync-status");
-      if (st) st.textContent = remoteCfg.binId ? "Sincronización configurada ✓" : "Sin sincronización online";
+      if (st) st.textContent = githubWriteConfigured()
+        ? ("Publicación automática activa (" + remoteCfg.owner + "/" + remoteCfg.repo + ")")
+        : githubConfigured()
+          ? "Repositorio configurado, falta el token para publicar"
+          : "Sin repositorio configurado todavía";
     }
 
     async function afterSave(label) {
@@ -1092,15 +1045,8 @@
     }
     async function saveMatches() {
       data.matches = document.getElementById("a-matches").value.trim().split("\n").filter(Boolean).map(line => {
-        const parts = line.split("|").map(s => s.trim());
-        const [date, time, rival, home, result, jornada, cat] = parts;
-        return {
-          date, time, rival,
-          home: home === "1" || home === "true",
-          result: result || null,
-          jornada: jornada ? +jornada : null,
-          cat: (cat === "B" || cat === "b") ? "B" : "A"
-        };
+        const [date, time, rival, home, result, jornada] = line.split("|").map(s => s.trim());
+        return { date, time, rival, home: home === "1" || home === "true", result: result || null, jornada: jornada ? +jornada : null };
       });
       await afterSave("Partidos guardados ✓");
     }
@@ -1129,41 +1075,39 @@
       await afterSave("Club y redes guardados ✓");
     }
 
-    async function saveRemoteSettings() {
-      remoteCfg.apiKey = document.getElementById("a-api-key").value.trim();
-      remoteCfg.binId = document.getElementById("a-bin-id").value.trim();
+    function saveGithubSettings() {
+      remoteCfg.owner = document.getElementById("a-gh-owner").value.trim() || "TU-USUARIO";
+      remoteCfg.repo = document.getElementById("a-gh-repo").value.trim() || "TU-REPOSITORIO";
+      remoteCfg.branch = document.getElementById("a-gh-branch").value.trim() || "main";
+      remoteCfg.token = document.getElementById("a-gh-token").value.trim();
+      remoteCfg.path = GITHUB_PATH;
       saveRemoteCfg();
-      const r = await pushRemote();
-      const binInput = document.getElementById("a-bin-id");
-      if (binInput) binInput.value = remoteCfg.binId || "";
-      const st = document.getElementById("sync-status");
-      if (st) st.textContent = remoteCfg.binId ? ("Bin: " + remoteCfg.binId) : "";
-      alert(r.msg);
+      fillAdminForms();
+      alert(githubWriteConfigured()
+        ? "Configuración guardada ✓\nYa puedes publicar cambios directamente desde este dispositivo."
+        : githubConfigured()
+          ? "Repositorio guardado. Falta el token para poder publicar desde la app."
+          : "Faltan datos del repositorio.");
     }
 
-    function clearRemoteCfg() {
-      if (!confirm("¿Borrar configuración online de este dispositivo?")) return;
-      remoteCfg = { binId: "", apiKey: "" };
-      localStorage.removeItem(REMOTE_CFG_KEY);
-      const binInput = document.getElementById("a-bin-id");
-      const keyInput = document.getElementById("a-api-key");
-      if (binInput) binInput.value = "";
-      if (keyInput) keyInput.value = "";
-      const st = document.getElementById("sync-status");
-      if (st) st.textContent = "Sin sincronización";
-      alert("Configuración borrada. Vuelve a pegar la Master Key y publica.");
+    function clearGithubToken() {
+      if (!confirm("¿Borrar el token guardado en este dispositivo? Podrás seguir leyendo los datos, pero no publicar desde aquí hasta que pegues uno nuevo.")) return;
+      remoteCfg.token = "";
+      saveRemoteCfg();
+      fillAdminForms();
     }
 
     async function publishNow() {
       saveDataLocal();
       const r = await pushRemote();
       alert(r.msg);
+      fillAdminForms();
     }
 
     function exportData() {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-      a.download = "los-morruos-datos.json";
+      a.download = "data.json";
       a.click();
     }
     function importData(ev) {
@@ -1174,9 +1118,13 @@
         try {
           data = { ...DEFAULT, ...JSON.parse(e.target.result) };
           saveDataLocal();
-          await pushRemote();
           renderAll(); fillAdminForms();
-          alert("Datos importados ✓");
+          if (githubWriteConfigured()) {
+            const r = await pushRemote();
+            alert("Datos importados ✓\n\n" + r.msg);
+          } else {
+            alert("Datos importados ✓ (vista previa local).\n\nConfigura el token de GitHub en Sincronización para publicarlo a todos.");
+          }
         } catch { alert("Archivo no válido"); }
       };
       reader.readAsText(file);
@@ -1185,9 +1133,13 @@
       if (!confirm("¿Restaurar datos de ejemplo? Se perderán los cambios.")) return;
       data = JSON.parse(JSON.stringify(DEFAULT));
       saveDataLocal();
-      await pushRemote();
       renderAll(); fillAdminForms();
-      alert("Datos restaurados");
+      if (githubWriteConfigured()) {
+        const r = await pushRemote();
+        alert("Datos restaurados ✓\n\n" + r.msg);
+      } else {
+        alert("Datos restaurados (vista previa local).");
+      }
     }
 
     (async function init() {
