@@ -85,6 +85,7 @@
     }
     .admin-btn-danger { background: #7f1d1d; color: #fca5a5; }
   </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 </head>
 <body class="min-h-screen">
 
@@ -147,6 +148,11 @@
       <button onclick="goTo('club')" class="menu-item" data-menu="club">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         El Club
+      </button>
+      <div class="my-3 border-t border-dark-border"></div>
+      <button onclick="toggleNotifications()" id="notif-toggle-btn" class="menu-item">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span id="notif-toggle-label">Activar avisos</span>
       </button>
       <div class="my-3 border-t border-dark-border"></div>
       <button onclick="goTo('admin')" class="menu-item" data-menu="admin">
@@ -522,6 +528,22 @@
           <p id="sync-status" class="text-[11px] text-gray-500 text-center"></p>
         </div>
 
+        <div class="card p-4 space-y-3">
+          <h3 class="font-semibold text-gold text-sm">Avisos push (OneSignal)</h3>
+          <p class="text-[11px] text-gray-500 leading-relaxed">
+            Pega aquí la <strong>REST API Key</strong> de tu app de OneSignal (Dashboard → Settings → Keys &amp; IDs).
+            Solo se guarda en este dispositivo. A partir de ahí, cada vez que guardes un cambio de partido, un resultado
+            o una noticia y se publique en GitHub, se enviará un aviso a todos los que hayan activado "Activar avisos"
+            en el menú.
+          </p>
+          <div>
+            <label class="text-xs text-gray-400">REST API Key de OneSignal</label>
+            <input id="a-onesignal-key" type="password" class="admin-input mt-1" placeholder="os_v2_app_..." />
+          </div>
+          <button onclick="saveOneSignalSettings()" class="admin-btn w-full">Guardar clave de OneSignal</button>
+          <p id="onesignal-status" class="text-[11px] text-gray-500 text-center"></p>
+        </div>
+
         <div class="card p-4 space-y-2">
           <h3 class="font-semibold text-gold text-sm">Utilidades</h3>
           <button onclick="exportData()" class="admin-btn-secondary w-full">Exportar datos (JSON)</button>
@@ -602,6 +624,10 @@
     const ADMIN_PASS = "morruos2026";
     const STORAGE_KEY = "morruos_data_v1";
     const REMOTE_CFG_KEY = "morruos_remote_cfg";
+    const ONESIGNAL_CFG_KEY = "morruos_onesignal_cfg";
+    // App ID de OneSignal (público, se puede dejar en el código). Sustitúyelo
+    // por el que te da OneSignal al crear tu app en su dashboard.
+    const ONESIGNAL_APP_ID = "f35f765a-8ead-416d-b642-fc075bbcdf92";
     let data = null;
     let adminOk = false;
 
@@ -631,6 +657,59 @@
     }
     function saveRemoteCfg() {
       localStorage.setItem(REMOTE_CFG_KEY, JSON.stringify(remoteCfg));
+    }
+
+    // ── Clave REST de OneSignal, para enviar avisos push desde el admin ──
+    // Solo se guarda en el dispositivo admin (como el token de GitHub).
+    let oneSignalCfg = { restKey: "" };
+    function loadOneSignalCfg() {
+      try {
+        const raw = localStorage.getItem(ONESIGNAL_CFG_KEY);
+        if (raw) {
+          const saved = JSON.parse(raw);
+          if (saved.restKey) oneSignalCfg.restKey = saved.restKey;
+        }
+      } catch {}
+    }
+    function saveOneSignalCfg() {
+      localStorage.setItem(ONESIGNAL_CFG_KEY, JSON.stringify(oneSignalCfg));
+    }
+    function oneSignalConfigured() {
+      return !!(oneSignalCfg.restKey && ONESIGNAL_APP_ID && !ONESIGNAL_APP_ID.startsWith("TU_"));
+    }
+
+    // Envía un aviso push a todos los suscritos vía la API de OneSignal.
+    // No bloquea ni rompe el guardado si falla: solo avisa por consola.
+    async function sendPushNotification(title, message) {
+      if (!oneSignalConfigured()) return;
+      try {
+        const res = await fetch("https://api.onesignal.com/notifications", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Key " + oneSignalCfg.restKey
+          },
+          body: JSON.stringify({
+            app_id: ONESIGNAL_APP_ID,
+            included_segments: ["Subscribed Users"],
+            headings: { es: title },
+            contents: { es: message || title }
+          })
+        });
+        if (!res.ok) console.warn("OneSignal respondió con error:", res.status, await res.text());
+      } catch (e) {
+        console.warn("No se pudo enviar la notificación push:", e);
+      }
+    }
+
+    function saveOneSignalSettings() {
+      const keyInput = document.getElementById("a-onesignal-key");
+      oneSignalCfg.restKey = keyInput ? keyInput.value.trim() : (oneSignalCfg.restKey || "");
+      saveOneSignalCfg();
+      fillAdminForms();
+      alert(oneSignalCfg.restKey
+        ? "Clave guardada ✓\nYa se enviará un aviso push al publicar resultados, cambios de partido o noticias."
+        : "Clave borrada. No se enviarán avisos push desde este dispositivo.");
     }
     function githubConfigured() {
       return !!(remoteCfg.owner && remoteCfg.repo);
@@ -684,6 +763,20 @@
       }
     }
 
+    // Comprueba, tras publicar, si la copia pública (raw.githubusercontent.com) ya
+    // refleja el cambio. GitHub tarda un poco (normalmente segundos, a veces 1-2
+    // minutos) en propagar un commit a su CDN de lectura; ni "cache: no-store" ni
+    // el "?t=" evitan esa espera, porque ocurre en el lado de GitHub, no en el navegador.
+    // En vez de hacer como que ya está listo, esperamos y comprobamos de verdad.
+    async function verifyPublished(stamp, { tries = 10, delayMs = 1500 } = {}) {
+      for (let i = 0; i < tries; i++) {
+        await new Promise(r => setTimeout(r, delayMs));
+        const remote = await fetchRemote();
+        if (remote && remote._syncStamp === stamp) return true;
+      }
+      return false;
+    }
+
     async function pushRemote() {
       if (!githubConfigured()) {
         return { ok: false, msg: "Configura primero tu usuario y repositorio de GitHub." };
@@ -696,6 +789,10 @@
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28"
       };
+      // Marca única para poder identificar ESTE guardado concreto cuando comprobemos
+      // si ya se ve publicado (así no confundimos un guardado viejo con el nuevo).
+      const stamp = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      data._syncStamp = stamp;
       try {
         // Si el sha cambia mientras publicamos (409), reintenta hasta 4 veces con SHA fresco
         for (let attempt = 0; attempt < 4; attempt++) {
@@ -712,7 +809,10 @@
             body: JSON.stringify(body)
           });
           if (putRes.ok) {
-            return { ok: true, msg: "Publicado en GitHub ✓\nTodos los dispositivos verán el cambio en unos segundos." };
+            const verified = await verifyPublished(stamp);
+            return verified
+              ? { ok: true, msg: "Publicado en GitHub ✓ y verificado.\nYa se ve en todos los móviles." }
+              : { ok: true, msg: "Guardado correctamente en GitHub ✓\nGitHub está tardando más de lo normal en actualizar la copia pública (puede pasar). Puede tardar 1-2 minutos en verse en los demás móviles — no hace falta que lo vuelvas a guardar." };
           }
           if (putRes.status === 409 && attempt < 3) {
             await new Promise(r => setTimeout(r, 300 + attempt * 200));
@@ -729,6 +829,7 @@
 
     async function loadData() {
       loadRemoteCfg();
+      loadOneSignalCfg();
       const remote = await fetchRemote();
       if (remote) {
         data = {
@@ -1038,6 +1139,12 @@
       if (repoEl) repoEl.value = remoteCfg.repo || GITHUB_REPO;
       if (branchEl) branchEl.value = remoteCfg.branch || GITHUB_BRANCH;
       if (tokenEl) tokenEl.value = remoteCfg.token || "";
+      const onesignalKeyEl = document.getElementById("a-onesignal-key");
+      if (onesignalKeyEl) onesignalKeyEl.value = oneSignalCfg.restKey || "";
+      const onesignalSt = document.getElementById("onesignal-status");
+      if (onesignalSt) onesignalSt.textContent = oneSignalConfigured()
+        ? "Avisos push activos: se enviarán al publicar cambios."
+        : "Sin clave configurada: no se enviarán avisos push desde este dispositivo.";
       const st = document.getElementById("sync-status");
       if (st) st.textContent = githubWriteConfigured()
         ? ("Publicación automática activa (" + remoteCfg.owner + "/" + remoteCfg.repo + ")")
@@ -1046,9 +1153,13 @@
           : "Sin repositorio configurado todavía";
     }
 
-    async function afterSave(label) {
+    async function afterSave(label, pushInfo) {
       renderAll();
       const r = await saveData();
+      // Solo avisamos si de verdad se publicó en GitHub (si no, nadie más vería el cambio igualmente)
+      if (r?.ok && githubWriteConfigured() && pushInfo) {
+        await sendPushNotification(pushInfo.title, pushInfo.body);
+      }
       alert((label || "Guardado") + "\n\n" + (r?.msg || ""));
     }
 
@@ -1061,7 +1172,12 @@
         home: document.getElementById("a-next-home").value === "true",
         comp: document.getElementById("a-next-comp").value.trim()
       };
-      await afterSave("Próximo partido guardado ✓");
+      const nm = data.nextMatch;
+      await afterSave("Próximo partido guardado ✓", {
+        title: "⚽ Cambio de partido",
+        body: `${nm.home ? "Los Morruos vs " + nm.rival : nm.rival + " vs Los Morruos"}` +
+              (nm.date ? ` · ${nm.date}` : "") + (nm.time ? ` ${nm.time}` : "")
+      });
     }
     async function saveStandings() {
       const parse = (raw) => raw.trim().split("\n").filter(Boolean).map(line => {
@@ -1078,7 +1194,15 @@
         const [date, time, rival, home, result, jornada] = line.split("|").map(s => s.trim());
         return { date, time, rival, home: home === "1" || home === "true", result: result || null, jornada: jornada ? +jornada : null };
       });
-      await afterSave("Partidos guardados ✓");
+      const withResult = data.matches.filter(m => m.result).sort((a, b) => b.date.localeCompare(a.date))[0];
+      let pushInfo = null;
+      if (withResult) {
+        const [g1, g2] = withResult.result.split("-").map(s => s.trim());
+        const home = withResult.home ? g1 : g2;
+        const away = withResult.home ? g2 : g1;
+        pushInfo = { title: "📊 Nuevo resultado", body: `Los Morruos ${home} - ${away} ${withResult.rival}` };
+      }
+      await afterSave("Partidos guardados ✓", pushInfo);
     }
     async function savePlayers() {
       data.players = document.getElementById("a-players").value.trim().split("\n").filter(Boolean).map(line => {
@@ -1092,7 +1216,11 @@
         const parts = line.split("|");
         return { date: parts[0]?.trim() || "", title: parts[1]?.trim() || "", text: parts.slice(2).join("|").trim() || "" };
       });
-      await afterSave("Noticias guardadas ✓");
+      const latest = data.news[data.news.length - 1];
+      await afterSave("Noticias guardadas ✓", latest ? {
+        title: "📢 " + (latest.title || "Aviso importante"),
+        body: latest.text || latest.title || ""
+      } : null);
     }
     async function saveClub() {
       data.club = {
@@ -1170,6 +1298,45 @@
       } else {
         alert("Datos restaurados (vista previa local).");
       }
+    }
+
+    // ── Notificaciones push (OneSignal) ──
+    // Usamos nuestro propio sw.js (que ya importa el worker de OneSignal, ver sw.js)
+    // en vez del archivo por defecto, y NO auto-preguntamos permiso: solo se pide
+    // cuando el usuario pulsa el botón "Activar avisos" del menú.
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function (OneSignal) {
+      if (!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID.startsWith("TU_")) return; // no configurado todavía
+      await OneSignal.init({
+        appId: ONESIGNAL_APP_ID,
+        serviceWorkerParam: { scope: "/" },
+        serviceWorkerPath: "sw.js"
+      });
+      updateNotifButton();
+      OneSignal.User.PushSubscription.addEventListener("change", updateNotifButton);
+    });
+
+    function updateNotifButton() {
+      const label = document.getElementById("notif-toggle-label");
+      if (!label || !window.OneSignal) return;
+      const optedIn = window.OneSignal.User?.PushSubscription?.optedIn;
+      label.textContent = optedIn ? "Avisos activados ✓" : "Activar avisos";
+    }
+
+    async function toggleNotifications() {
+      if (!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID.startsWith("TU_")) {
+        alert("Las notificaciones aún no están configuradas en esta app.");
+        return;
+      }
+      OneSignalDeferred.push(async function (OneSignal) {
+        const optedIn = OneSignal.User.PushSubscription.optedIn;
+        if (optedIn) {
+          if (confirm("¿Desactivar los avisos en este dispositivo?")) await OneSignal.User.PushSubscription.optOut();
+        } else {
+          await OneSignal.User.PushSubscription.optIn(); // pide permiso al navegador si hace falta
+        }
+        updateNotifButton();
+      });
     }
 
     (async function init() {
