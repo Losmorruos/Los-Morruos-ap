@@ -86,8 +86,37 @@
     .admin-btn-danger { background: #7f1d1d; color: #fca5a5; }
   </style>
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <!-- Firebase (compat) para registro de usuarios y actividad en tiempo real -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="min-h-screen">
+
+  <!-- Registro obligatorio para usuarios nuevos -->
+  <div id="register-overlay" class="fixed inset-0 z-[100] bg-dark flex items-center justify-center p-5 hidden">
+    <div class="card p-6 w-full max-w-sm space-y-4">
+      <div class="text-center">
+        <img src="logo.png" alt="Los Morruos" class="w-16 h-16 rounded-full object-cover border-2 border-gold mx-auto mb-3" />
+        <h2 class="font-display text-xl text-gold">Bienvenido a Los Morruos</h2>
+        <p class="text-sm text-gray-400 mt-1">Regístrate para acceder a la app</p>
+      </div>
+      <div>
+        <label class="text-xs text-gray-400">Nombre</label>
+        <input id="reg-nombre" class="admin-input mt-1" placeholder="Tu nombre" autocomplete="given-name" />
+      </div>
+      <div>
+        <label class="text-xs text-gray-400">Apellidos</label>
+        <input id="reg-apellidos" class="admin-input mt-1" placeholder="Tus apellidos" autocomplete="family-name" />
+      </div>
+      <div>
+        <label class="text-xs text-gray-400">Número de teléfono</label>
+        <input id="reg-telefono" type="tel" class="admin-input mt-1" placeholder="612 345 678" autocomplete="tel" />
+      </div>
+      <p id="reg-error" class="text-xs text-red-400 hidden text-center"></p>
+      <button onclick="submitRegistration()" class="admin-btn w-full">Entrar a la app</button>
+      <p class="text-[10px] text-gray-600 text-center">Tus datos se guardan solo en este dispositivo para el club.</p>
+    </div>
+  </div>
 
   <div id="drawer-overlay" class="drawer-overlay fixed inset-0 bg-black/60 z-40" onclick="closeDrawer()"></div>
 
@@ -409,7 +438,6 @@
         <p class="text-sm text-gray-300 mb-3">Contraseña de administrador:</p>
         <input type="password" id="admin-pass" class="admin-input mb-3" placeholder="Contraseña" onkeydown="if(event.key==='Enter') adminLogin()" />
         <button onclick="adminLogin()" class="admin-btn w-full">Entrar</button>
-        <p class="text-[11px] text-gray-600 mt-3 text-center">Por defecto: <strong class="text-gray-400">morruos2026</strong></p>
       </div>
 
       <div id="admin-panel" class="hidden space-y-5">
@@ -425,6 +453,8 @@
           <button onclick="showAdminTab('players')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="players">Jugadores</button>
           <button onclick="showAdminTab('news')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="news">Noticias</button>
           <button onclick="showAdminTab('club')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="club">Club / Redes</button>
+          <button onclick="showAdminTab('users')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="users">Usuarios</button>
+          <button onclick="showAdminTab('ai')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="ai">Asistente IA</button>
         </div>
 
         <div id="atab-next" class="admin-tab-content">
@@ -495,6 +525,49 @@
             <div><label class="text-xs text-gray-400">Facebook</label><input id="a-fb" class="admin-input mt-1" /></div>
             <div><label class="text-xs text-gray-400">X / Twitter</label><input id="a-x" class="admin-input mt-1" /></div>
             <button onclick="saveClub()" class="admin-btn w-full">Guardar club y redes</button>
+          </div>
+        </div>
+
+        <div id="atab-users" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Usuarios registrados</h3>
+            <p class="text-xs text-gray-500">
+              <span id="firebase-status-badge" class="inline-block px-2 py-0.5 rounded text-[10px] bg-gray-700 text-gray-300 mr-1">Sin Firebase</span>
+              Total: <strong id="users-count" class="text-gold">0</strong>
+              <span id="users-live-hint" class="text-green-400 text-[10px] ml-1 hidden">● en vivo</span>
+            </p>
+            <div id="users-list" class="space-y-2 max-h-64 overflow-y-auto text-sm"></div>
+            <button onclick="refreshUsersList()" class="admin-btn-secondary w-full">Actualizar lista</button>
+            <button onclick="exportUsers()" class="admin-btn-secondary w-full">Exportar usuarios (JSON)</button>
+            <button onclick="clearLocalUsersOnly()" class="admin-btn-secondary admin-btn-danger w-full">Borrar solo registros locales</button>
+          </div>
+          <div class="card p-4 space-y-3 mt-3">
+            <h3 class="font-semibold text-gold text-sm">Actividad en tiempo real</h3>
+            <div id="activity-log" class="text-xs text-gray-400 space-y-1 max-h-48 overflow-y-auto font-mono"></div>
+          </div>
+          <div class="card p-4 space-y-3 mt-3">
+            <h3 class="font-semibold text-gold text-sm">Configuración Firebase</h3>
+            <p class="text-[11px] text-gray-500 leading-relaxed">
+              Crea un proyecto en <a href="https://console.firebase.google.com" target="_blank" class="text-gold underline">Firebase Console</a>,
+              activa <strong>Firestore Database</strong> y pega aquí la configuración web (Project settings → Your apps → Config).
+            </p>
+            <textarea id="a-firebase-config" class="admin-input h-28 font-mono text-[11px]" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
+            <button onclick="saveFirebaseConfig()" class="admin-btn w-full">Guardar y conectar Firebase</button>
+            <button onclick="clearFirebaseConfig()" class="admin-btn-secondary admin-btn-danger w-full">Desconectar Firebase</button>
+            <p id="firebase-config-status" class="text-[11px] text-gray-500 text-center"></p>
+          </div>
+        </div>
+
+        <div id="atab-ai" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Asistente IA del club</h3>
+            <p class="text-xs text-gray-500">Escribe en lenguaje natural para consultar o modificar datos de la app (próximo partido, resultados, etc.).</p>
+            <div id="ai-chat" class="bg-[#0f0f0f] border border-dark-border rounded-xl p-3 h-64 overflow-y-auto space-y-2 text-sm"></div>
+            <div class="flex gap-2">
+              <input id="ai-input" class="admin-input flex-1" placeholder="Ej: cambia el rival a C.D. Tefía" onkeydown="if(event.key==='Enter') sendAI()" />
+              <button onclick="sendAI()" class="admin-btn shrink-0">Enviar</button>
+            </div>
+            <p class="text-[10px] text-gray-600">Ejemplos: "¿cuál es el próximo partido?", "cambia la fecha a 2026-09-13", "añade noticia: Nuevo entrenamiento el viernes", "ayuda"</p>
           </div>
         </div>
 
@@ -625,11 +698,21 @@
     const STORAGE_KEY = "morruos_data_v1";
     const REMOTE_CFG_KEY = "morruos_remote_cfg";
     const ONESIGNAL_CFG_KEY = "morruos_onesignal_cfg";
+    const USER_KEY = "morruos_current_user";
+    const USERS_LIST_KEY = "morruos_users_list";
+    const ACTIVITY_KEY = "morruos_activity_log";
+    const FIREBASE_CFG_KEY = "morruos_firebase_cfg";
     // App ID de OneSignal (público, se puede dejar en el código). Sustitúyelo
     // por el que te da OneSignal al crear tu app en su dashboard.
     const ONESIGNAL_APP_ID = "f35f765a-8ead-416d-b642-fc075bbcdf92";
     let data = null;
     let adminOk = false;
+    let currentUser = null;
+    let firebaseApp = null;
+    let db = null;                 // Firestore
+    let usersUnsub = null;         // onSnapshot unsubscribe
+    let activityUnsub = null;
+    let firebaseReady = false;
 
     // ── Repositorio de GitHub donde vive data.json (fijo para todos los móviles) ──
     // Solo el TOKEN se guarda en cada dispositivo admin. Owner/repo/branch son públicos.
@@ -1070,6 +1153,387 @@
       document.getElementById("drawer-overlay").classList.remove("open");
       document.body.style.overflow = "";
     }
+    // ── Firebase (usuarios + actividad en tiempo real) ──
+    function loadFirebaseConfig() {
+      try {
+        const raw = localStorage.getItem(FIREBASE_CFG_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    }
+    function initFirebase() {
+      const cfg = loadFirebaseConfig();
+      if (!cfg || !cfg.apiKey || !cfg.projectId) {
+        firebaseReady = false;
+        updateFirebaseBadge();
+        return false;
+      }
+      try {
+        if (firebase.apps && firebase.apps.length) {
+          firebaseApp = firebase.apps[0];
+        } else {
+          firebaseApp = firebase.initializeApp(cfg);
+        }
+        db = firebase.firestore();
+        firebaseReady = true;
+        updateFirebaseBadge();
+        return true;
+      } catch (e) {
+        console.warn("Firebase init error:", e);
+        firebaseReady = false;
+        updateFirebaseBadge();
+        return false;
+      }
+    }
+    function updateFirebaseBadge() {
+      const badge = document.getElementById("firebase-status-badge");
+      const hint = document.getElementById("users-live-hint");
+      if (!badge) return;
+      if (firebaseReady) {
+        badge.textContent = "Firebase ✓";
+        badge.className = "inline-block px-2 py-0.5 rounded text-[10px] bg-green-900 text-green-300 mr-1";
+        if (hint) hint.classList.remove("hidden");
+      } else {
+        badge.textContent = "Sin Firebase";
+        badge.className = "inline-block px-2 py-0.5 rounded text-[10px] bg-gray-700 text-gray-300 mr-1";
+        if (hint) hint.classList.add("hidden");
+      }
+    }
+    function saveFirebaseConfig() {
+      const raw = (document.getElementById("a-firebase-config").value || "").trim();
+      const status = document.getElementById("firebase-config-status");
+      if (!raw) {
+        status.textContent = "Pega la configuración JSON de Firebase.";
+        return;
+      }
+      try {
+        const cfg = JSON.parse(raw);
+        if (!cfg.apiKey || !cfg.projectId) throw new Error("Faltan apiKey o projectId");
+        localStorage.setItem(FIREBASE_CFG_KEY, JSON.stringify(cfg));
+        // Reiniciar listeners anteriores
+        if (usersUnsub) { usersUnsub(); usersUnsub = null; }
+        if (activityUnsub) { activityUnsub(); activityUnsub = null; }
+        const ok = initFirebase();
+        if (ok) {
+          status.textContent = "✓ Firebase conectado. Los registros y la actividad se sincronizan en tiempo real.";
+          startFirebaseListeners();
+          refreshUsersList();
+        } else {
+          status.textContent = "Error al inicializar Firebase. Revisa la configuración.";
+        }
+      } catch (e) {
+        status.textContent = "JSON inválido: " + e.message;
+      }
+    }
+    function clearFirebaseConfig() {
+      if (!confirm("¿Desconectar Firebase de este dispositivo?")) return;
+      if (usersUnsub) { usersUnsub(); usersUnsub = null; }
+      if (activityUnsub) { activityUnsub(); activityUnsub = null; }
+      localStorage.removeItem(FIREBASE_CFG_KEY);
+      firebaseReady = false;
+      db = null;
+      updateFirebaseBadge();
+      document.getElementById("a-firebase-config").value = "";
+      document.getElementById("firebase-config-status").textContent = "Firebase desconectado.";
+      refreshUsersList();
+    }
+    function startFirebaseListeners() {
+      if (!firebaseReady || !db) return;
+      if (usersUnsub) usersUnsub();
+      if (activityUnsub) activityUnsub();
+
+      // Usuarios en tiempo real (ordenados por fecha desc)
+      usersUnsub = db.collection("registrations")
+        .orderBy("registeredAt", "desc")
+        .limit(200)
+        .onSnapshot(snap => {
+          const list = [];
+          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+          // Guardar también en local como caché
+          try { localStorage.setItem(USERS_LIST_KEY, JSON.stringify(list)); } catch {}
+          renderUsersList(list);
+        }, err => {
+          console.warn("Users listener error:", err);
+          // Fallback a local
+          renderUsersList(getUsersList());
+        });
+
+      // Actividad en tiempo real
+      activityUnsub = db.collection("activity")
+        .orderBy("t", "desc")
+        .limit(40)
+        .onSnapshot(snap => {
+          const log = [];
+          snap.forEach(doc => log.push(doc.data()));
+          renderActivityLog(log);
+        }, err => {
+          console.warn("Activity listener error:", err);
+        });
+    }
+
+    // ── Registro de usuarios ──
+    function loadCurrentUser() {
+      try {
+        const raw = localStorage.getItem(USER_KEY);
+        if (raw) currentUser = JSON.parse(raw);
+      } catch {}
+      return currentUser;
+    }
+    function getUsersList() {
+      try {
+        const raw = localStorage.getItem(USERS_LIST_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch { return []; }
+    }
+    function saveUsersList(list) {
+      localStorage.setItem(USERS_LIST_KEY, JSON.stringify(list));
+    }
+    function logActivity(msg) {
+      const entry = { t: new Date().toISOString(), msg };
+      // Local
+      try {
+        let log = [];
+        const raw = localStorage.getItem(ACTIVITY_KEY);
+        if (raw) log = JSON.parse(raw);
+        log.unshift(entry);
+        if (log.length > 50) log = log.slice(0, 50);
+        localStorage.setItem(ACTIVITY_KEY, JSON.stringify(log));
+      } catch {}
+      // Firebase
+      if (firebaseReady && db) {
+        db.collection("activity").add(entry).catch(e => console.warn("Activity write failed", e));
+      }
+    }
+    function checkRegistration() {
+      loadCurrentUser();
+      const overlay = document.getElementById("register-overlay");
+      if (!currentUser || !currentUser.nombre || !currentUser.telefono) {
+        overlay.classList.remove("hidden");
+      } else {
+        overlay.classList.add("hidden");
+        logActivity((currentUser.nombre || "Usuario") + " abrió la app");
+      }
+    }
+    async function submitRegistration() {
+      const nombre = (document.getElementById("reg-nombre").value || "").trim();
+      const apellidos = (document.getElementById("reg-apellidos").value || "").trim();
+      const telefono = (document.getElementById("reg-telefono").value || "").trim();
+      const err = document.getElementById("reg-error");
+      if (!nombre || !apellidos || !telefono) {
+        err.textContent = "Por favor rellena todos los campos.";
+        err.classList.remove("hidden");
+        return;
+      }
+      if (telefono.replace(/\D/g, "").length < 9) {
+        err.textContent = "Introduce un número de teléfono válido.";
+        err.classList.remove("hidden");
+        return;
+      }
+      err.classList.add("hidden");
+      const now = new Date().toISOString();
+      currentUser = { nombre, apellidos, telefono, registeredAt: now };
+      localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+
+      // Local list
+      const list = getUsersList();
+      const exists = list.findIndex(u => u.telefono === telefono);
+      if (exists >= 0) list[exists] = currentUser;
+      else list.push(currentUser);
+      saveUsersList(list);
+
+      // Firebase
+      if (firebaseReady && db) {
+        try {
+          // Usamos el teléfono (normalizado) como ID para evitar duplicados
+          const id = telefono.replace(/\D/g, "");
+          await db.collection("registrations").doc(id).set({
+            nombre, apellidos, telefono, registeredAt: now
+          }, { merge: true });
+        } catch (e) {
+          console.warn("No se pudo guardar el registro en Firebase:", e);
+        }
+      }
+
+      logActivity("Nuevo registro: " + nombre + " " + apellidos + " (" + telefono + ")");
+      document.getElementById("register-overlay").classList.add("hidden");
+    }
+    function renderUsersList(list) {
+      const el = document.getElementById("users-list");
+      const countEl = document.getElementById("users-count");
+      if (countEl) countEl.textContent = list.length;
+      if (!el) return;
+      if (list.length === 0) {
+        el.innerHTML = '<p class="text-gray-500 text-xs">Ningún usuario registrado aún.</p>';
+      } else {
+        el.innerHTML = list.map(u => `
+          <div class="bg-[#1a1a1a] rounded-lg p-3 border border-dark-border">
+            <p class="font-medium text-white">${u.nombre || ""} ${u.apellidos || ""}</p>
+            <p class="text-xs text-gray-400 mt-0.5">📞 ${u.telefono || "—"}</p>
+            <p class="text-[10px] text-gray-600 mt-1">${u.registeredAt ? new Date(u.registeredAt).toLocaleString("es-ES") : ""}</p>
+          </div>
+        `).join("");
+      }
+    }
+    function renderActivityLog(log) {
+      const actEl = document.getElementById("activity-log");
+      if (!actEl) return;
+      if (!log || !log.length) {
+        actEl.innerHTML = '<p>Sin actividad registrada.</p>';
+        return;
+      }
+      actEl.innerHTML = log.map(e =>
+        `<div><span class="text-gray-600">${e.t ? new Date(e.t).toLocaleString("es-ES") : ""}</span> · ${e.msg || ""}</div>`
+      ).join("");
+    }
+    function refreshUsersList() {
+      if (firebaseReady && db) {
+        // Los listeners ya mantienen la UI actualizada; forzamos una lectura por si acaso
+        db.collection("registrations").orderBy("registeredAt", "desc").limit(200).get()
+          .then(snap => {
+            const list = [];
+            snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+            renderUsersList(list);
+          })
+          .catch(() => renderUsersList(getUsersList()));
+        db.collection("activity").orderBy("t", "desc").limit(40).get()
+          .then(snap => {
+            const log = [];
+            snap.forEach(doc => log.push(doc.data()));
+            renderActivityLog(log);
+          })
+          .catch(() => {});
+      } else {
+        renderUsersList(getUsersList());
+        try {
+          const raw = localStorage.getItem(ACTIVITY_KEY);
+          renderActivityLog(raw ? JSON.parse(raw) : []);
+        } catch { renderActivityLog([]); }
+      }
+    }
+    function exportUsers() {
+      const list = getUsersList();
+      const blob = new Blob([JSON.stringify(list, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "morruos-usuarios.json";
+      a.click();
+    }
+    function clearLocalUsersOnly() {
+      if (!confirm("¿Borrar solo los registros locales de este dispositivo? (no afecta a Firebase)")) return;
+      localStorage.removeItem(USERS_LIST_KEY);
+      localStorage.removeItem(ACTIVITY_KEY);
+      refreshUsersList();
+      alert("Registros locales borrados.");
+    }
+
+    // ── Asistente IA (parser de comandos en lenguaje natural) ──
+    function aiAppend(role, text) {
+      const box = document.getElementById("ai-chat");
+      if (!box) return;
+      const div = document.createElement("div");
+      div.className = role === "user"
+        ? "bg-gold/20 text-gold rounded-xl px-3 py-2 ml-6"
+        : "bg-[#1a1a1a] border border-dark-border rounded-xl px-3 py-2 mr-6 text-gray-200";
+      div.innerHTML = text.replace(/\n/g, "<br>");
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+    function sendAI() {
+      const input = document.getElementById("ai-input");
+      const text = (input.value || "").trim();
+      if (!text) return;
+      input.value = "";
+      aiAppend("user", text);
+      const reply = processAICommand(text);
+      setTimeout(() => aiAppend("ai", reply), 300);
+    }
+    function processAICommand(raw) {
+      const t = raw.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      // Ayuda
+      if (/\b(ayuda|help|comandos|que puedes)\b/.test(t)) {
+        return "Puedo ayudarte con:\n• Consultar el próximo partido\n• Cambiar rival, fecha, hora o lugar del próximo partido\n• Ver clasificaciones o jugadores\n• Añadir una noticia rápida\n• Explicar cómo publicar cambios\n\nEjemplos:\n«¿cuál es el próximo partido?»\n«cambia el rival a C.D. Tefía»\n«pon la fecha 2026-09-13»\n«añade noticia: Entrenamiento el viernes a las 19h»";
+      }
+      // Consultar próximo partido
+      if (/\b(proximo|siguiente)\b.*\b(partido|encuentro)\b|\bpartido\b.*\b(proximo|siguiente)\b|\bquien\b.*\bjuega\b/.test(t)) {
+        const n = data.nextMatch || {};
+        return `Próximo partido:\n• Rival: ${n.rival || "—"}\n• Fecha: ${n.date || "—"} ${n.time || ""}\n• Lugar: ${n.place || "—"}\n• ${n.home ? "Local" : "Visitante"} · ${n.comp || ""}`;
+      }
+      // Cambiar rival
+      let m = t.match(/(?:cambia|pon|actualiza|modifica).*(?:rival|adversario|contra)\s+(?:a\s+)?(.+)/i) ||
+              raw.match(/(?:cambia|pon|actualiza|modifica).*(?:rival|adversario|contra)\s+(?:a\s+)?(.+)/i);
+      if (m) {
+        const rival = m[1].trim().replace(/[.\s]+$/, "");
+        if (!data.nextMatch) data.nextMatch = {};
+        data.nextMatch.rival = rival;
+        saveDataLocal();
+        renderAll();
+        logActivity("IA: rival cambiado a " + rival);
+        return `✓ Rival del próximo partido actualizado a «${rival}».\nRecuerda publicar en GitHub si quieres que todos lo vean.`;
+      }
+      // Cambiar fecha
+      m = t.match(/(?:cambia|pon|actualiza).*(?:fecha)\s+(?:a\s+)?(\d{4}-\d{2}-\d{2}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i) ||
+          raw.match(/(?:fecha)\s+(?:a\s+)?(\d{4}-\d{2}-\d{2})/i);
+      if (m) {
+        let fecha = m[1];
+        if (fecha.includes("/") || (fecha.includes("-") && fecha.split("-")[0].length <= 2)) {
+          const parts = fecha.split(/[\/\-]/);
+          if (parts[2].length === 2) parts[2] = "20" + parts[2];
+          fecha = `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
+        }
+        if (!data.nextMatch) data.nextMatch = {};
+        data.nextMatch.date = fecha;
+        saveDataLocal();
+        renderAll();
+        logActivity("IA: fecha cambiada a " + fecha);
+        return `✓ Fecha del próximo partido actualizada a ${fecha}.`;
+      }
+      // Cambiar hora
+      m = t.match(/(?:cambia|pon|actualiza).*(?:hora)\s+(?:a\s+)?(\d{1,2}:\d{2})/i);
+      if (m) {
+        if (!data.nextMatch) data.nextMatch = {};
+        data.nextMatch.time = m[1];
+        saveDataLocal();
+        renderAll();
+        return `✓ Hora actualizada a ${m[1]}.`;
+      }
+      // Cambiar lugar
+      m = t.match(/(?:cambia|pon|actualiza).*(?:lugar|cancha|sede)\s+(?:a\s+|en\s+)?(.+)/i);
+      if (m) {
+        const lugar = m[1].trim().replace(/[.\s]+$/, "");
+        if (!data.nextMatch) data.nextMatch = {};
+        data.nextMatch.place = lugar;
+        saveDataLocal();
+        renderAll();
+        return `✓ Lugar actualizado a «${lugar}».`;
+      }
+      // Añadir noticia
+      m = raw.match(/(?:añade|agrega|nueva)\s+noticia[:\s]+(.+)/i);
+      if (m) {
+        const text = m[1].trim();
+        if (!data.news) data.news = [];
+        data.news.unshift({
+          date: new Date().toISOString().slice(0, 10),
+          title: text.slice(0, 60) + (text.length > 60 ? "…" : ""),
+          text: text
+        });
+        saveDataLocal();
+        renderAll();
+        logActivity("IA: noticia añadida");
+        return `✓ Noticia añadida. Revisa la pestaña Noticias y publica en GitHub si quieres que se vea en todos los dispositivos.`;
+      }
+      // Listar jugadores
+      if (/\b(jugadores|plantilla|equipo)\b/.test(t)) {
+        const players = data.players || [];
+        if (!players.length) return "No hay jugadores en la plantilla.";
+        return "Plantilla (" + players.length + "):\n" + players.map(p => `• ${p.name} (${p.pos || ""}${p.num ? " #" + p.num : ""})`).join("\n");
+      }
+      // Cómo publicar
+      if (/\b(publicar|github|sincroniz|todos|dispositivos)\b/.test(t)) {
+        return "Para que los cambios se vean en todos los móviles:\n1. Ve a la zona de GitHub (abajo en Administración).\n2. Configura el token de acceso personal con permiso de escritura.\n3. Cada vez que guardes un cambio (o pulses «Publicar ahora»), se actualiza data.json en el repositorio.\nLos usuarios verán el cambio al abrir o refrescar la app.";
+      }
+      // Default
+      return "No he entendido del todo. Prueba con «ayuda» para ver los comandos disponibles, o usa las pestañas del panel de administración para editar manualmente.";
+    }
+
     function goTo(name) {
       document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
       const tab = document.getElementById("tab-" + name);
@@ -1092,6 +1556,7 @@
         document.getElementById("admin-login").classList.add("hidden");
         document.getElementById("admin-panel").classList.remove("hidden");
         fillAdminForms();
+        logActivity("Admin inició sesión");
       } else alert("Contraseña incorrecta");
     }
     function adminLogout() {
@@ -1108,6 +1573,21 @@
         el.classList.toggle("bg-gold", el.dataset.atab === name);
         el.classList.toggle("text-dark", el.dataset.atab === name);
       });
+      if (name === "users") {
+        const cfg = loadFirebaseConfig();
+        const ta = document.getElementById("a-firebase-config");
+        if (ta && cfg) ta.value = JSON.stringify(cfg, null, 2);
+        updateFirebaseBadge();
+        refreshUsersList();
+        if (firebaseReady && !usersUnsub) startFirebaseListeners();
+      }
+      if (name === "ai") {
+        const box = document.getElementById("ai-chat");
+        if (box && !box.dataset.ready) {
+          box.dataset.ready = "1";
+          aiAppend("ai", "¡Hola! Soy el asistente de Los Morruos. Puedo consultar y modificar datos del club. Escribe «ayuda» para ver qué puedo hacer.");
+        }
+      }
     }
 
     function fillAdminForms() {
@@ -1342,7 +1822,11 @@
     (async function init() {
       await loadData();
       if (sessionStorage.getItem("morruos_admin") === "1") adminOk = true;
+      // Intentar conectar Firebase si ya hay configuración guardada
+      initFirebase();
+      if (firebaseReady) startFirebaseListeners();
       renderAll();
+      checkRegistration();
       if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 
       // Guardado automático local al salir o al pasar la app a segundo plano
