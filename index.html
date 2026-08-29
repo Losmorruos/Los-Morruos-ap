@@ -1034,9 +1034,9 @@
       const repoEl = document.getElementById("a-gh-repo");
       const branchEl = document.getElementById("a-gh-branch");
       const tokenEl = document.getElementById("a-gh-token");
-      if (ownerEl) ownerEl.value = remoteCfg.owner === "TU-USUARIO" ? "" : (remoteCfg.owner || "");
-      if (repoEl) repoEl.value = remoteCfg.repo === "TU-REPOSITORIO" ? "" : (remoteCfg.repo || "");
-      if (branchEl) branchEl.value = remoteCfg.branch || "main";
+      if (ownerEl) ownerEl.value = remoteCfg.owner || GITHUB_OWNER;
+      if (repoEl) repoEl.value = remoteCfg.repo || GITHUB_REPO;
+      if (branchEl) branchEl.value = remoteCfg.branch || GITHUB_BRANCH;
       if (tokenEl) tokenEl.value = remoteCfg.token || "";
       const st = document.getElementById("sync-status");
       if (st) st.textContent = githubWriteConfigured()
@@ -1106,18 +1106,18 @@
     }
 
     function saveGithubSettings() {
-      remoteCfg.owner = document.getElementById("a-gh-owner").value.trim() || "TU-USUARIO";
-      remoteCfg.repo = document.getElementById("a-gh-repo").value.trim() || "TU-REPOSITORIO";
-      remoteCfg.branch = document.getElementById("a-gh-branch").value.trim() || "main";
-      remoteCfg.token = document.getElementById("a-gh-token").value.trim();
+      // Owner/repo/branch son fijos en el código; solo se guarda el token de este dispositivo
+      remoteCfg.owner = GITHUB_OWNER;
+      remoteCfg.repo = GITHUB_REPO;
+      remoteCfg.branch = GITHUB_BRANCH;
       remoteCfg.path = GITHUB_PATH;
+      const tokenInput = document.getElementById("a-gh-token");
+      remoteCfg.token = tokenInput ? tokenInput.value.trim() : (remoteCfg.token || "");
       saveRemoteCfg();
       fillAdminForms();
-      alert(githubWriteConfigured()
-        ? "Configuración guardada ✓\nYa puedes publicar cambios directamente desde este dispositivo."
-        : githubConfigured()
-          ? "Repositorio guardado. Falta el token para poder publicar desde la app."
-          : "Faltan datos del repositorio.");
+      alert(remoteCfg.token
+        ? "Configuración guardada ✓\nYa puedes publicar cambios a todos los móviles."
+        : "Falta el token.\nPega un Personal Access Token de GitHub con permiso de escritura y vuelve a guardar.");
     }
 
     function clearGithubToken() {
