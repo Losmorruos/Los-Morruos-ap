@@ -1,13 +1,33 @@
 {
   "nextMatch": {
-    "team": "Morro Jable A",
-    "rival": "C.D. Tefía",
+    "team": "Morro Jable B",
+    "rival": "C.D. Antigua",
     "date": "2026-09-06",
-    "time": "18:00",
+    "time": "17:00",
     "place": "Cancha Municipal · Puerto del Rosario",
-    "home": true,
+    "home": false,
     "comp": "Liga Insular"
   },
+  "nextMatches": [
+    {
+      "team": "Morro Jable B",
+      "rival": "C.D. Antigua",
+      "date": "2026-09-06",
+      "time": "17:00",
+      "place": "Cancha Municipal · Puerto del Rosario",
+      "home": false,
+      "comp": "Liga Insular"
+    },
+    {
+      "team": "Morro Jable A",
+      "rival": "Ejemplo 1",
+      "date": "2026-09-06",
+      "time": "18:00",
+      "place": "Estación de Guaguas de Morro Jable",
+      "home": true,
+      "comp": "Liga Insular"
+    }
+  ],
   "standingsA": [
     {
       "pos": 1,
@@ -323,24 +343,5 @@
       "time": "10:12"
     }
   ],
-  "nextMatches": [
-    {
-      "team": "Morro Jable A",
-      "rival": "C.D. Tefía",
-      "date": "2026-09-06",
-      "time": "18:00",
-      "place": "Cancha Municipal · Puerto del Rosario",
-      "home": true,
-      "comp": "Liga Insular"
-    },
-    {
-      "team": "Morro Jable B",
-      "rival": "C.D. Antigua",
-      "date": "2026-09-06",
-      "time": "17:00",
-      "place": "Cancha Municipal · Puerto del Rosario",
-      "home": false,
-      "comp": "Liga Insular"
-    }
-  ]
+  "_syncStamp": "mteghbyfh1ig"
 }
