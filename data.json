@@ -1,62 +1,325 @@
 {
-  "nextMatch": { "rival": "C.D. Tefía", "date": "2026-09-06", "time": "18:00", "place": "Cancha Municipal · Puerto del Rosario", "home": true, "comp": "Liga Insular" },
+  "nextMatch": {
+    "rival": "Prueba123",
+    "date": "2026-09-06",
+    "time": "18:00",
+    "place": "Cancha Municipal · Puerto del Rosario",
+    "home": true,
+    "comp": "Liga Insular"
+  },
   "standingsA": [
-    { "pos": 1, "team": "C.D. Corralejo", "pj": 12, "g": 9, "e": 0, "p": 3, "pts": 27 },
-    { "pos": 2, "team": "Morro Jable A", "pj": 12, "g": 8, "e": 0, "p": 4, "pts": 24 },
-    { "pos": 3, "team": "C.D. Tefía", "pj": 12, "g": 7, "e": 0, "p": 5, "pts": 21 },
-    { "pos": 4, "team": "C.D. Betancuria", "pj": 12, "g": 6, "e": 1, "p": 5, "pts": 19 },
-    { "pos": 5, "team": "C.D. La Oliva", "pj": 12, "g": 5, "e": 0, "p": 7, "pts": 15 },
-    { "pos": 6, "team": "C.D. Antigua", "pj": 12, "g": 4, "e": 1, "p": 7, "pts": 13 },
-    { "pos": 7, "team": "C.D. Pájara", "pj": 12, "g": 3, "e": 0, "p": 9, "pts": 9 },
-    { "pos": 8, "team": "C.D. Gran Tarajal", "pj": 12, "g": 2, "e": 0, "p": 10, "pts": 6 }
+    {
+      "pos": 1,
+      "team": "C.D. Corralejo",
+      "pj": 12,
+      "g": 9,
+      "e": 0,
+      "p": 3,
+      "pts": 27
+    },
+    {
+      "pos": 2,
+      "team": "Morro Jable A",
+      "pj": 12,
+      "g": 8,
+      "e": 0,
+      "p": 4,
+      "pts": 24
+    },
+    {
+      "pos": 3,
+      "team": "C.D. Tefía",
+      "pj": 12,
+      "g": 7,
+      "e": 0,
+      "p": 5,
+      "pts": 21
+    },
+    {
+      "pos": 4,
+      "team": "C.D. Betancuria",
+      "pj": 12,
+      "g": 6,
+      "e": 1,
+      "p": 5,
+      "pts": 19
+    },
+    {
+      "pos": 5,
+      "team": "C.D. La Oliva",
+      "pj": 12,
+      "g": 5,
+      "e": 0,
+      "p": 7,
+      "pts": 15
+    },
+    {
+      "pos": 6,
+      "team": "C.D. Antigua",
+      "pj": 12,
+      "g": 4,
+      "e": 1,
+      "p": 7,
+      "pts": 13
+    },
+    {
+      "pos": 7,
+      "team": "C.D. Pájara",
+      "pj": 12,
+      "g": 3,
+      "e": 0,
+      "p": 9,
+      "pts": 9
+    },
+    {
+      "pos": 8,
+      "team": "C.D. Gran Tarajal",
+      "pj": 12,
+      "g": 2,
+      "e": 0,
+      "p": 10,
+      "pts": 6
+    }
   ],
   "standingsB": [
-    { "pos": 1, "team": "C.D. Puerto del Rosario B", "pj": 10, "g": 8, "e": 0, "p": 2, "pts": 24 },
-    { "pos": 2, "team": "Morro Jable B", "pj": 10, "g": 7, "e": 0, "p": 3, "pts": 21 },
-    { "pos": 3, "team": "C.D. Corralejo B", "pj": 10, "g": 6, "e": 1, "p": 3, "pts": 19 },
-    { "pos": 4, "team": "C.D. Tefía B", "pj": 10, "g": 5, "e": 0, "p": 5, "pts": 15 },
-    { "pos": 5, "team": "C.D. Antigua B", "pj": 10, "g": 4, "e": 0, "p": 6, "pts": 12 },
-    { "pos": 6, "team": "C.D. La Oliva B", "pj": 10, "g": 3, "e": 1, "p": 6, "pts": 10 },
-    { "pos": 7, "team": "C.D. Pájara B", "pj": 10, "g": 2, "e": 0, "p": 8, "pts": 6 },
-    { "pos": 8, "team": "C.D. Gran Tarajal B", "pj": 10, "g": 1, "e": 0, "p": 9, "pts": 3 }
+    {
+      "pos": 1,
+      "team": "C.D. Puerto del Rosario B",
+      "pj": 10,
+      "g": 8,
+      "e": 0,
+      "p": 2,
+      "pts": 24
+    },
+    {
+      "pos": 2,
+      "team": "Morro Jable B",
+      "pj": 10,
+      "g": 7,
+      "e": 0,
+      "p": 3,
+      "pts": 21
+    },
+    {
+      "pos": 3,
+      "team": "C.D. Corralejo B",
+      "pj": 10,
+      "g": 6,
+      "e": 1,
+      "p": 3,
+      "pts": 19
+    },
+    {
+      "pos": 4,
+      "team": "C.D. Tefía B",
+      "pj": 10,
+      "g": 5,
+      "e": 0,
+      "p": 5,
+      "pts": 15
+    },
+    {
+      "pos": 5,
+      "team": "C.D. Antigua B",
+      "pj": 10,
+      "g": 4,
+      "e": 0,
+      "p": 6,
+      "pts": 12
+    },
+    {
+      "pos": 6,
+      "team": "C.D. La Oliva B",
+      "pj": 10,
+      "g": 3,
+      "e": 1,
+      "p": 6,
+      "pts": 10
+    },
+    {
+      "pos": 7,
+      "team": "C.D. Pájara B",
+      "pj": 10,
+      "g": 2,
+      "e": 0,
+      "p": 8,
+      "pts": 6
+    },
+    {
+      "pos": 8,
+      "team": "C.D. Gran Tarajal B",
+      "pj": 10,
+      "g": 1,
+      "e": 0,
+      "p": 9,
+      "pts": 3
+    }
   ],
   "standings": [],
   "matches": [
-    { "date": "2026-09-06", "time": "18:00", "rival": "C.D. Tefía", "home": true, "result": null, "jornada": 13 },
-    { "date": "2026-09-20", "time": "17:30", "rival": "C.D. Antigua", "home": false, "result": null, "jornada": 14 },
-    { "date": "2026-10-04", "time": "18:00", "rival": "C.D. Pájara", "home": true, "result": null, "jornada": 15 },
-    { "date": "2026-08-24", "time": "18:00", "rival": "C.D. Corralejo", "home": true, "result": "13-9", "jornada": 12 },
-    { "date": "2026-08-17", "time": "17:00", "rival": "C.D. Betancuria", "home": false, "result": "11-12", "jornada": 11 },
-    { "date": "2026-08-10", "time": "18:00", "rival": "C.D. La Oliva", "home": true, "result": "13-7", "jornada": 10 },
-    { "date": "2026-08-03", "time": "17:30", "rival": "C.D. Gran Tarajal", "home": false, "result": "13-5", "jornada": 9 },
-    { "date": "2026-07-27", "time": "18:00", "rival": "C.D. Tefía", "home": false, "result": "10-13", "jornada": 8 }
+    {
+      "date": "2026-09-06",
+      "time": "18:00",
+      "rival": "C.D. Tefía",
+      "home": true,
+      "result": null,
+      "jornada": 13
+    },
+    {
+      "date": "2026-09-20",
+      "time": "17:30",
+      "rival": "C.D. Antigua",
+      "home": false,
+      "result": null,
+      "jornada": 14
+    },
+    {
+      "date": "2026-10-04",
+      "time": "18:00",
+      "rival": "C.D. Pájara",
+      "home": true,
+      "result": null,
+      "jornada": 15
+    },
+    {
+      "date": "2026-08-24",
+      "time": "18:00",
+      "rival": "C.D. Corralejo",
+      "home": true,
+      "result": "13-9",
+      "jornada": 12
+    },
+    {
+      "date": "2026-08-17",
+      "time": "17:00",
+      "rival": "C.D. Betancuria",
+      "home": false,
+      "result": "11-12",
+      "jornada": 11
+    },
+    {
+      "date": "2026-08-10",
+      "time": "18:00",
+      "rival": "C.D. La Oliva",
+      "home": true,
+      "result": "13-7",
+      "jornada": 10
+    },
+    {
+      "date": "2026-08-03",
+      "time": "17:30",
+      "rival": "C.D. Gran Tarajal",
+      "home": false,
+      "result": "13-5",
+      "jornada": 9
+    },
+    {
+      "date": "2026-07-27",
+      "time": "18:00",
+      "rival": "C.D. Tefía",
+      "home": false,
+      "result": "10-13",
+      "jornada": 8
+    }
   ],
   "players": [
-    { "name": "Juan Pérez", "pos": "Tirador", "num": 1, "age": 34 },
-    { "name": "Manuel Rodríguez", "pos": "Apoyo", "num": 2, "age": 28 },
-    { "name": "Antonio García", "pos": "Tirador", "num": 3, "age": 41 },
-    { "name": "Francisco Díaz", "pos": "Apoyo", "num": 4, "age": 25 },
-    { "name": "José Hernández", "pos": "Tirador", "num": 5, "age": 37 },
-    { "name": "Pedro Cabrera", "pos": "Apoyo", "num": 6, "age": 31 },
-    { "name": "Luis Morales", "pos": "Tirador", "num": 7, "age": 29 },
-    { "name": "Carlos Medina", "pos": "Apoyo", "num": 8, "age": 44 }
+    {
+      "name": "Juan Pérez",
+      "pos": "Tirador",
+      "num": 1,
+      "age": 34
+    },
+    {
+      "name": "Manuel Rodríguez",
+      "pos": "Apoyo",
+      "num": 2,
+      "age": 28
+    },
+    {
+      "name": "Antonio García",
+      "pos": "Tirador",
+      "num": 3,
+      "age": 41
+    },
+    {
+      "name": "Francisco Díaz",
+      "pos": "Apoyo",
+      "num": 4,
+      "age": 25
+    },
+    {
+      "name": "José Hernández",
+      "pos": "Tirador",
+      "num": 5,
+      "age": 37
+    },
+    {
+      "name": "Pedro Cabrera",
+      "pos": "Apoyo",
+      "num": 6,
+      "age": 31
+    },
+    {
+      "name": "Luis Morales",
+      "pos": "Tirador",
+      "num": 7,
+      "age": 29
+    },
+    {
+      "name": "Carlos Medina",
+      "pos": "Apoyo",
+      "num": 8,
+      "age": 44
+    }
   ],
   "news": [
-    { "date": "2026-08-24", "title": "Victoria 13-9 frente a C.D. Corralejo", "text": "Los Morruos consiguieron una importante victoria en casa ante el líder de la clasificación." },
-    { "date": "2026-08-18", "title": "Publicado el calendario de septiembre", "text": "Ya está disponible el calendario de partidos del mes de septiembre." },
-    { "date": "2026-08-10", "title": "Inicio de la pretemporada", "text": "El equipo ha comenzado los entrenamientos con la vista puesta en la nueva temporada." }
+    {
+      "date": "2026-08-24",
+      "title": "Victoria 13-9 frente a C.D. Corralejo",
+      "text": "Los Morruos consiguieron una importante victoria en casa ante el líder de la clasificación."
+    },
+    {
+      "date": "2026-08-18",
+      "title": "Publicado el calendario de septiembre",
+      "text": "Ya está disponible el calendario de partidos del mes de septiembre."
+    },
+    {
+      "date": "2026-08-10",
+      "title": "Inicio de la pretemporada",
+      "text": "El equipo ha comenzado los entrenamientos con la vista puesta en la nueva temporada."
+    }
   ],
   "torneos": [
-    { "title": "Torneo Social Los Morruos", "date": "11 Octubre 2026", "desc": "Jornada de puertas abiertas y partida amistosa." },
-    { "title": "Tiro de Precisión Insular", "date": "Pendiente de fechas", "desc": "Participación del club en la prueba de tiro de precisión." }
+    {
+      "title": "Torneo Social Los Morruos",
+      "date": "11 Octubre 2026",
+      "desc": "Jornada de puertas abiertas y partida amistosa."
+    },
+    {
+      "title": "Tiro de Precisión Insular",
+      "date": "Pendiente de fechas",
+      "desc": "Participación del club en la prueba de tiro de precisión."
+    }
   ],
   "club": {
     "about": "Club Deportivo Los Morruos es un club de bola canaria de Fuerteventura con dos equipos: Morro Jable A (1ª Categoría) y Morro Jable B (2ª Categoría). Nuestros colores son el negro y el dorado, y nuestro símbolo es la cabra majorera.",
     "contact": "Añade teléfono, email o dirección desde Administración.",
-    "ig": "", "fb": "", "x": ""
+    "ig": "",
+    "fb": "",
+    "x": ""
   },
   "chat": [
-    { "me": false, "user": "Admin", "text": "¡Bienvenidos al chat de Los Morruos! 🐐", "time": "10:00" },
-    { "me": false, "user": "Juan", "text": "¿Alguien va al partido del sábado?", "time": "10:12" }
+    {
+      "me": false,
+      "user": "Admin",
+      "text": "¡Bienvenidos al chat de Los Morruos! 🐐",
+      "time": "10:00"
+    },
+    {
+      "me": false,
+      "user": "Juan",
+      "text": "¿Alguien va al partido del sábado?",
+      "time": "10:12"
+    }
   ]
 }
