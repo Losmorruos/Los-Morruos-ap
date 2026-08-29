@@ -216,29 +216,8 @@
   <main class="px-4 pt-4 pb-10 max-w-lg mx-auto">
 
     <section id="tab-home" class="tab-content active">
-      <div class="card p-4 mb-5 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-gold/15 via-transparent to-transparent"></div>
-        <div class="relative">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-[11px] uppercase tracking-widest text-gold font-semibold">Próximo partido</span>
-            <span class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full" id="home-comp">Liga Insular</span>
-          </div>
-          <div class="flex items-center justify-between gap-2">
-            <div class="text-center flex-1">
-              <p class="font-display text-xl font-bold text-gold">LOS MORRUOS</p>
-              <p class="text-[11px] text-gray-500 mt-0.5" id="home-home-label">Local</p>
-            </div>
-            <div class="px-3 py-1.5 bg-gold text-dark font-bold rounded-xl text-sm shadow-lg shadow-gold/20">VS</div>
-            <div class="text-center flex-1">
-              <p class="font-display text-xl font-bold" id="home-rival">C.D. Tefía</p>
-              <p class="text-[11px] text-gray-500 mt-0.5" id="home-away-label">Visitante</p>
-            </div>
-          </div>
-          <div class="mt-4 text-center">
-            <p class="text-sm font-medium" id="home-datetime">Sábado 6 Sep · 18:00</p>
-            <p class="text-xs text-gray-500 mt-0.5" id="home-place">Cancha Municipal · Puerto del Rosario</p>
-          </div>
-        </div>
+      <div id="home-next-matches" class="space-y-3 mb-5">
+        <!-- Se rellena con JS: hasta 2 próximos partidos (A y B) -->
       </div>
       <div class="flex items-center justify-between mb-3">
         <h2 class="font-display text-lg text-gold">Últimos resultados</h2>
@@ -457,21 +436,45 @@
           <button onclick="showAdminTab('ai')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="ai">Asistente IA</button>
         </div>
 
-        <div id="atab-next" class="admin-tab-content">
+        <div id="atab-next" class="admin-tab-content space-y-4">
+          <p class="text-xs text-gray-500">Puedes configurar el próximo partido de <strong class="text-gray-300">Morro Jable A</strong> y de <strong class="text-gray-300">Morro Jable B</strong>. Ambos aparecen en la pantalla de inicio.</p>
+
           <div class="card p-4 space-y-3">
-            <h3 class="font-semibold text-gold">Próximo partido (Inicio)</h3>
-            <div><label class="text-xs text-gray-400">Rival</label><input id="a-next-rival" class="admin-input mt-1" /></div>
+            <h3 class="font-semibold text-gold">Morro Jable A · 1ª Categoría</h3>
+            <div><label class="text-xs text-gray-400">Rival</label><input id="a-next-a-rival" class="admin-input mt-1" /></div>
             <div class="grid grid-cols-2 gap-2">
-              <div><label class="text-xs text-gray-400">Fecha (YYYY-MM-DD)</label><input id="a-next-date" class="admin-input mt-1" placeholder="2026-09-06" /></div>
-              <div><label class="text-xs text-gray-400">Hora</label><input id="a-next-time" class="admin-input mt-1" placeholder="18:00" /></div>
+              <div><label class="text-xs text-gray-400">Fecha (YYYY-MM-DD)</label><input id="a-next-a-date" class="admin-input mt-1" placeholder="2026-09-06" /></div>
+              <div><label class="text-xs text-gray-400">Hora</label><input id="a-next-a-time" class="admin-input mt-1" placeholder="18:00" /></div>
             </div>
-            <div><label class="text-xs text-gray-400">Lugar</label><input id="a-next-place" class="admin-input mt-1" /></div>
+            <div><label class="text-xs text-gray-400">Lugar</label><input id="a-next-a-place" class="admin-input mt-1" /></div>
             <div>
               <label class="text-xs text-gray-400">¿Somos locales?</label>
-              <select id="a-next-home" class="admin-input mt-1"><option value="true">Sí (Local)</option><option value="false">No (Visitante)</option></select>
+              <select id="a-next-a-home" class="admin-input mt-1"><option value="true">Sí (Local)</option><option value="false">No (Visitante)</option></select>
             </div>
-            <div><label class="text-xs text-gray-400">Competición</label><input id="a-next-comp" class="admin-input mt-1" placeholder="Liga Insular" /></div>
-            <button onclick="saveNextMatch()" class="admin-btn w-full">Guardar próximo partido</button>
+            <div><label class="text-xs text-gray-400">Competición</label><input id="a-next-a-comp" class="admin-input mt-1" placeholder="Liga Insular" /></div>
+            <div class="flex gap-2">
+              <button onclick="saveNextMatchTeam('A')" class="admin-btn flex-1">Guardar A</button>
+              <button onclick="clearNextMatchTeam('A')" class="admin-btn-secondary admin-btn-danger">Quitar</button>
+            </div>
+          </div>
+
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Morro Jable B · 2ª Categoría</h3>
+            <div><label class="text-xs text-gray-400">Rival</label><input id="a-next-b-rival" class="admin-input mt-1" /></div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><label class="text-xs text-gray-400">Fecha (YYYY-MM-DD)</label><input id="a-next-b-date" class="admin-input mt-1" placeholder="2026-09-06" /></div>
+              <div><label class="text-xs text-gray-400">Hora</label><input id="a-next-b-time" class="admin-input mt-1" placeholder="17:30" /></div>
+            </div>
+            <div><label class="text-xs text-gray-400">Lugar</label><input id="a-next-b-place" class="admin-input mt-1" /></div>
+            <div>
+              <label class="text-xs text-gray-400">¿Somos locales?</label>
+              <select id="a-next-b-home" class="admin-input mt-1"><option value="true">Sí (Local)</option><option value="false">No (Visitante)</option></select>
+            </div>
+            <div><label class="text-xs text-gray-400">Competición</label><input id="a-next-b-comp" class="admin-input mt-1" placeholder="Liga Insular" /></div>
+            <div class="flex gap-2">
+              <button onclick="saveNextMatchTeam('B')" class="admin-btn flex-1">Guardar B</button>
+              <button onclick="clearNextMatchTeam('B')" class="admin-btn-secondary admin-btn-danger">Quitar</button>
+            </div>
           </div>
         </div>
 
@@ -492,7 +495,7 @@
         <div id="atab-matches" class="admin-tab-content hidden">
           <div class="card p-4 space-y-3">
             <h3 class="font-semibold text-gold">Partidos</h3>
-            <p class="text-xs text-gray-500">Fecha|Hora|Rival|Local(1/0)|Resultado|Jornada<br>Ej: 2026-08-24|18:00|C.D. Corralejo|1|13-9|12</p>
+            <p class="text-xs text-gray-500">Fecha|Hora|Rival|Local(1/0)|Resultado|Jornada|Equipo<br>Ej: 2026-08-24|18:00|C.D. Corralejo|1|13-9|12|Morro Jable A<br>El último campo (Equipo) es opcional: Morro Jable A o Morro Jable B</p>
             <textarea id="a-matches" class="admin-input h-56 font-mono text-xs"></textarea>
             <button onclick="saveMatches()" class="admin-btn w-full">Guardar partidos</button>
           </div>
@@ -631,7 +634,11 @@
 
   <script>
     const DEFAULT = {
-      nextMatch: { rival: "C.D. Tefía", date: "2026-09-06", time: "18:00", place: "Cancha Municipal · Puerto del Rosario", home: true, comp: "Liga Insular" },
+      nextMatch: { team: "Morro Jable A", rival: "C.D. Tefía", date: "2026-09-06", time: "18:00", place: "Cancha Municipal · Puerto del Rosario", home: true, comp: "Liga Insular" },
+      nextMatches: [
+        { team: "Morro Jable A", rival: "C.D. Tefía", date: "2026-09-06", time: "18:00", place: "Cancha Municipal · Puerto del Rosario", home: true, comp: "Liga Insular" },
+        { team: "Morro Jable B", rival: "C.D. Antigua", date: "2026-09-06", time: "17:00", place: "Cancha Municipal · Puerto del Rosario", home: false, comp: "Liga Insular" }
+      ],
       standingsA: [
         { pos: 1, team: "C.D. Corralejo", pj: 12, g: 9, e: 0, p: 3, pts: 27 },
         { pos: 2, team: "Morro Jable A", pj: 12, g: 8, e: 0, p: 4, pts: 24 },
@@ -919,6 +926,7 @@
           ...JSON.parse(JSON.stringify(DEFAULT)),
           ...remote,
           nextMatch: remote.nextMatch || DEFAULT.nextMatch,
+          nextMatches: normalizeNextMatches(remote),
           standings: remote.standings || DEFAULT.standings,
           standingsA: remote.standingsA || remote.standings || DEFAULT.standingsA,
           standingsB: remote.standingsB || DEFAULT.standingsB,
@@ -938,6 +946,8 @@
       } catch {
         data = JSON.parse(JSON.stringify(DEFAULT));
       }
+      data.nextMatches = normalizeNextMatches(data);
+      if (!data.nextMatch && data.nextMatches[0]) data.nextMatch = data.nextMatches[0];
     }
 
     function saveDataLocal() {
@@ -970,24 +980,82 @@
       if (adminOk) fillAdminForms();
     }
 
+    function normalizeNextMatches(src) {
+      if (!src) return JSON.parse(JSON.stringify(DEFAULT.nextMatches || []));
+      if (Array.isArray(src.nextMatches) && src.nextMatches.length) {
+        return src.nextMatches.filter(m => m && m.rival);
+      }
+      // Compatibilidad: si solo hay nextMatch antiguo, lo convertimos
+      if (src.nextMatch && src.nextMatch.rival) {
+        const n = { ...src.nextMatch };
+        if (!n.team) n.team = "Morro Jable A";
+        return [n];
+      }
+      return JSON.parse(JSON.stringify(DEFAULT.nextMatches || []));
+    }
+    function getNextMatches() {
+      if (!data) return [];
+      if (Array.isArray(data.nextMatches) && data.nextMatches.length) {
+        return data.nextMatches.filter(m => m && m.rival);
+      }
+      if (data.nextMatch && data.nextMatch.rival) {
+        return [data.nextMatch];
+      }
+      return [];
+    }
+    function ourTeamName(m) {
+      if (m && m.team) return m.team;
+      const list = getNextMatches();
+      if (list[0] && list[0].team) return list[0].team;
+      return "Morro Jable";
+    }
     function renderHome() {
-      const n = data.nextMatch || {};
-      document.getElementById("home-rival").textContent = n.rival || "—";
-      document.getElementById("home-datetime").textContent = (n.date ? formatDateLong(n.date) : "—") + " · " + (n.time || "");
-      document.getElementById("home-place").textContent = n.place || "";
-      document.getElementById("home-comp").textContent = n.comp || "Liga";
-      document.getElementById("home-home-label").textContent = n.home ? "Local" : "Visitante";
-      document.getElementById("home-away-label").textContent = n.home ? "Visitante" : "Local";
+      const box = document.getElementById("home-next-matches");
+      const list = getNextMatches();
+      if (!box) return;
+      if (!list.length) {
+        box.innerHTML = `<div class="card p-4 text-center text-sm text-gray-500">No hay próximo partido configurado</div>`;
+      } else {
+        box.innerHTML = list.map(n => {
+          const our = n.team || "Morro Jable";
+          return `
+          <div class="card p-4 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-gold/15 via-transparent to-transparent"></div>
+            <div class="relative">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] uppercase tracking-widest text-gold font-semibold">Próximo partido</span>
+                <span class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full">${n.comp || "Liga"}</span>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <div class="text-center flex-1">
+                  <p class="font-display text-lg font-bold text-gold leading-tight">${our}</p>
+                  <p class="text-[11px] text-gray-500 mt-0.5">${n.home ? "Local" : "Visitante"}</p>
+                </div>
+                <div class="px-3 py-1.5 bg-gold text-dark font-bold rounded-xl text-sm shadow-lg shadow-gold/20">VS</div>
+                <div class="text-center flex-1">
+                  <p class="font-display text-lg font-bold leading-tight">${n.rival || "—"}</p>
+                  <p class="text-[11px] text-gray-500 mt-0.5">${n.home ? "Visitante" : "Local"}</p>
+                </div>
+              </div>
+              <div class="mt-4 text-center">
+                <p class="text-sm font-medium">${n.date ? formatDateLong(n.date) : "—"} · ${n.time || ""}</p>
+                <p class="text-xs text-gray-500 mt-0.5">${n.place || ""}</p>
+              </div>
+            </div>
+          </div>`;
+        }).join("");
+      }
 
       const past = (data.matches || []).filter(m => m.result).sort((a,b) => b.date.localeCompare(a.date)).slice(0, 3);
       document.getElementById("home-results").innerHTML = past.map(m => {
         const [g1, g2] = m.result.split("-").map(Number);
         const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
         const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
-        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">Los Morruos <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - ${m.home ? g2 : g1} ${m.rival}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)}</p></div><span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
+        const us = ourTeamName(m);
+        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${us} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - ${m.home ? g2 : g1} ${m.rival}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)}</p></div><span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
       }).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
 
-      const rowHome = (s, club) => `
+      const rowHome = (s) => `
         <tr class="border-t border-dark-border ${isClubTeam(s.team) ? 'bg-gold/10' : ''}">
           <td class="py-2.5 px-3 ${isClubTeam(s.team) ? 'font-bold text-gold' : 'text-gray-400'}">${s.pos}</td>
           <td class="py-2.5 px-3 ${isClubTeam(s.team) ? 'font-semibold text-gold' : ''}">${s.team}</td>
@@ -1053,8 +1121,9 @@
         const [g1, g2] = m.result ? m.result.split("-").map(Number) : [null, null];
         const won = isPast && ((m.home && g1 > g2) || (!m.home && g2 > g1));
         const lost = isPast && ((m.home && g1 < g2) || (!m.home && g2 < g1));
-        return `<div class="card p-3"><div class="flex justify-between mb-1"><span class="text-[11px] text-gray-500">Jornada ${m.jornada || "—"}</span><span class="text-[11px] ${isPast ? 'text-gray-500' : 'text-gold'}">${formatDate(m.date)} · ${m.time || ""}</span></div>
-          <div class="flex items-center justify-between"><p class="font-medium text-sm">${m.home ? '<span class="text-gold">Los Morruos</span>' : m.rival}${isPast ? ` <span class="text-gold">${m.home ? g1 : g2}</span>` : ''}<span class="text-gray-500 mx-1">vs</span>${m.home ? m.rival : '<span class="text-gold">Los Morruos</span>'}${isPast ? ` <span class="text-gold">${m.home ? g2 : g1}</span>` : ''}</p>
+        const us = ourTeamName(m);
+        return `<div class="card p-3"><div class="flex justify-between mb-1"><span class="text-[11px] text-gray-500">${m.team ? m.team + " · " : ""}Jornada ${m.jornada || "—"}</span><span class="text-[11px] ${isPast ? 'text-gray-500' : 'text-gold'}">${formatDate(m.date)} · ${m.time || ""}</span></div>
+          <div class="flex items-center justify-between"><p class="font-medium text-sm">${m.home ? '<span class="text-gold">' + us + '</span>' : m.rival}${isPast ? ` <span class="text-gold">${m.home ? g1 : g2}</span>` : ''}<span class="text-gray-500 mx-1">vs</span>${m.home ? m.rival : '<span class="text-gold">' + us + '</span>'}${isPast ? ` <span class="text-gold">${m.home ? g2 : g1}</span>` : ''}</p>
           ${isPast ? `<span class="text-[11px] px-2 py-0.5 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span>` : '<span class="text-[11px] text-gold">Pendiente</span>'}</div></div>`;
       }).join("") || '<p class="text-sm text-gray-500">Sin partidos</p>';
     }
@@ -1065,7 +1134,8 @@
         const [g1, g2] = m.result.split("-").map(Number);
         const won = (m.home && g1 > g2) || (!m.home && g2 > g1);
         const lost = (m.home && g1 < g2) || (!m.home && g2 < g1);
-        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${m.home ? 'Los Morruos' : m.rival} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - <span class="text-gold font-bold">${m.home ? g2 : g1}</span> ${m.home ? m.rival : 'Los Morruos'}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)} · Jornada ${m.jornada || "—"}</p></div>
+        const us = ourTeamName(m);
+        return `<div class="card p-3 flex items-center justify-between"><div><p class="font-medium text-sm">${m.home ? us : m.rival} <span class="text-gold font-bold">${m.home ? g1 : g2}</span> - <span class="text-gold font-bold">${m.home ? g2 : g1}</span> ${m.home ? m.rival : us}</p><p class="text-[11px] text-gray-500">${formatDate(m.date)} · Jornada ${m.jornada || "—"}</p></div>
           <span class="text-[11px] px-2 py-1 rounded-full font-bold ${won ? 'badge-win' : lost ? 'badge-loss' : 'badge-draw'}">${won ? 'V' : lost ? 'D' : 'E'}</span></div>`;
       }).join("") || '<p class="text-sm text-gray-500">Sin resultados</p>';
     }
@@ -1591,19 +1661,26 @@
     }
 
     function fillAdminForms() {
-      const n = data.nextMatch || {};
-      document.getElementById("a-next-rival").value = n.rival || "";
-      document.getElementById("a-next-date").value = n.date || "";
-      document.getElementById("a-next-time").value = n.time || "";
-      document.getElementById("a-next-place").value = n.place || "";
-      document.getElementById("a-next-home").value = n.home ? "true" : "false";
-      document.getElementById("a-next-comp").value = n.comp || "";
+      const list = getNextMatches();
+      const a = list.find(m => (m.team || "").includes("A")) || list.find(m => !(m.team || "").includes("B")) || {};
+      const b = list.find(m => (m.team || "").includes("B")) || {};
+      const fill = (prefix, n) => {
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+        set("a-next-" + prefix + "-rival", n.rival || "");
+        set("a-next-" + prefix + "-date", n.date || "");
+        set("a-next-" + prefix + "-time", n.time || "");
+        set("a-next-" + prefix + "-place", n.place || "");
+        set("a-next-" + prefix + "-home", n.home === false ? "false" : "true");
+        set("a-next-" + prefix + "-comp", n.comp || "");
+      };
+      fill("a", a);
+      fill("b", b);
       const fmt = s => `${s.pos}|${s.team}|${s.pj}|${s.g}|${s.e}|${s.p}|${s.pts}`;
       const elA = document.getElementById("a-standings-a");
       const elB = document.getElementById("a-standings-b");
       if (elA) elA.value = getStandingsA().map(fmt).join("\n");
       if (elB) elB.value = getStandingsB().map(fmt).join("\n");
-      document.getElementById("a-matches").value = (data.matches || []).map(m => `${m.date}|${m.time || ""}|${m.rival}|${m.home ? 1 : 0}|${m.result || ""}|${m.jornada || ""}`).join("\n");
+      document.getElementById("a-matches").value = (data.matches || []).map(m => `${m.date}|${m.time || ""}|${m.rival}|${m.home ? 1 : 0}|${m.result || ""}|${m.jornada || ""}|${m.team || ""}`).join("\n");
       document.getElementById("a-players").value = (data.players || []).map(p => `${p.name}|${p.pos}|${p.num}|${p.age}`).join("\n");
       document.getElementById("a-news").value = (data.news || []).map(n => `${n.date}|${n.title}|${n.text}`).join("\n");
       document.getElementById("a-club-about").value = data.club?.about || "";
@@ -1643,21 +1720,57 @@
       alert((label || "Guardado") + "\n\n" + (r?.msg || ""));
     }
 
-    async function saveNextMatch() {
-      data.nextMatch = {
-        rival: document.getElementById("a-next-rival").value.trim(),
-        date: document.getElementById("a-next-date").value.trim(),
-        time: document.getElementById("a-next-time").value.trim(),
-        place: document.getElementById("a-next-place").value.trim(),
-        home: document.getElementById("a-next-home").value === "true",
-        comp: document.getElementById("a-next-comp").value.trim()
+    function readNextForm(prefix, teamName) {
+      const g = (id) => (document.getElementById(id) || {}).value || "";
+      const rival = g("a-next-" + prefix + "-rival").trim();
+      if (!rival) return null;
+      return {
+        team: teamName,
+        rival,
+        date: g("a-next-" + prefix + "-date").trim(),
+        time: g("a-next-" + prefix + "-time").trim(),
+        place: g("a-next-" + prefix + "-place").trim(),
+        home: g("a-next-" + prefix + "-home") === "true",
+        comp: g("a-next-" + prefix + "-comp").trim()
       };
-      const nm = data.nextMatch;
-      await afterSave("Próximo partido guardado ✓", {
+    }
+    async function saveNextMatchTeam(which) {
+      const isA = which === "A";
+      const teamName = isA ? "Morro Jable A" : "Morro Jable B";
+      const prefix = isA ? "a" : "b";
+      const entry = readNextForm(prefix, teamName);
+      if (!entry) {
+        alert("Indica al menos el rival para " + teamName);
+        return;
+      }
+      if (!Array.isArray(data.nextMatches)) data.nextMatches = [];
+      // Quitar entrada anterior del mismo equipo
+      data.nextMatches = data.nextMatches.filter(m => !(m.team || "").includes(isA ? "A" : "B") || (m.team || "") === teamName);
+      data.nextMatches = data.nextMatches.filter(m => (m.team || "") !== teamName);
+      data.nextMatches.push(entry);
+      // Mantener nextMatch como el primero (compatibilidad)
+      data.nextMatch = data.nextMatches[0] || entry;
+      const us = entry.team;
+      await afterSave("Próximo partido de " + us + " guardado ✓", {
         title: "⚽ Cambio de partido",
-        body: `${nm.home ? "Los Morruos vs " + nm.rival : nm.rival + " vs Los Morruos"}` +
-              (nm.date ? ` · ${nm.date}` : "") + (nm.time ? ` ${nm.time}` : "")
+        body: `${entry.home ? us + " vs " + entry.rival : entry.rival + " vs " + us}` +
+              (entry.date ? ` · ${entry.date}` : "") + (entry.time ? ` ${entry.time}` : "")
       });
+    }
+    async function clearNextMatchTeam(which) {
+      const isA = which === "A";
+      const teamName = isA ? "Morro Jable A" : "Morro Jable B";
+      if (!confirm("¿Quitar el próximo partido de " + teamName + "?")) return;
+      if (!Array.isArray(data.nextMatches)) data.nextMatches = [];
+      data.nextMatches = data.nextMatches.filter(m => (m.team || "") !== teamName);
+      data.nextMatch = data.nextMatches[0] || null;
+      // Limpiar formulario
+      const prefix = isA ? "a" : "b";
+      ["rival", "date", "time", "place", "comp"].forEach(f => {
+        const el = document.getElementById("a-next-" + prefix + "-" + f);
+        if (el) el.value = "";
+      });
+      await afterSave("Próximo partido de " + teamName + " eliminado");
     }
     async function saveStandings() {
       const parse = (raw) => raw.trim().split("\n").filter(Boolean).map(line => {
@@ -1671,8 +1784,15 @@
     }
     async function saveMatches() {
       data.matches = document.getElementById("a-matches").value.trim().split("\n").filter(Boolean).map(line => {
-        const [date, time, rival, home, result, jornada] = line.split("|").map(s => s.trim());
-        return { date, time, rival, home: home === "1" || home === "true", result: result || null, jornada: jornada ? +jornada : null };
+        const parts = line.split("|").map(s => s.trim());
+        const [date, time, rival, home, result, jornada, team] = parts;
+        return {
+          date, time, rival,
+          home: home === "1" || home === "true",
+          result: result || null,
+          jornada: jornada ? +jornada : null,
+          team: team || null
+        };
       });
       const withResult = data.matches.filter(m => m.result).sort((a, b) => b.date.localeCompare(a.date))[0];
       let pushInfo = null;
@@ -1680,7 +1800,8 @@
         const [g1, g2] = withResult.result.split("-").map(s => s.trim());
         const home = withResult.home ? g1 : g2;
         const away = withResult.home ? g2 : g1;
-        pushInfo = { title: "📊 Nuevo resultado", body: `Los Morruos ${home} - ${away} ${withResult.rival}` };
+        const us = ourTeamName(withResult);
+        pushInfo = { title: "📊 Nuevo resultado", body: `${us} ${home} - ${away} ${withResult.rival}` };
       }
       await afterSave("Partidos guardados ✓", pushInfo);
     }
