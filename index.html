@@ -605,12 +605,10 @@
     let data = null;
     let adminOk = false;
 
-    // ── Configuración del repositorio de GitHub donde vive data.json ──
-    // Rellena esto UNA VEZ con tu usuario y repositorio de GitHub.
-    // Ejemplo: si tu repo es https://github.com/juanperez/los-morruos-datos
-    // entonces GITHUB_OWNER = "juanperez" y GITHUB_REPO = "los-morruos-datos"
-    const GITHUB_OWNER = "TU-USUARIO";
-    const GITHUB_REPO = "TU-REPOSITORIO";
+    // ── Repositorio de GitHub donde vive data.json (fijo para todos los móviles) ──
+    // Solo el TOKEN se guarda en cada dispositivo admin. Owner/repo/branch son públicos.
+    const GITHUB_OWNER = "Losmorruos";
+    const GITHUB_REPO = "Los-Morruos-ap";
     const GITHUB_BRANCH = "main";
     const GITHUB_PATH = "data.json";
 
@@ -619,14 +617,23 @@
     function loadRemoteCfg() {
       try {
         const raw = localStorage.getItem(REMOTE_CFG_KEY);
-        if (raw) remoteCfg = { ...remoteCfg, ...JSON.parse(raw) };
+        if (raw) {
+          const saved = JSON.parse(raw);
+          // Solo recuperamos el token; owner/repo/branch siempre vienen del código
+          if (saved.token) remoteCfg.token = saved.token;
+        }
       } catch {}
+      // Garantizar valores correctos aunque haya basura antigua en localStorage
+      remoteCfg.owner = GITHUB_OWNER;
+      remoteCfg.repo = GITHUB_REPO;
+      remoteCfg.branch = GITHUB_BRANCH;
+      remoteCfg.path = GITHUB_PATH;
     }
     function saveRemoteCfg() {
       localStorage.setItem(REMOTE_CFG_KEY, JSON.stringify(remoteCfg));
     }
     function githubConfigured() {
-      return remoteCfg.owner && remoteCfg.repo && remoteCfg.owner !== "TU-USUARIO" && remoteCfg.repo !== "TU-REPOSITORIO";
+      return !!(remoteCfg.owner && remoteCfg.repo);
     }
     function githubWriteConfigured() {
       return githubConfigured() && !!remoteCfg.token;
@@ -686,11 +693,12 @@
       }
       const headers = {
         "Authorization": "Bearer " + remoteCfg.token,
-        "Accept": "application/vnd.github+json"
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
       };
       try {
-        // Intenta publicar; si el sha ha cambiado mientras tanto (409), vuelve a leerlo y reintenta una vez.
-        for (let attempt = 0; attempt < 2; attempt++) {
+        // Si el sha cambia mientras publicamos (409), reintenta hasta 4 veces con SHA fresco
+        for (let attempt = 0; attempt < 4; attempt++) {
           const sha = await fetchCurrentSha(headers);
           const body = {
             message: "Actualizar datos desde la app (" + new Date().toISOString() + ")",
@@ -706,12 +714,14 @@
           if (putRes.ok) {
             return { ok: true, msg: "Publicado en GitHub ✓\nTodos los dispositivos verán el cambio en unos segundos." };
           }
-          if (putRes.status === 409 && attempt === 0) {
-            continue; // reintenta con el sha actualizado
+          if (putRes.status === 409 && attempt < 3) {
+            await new Promise(r => setTimeout(r, 300 + attempt * 200));
+            continue;
           }
           const t = await putRes.text();
           return { ok: false, msg: "Error al publicar: " + putRes.status + " " + t };
         }
+        return { ok: false, msg: "Error al publicar: demasiados conflictos. Inténtalo de nuevo." };
       } catch (e) {
         return { ok: false, msg: "Error: " + e.message };
       }
