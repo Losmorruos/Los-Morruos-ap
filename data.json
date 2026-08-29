@@ -84,19 +84,9 @@
   ],
   "news": [
     {
-      "date": "2026-08-24",
-      "title": "Victoria 13-9 frente a C.D. Corralejo",
-      "text": "Los Morruos consiguieron una importante victoria en casa ante el líder de la clasificación."
-    },
-    {
-      "date": "2026-08-18",
-      "title": "Publicado el calendario de septiembre",
-      "text": "Ya está disponible el calendario de partidos del mes de septiembre."
-    },
-    {
-      "date": "2026-08-10",
-      "title": "Inicio de la pretemporada",
-      "text": "El equipo ha comenzado los entrenamientos con la vista puesta en la nueva temporada."
+      "date": "PRÓXIMAMENTE PUBLICAREMOS LA INFORMACIÓN DE LA NUEVA TEMPORADA",
+      "title": "",
+      "text": ""
     }
   ],
   "torneos": [
@@ -132,5 +122,5 @@
       "time": "10:12"
     }
   ],
-  "_syncStamp": "mtegj2i3vtl6"
+  "_syncStamp": "mtegjxjkwp9i"
 }
