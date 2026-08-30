@@ -1,0 +1,39 @@
+Los Morruos App — Archivos restaurados / corregidos
+====================================================
+
+Fecha: 2026-08-30
+
+Problema corregido
+------------------
+Error de JavaScript (SyntaxError: Invalid or unexpected token) que
+impedía que se ejecutara el script principal de la app.
+
+Causa: 4 cadenas (alert) con saltos de línea dentro de comillas dobles
+en la función toggleNotifications() de index.html.
+
+Cambios realizados
+------------------
+1. index.html
+   - Corregidas las 4 cadenas rotas (se usan \n en lugar de saltos de línea reales).
+   - El resto del código se mantiene igual.
+
+2. sw.js
+   - Versión de caché actualizada de "morruos-v7" a "morruos-v8"
+     para forzar la actualización en dispositivos que ya tenían la app instalada.
+
+Archivos incluidos
+------------------
+- index.html   (corregido)
+- sw.js        (versión de caché actualizada)
+- data.json
+- manifest.json
+- logo.png
+- README.md
+- CAMBIOS.txt  (este archivo)
+
+Cómo publicar
+-------------
+1. Sube todo el contenido de esta carpeta al repositorio
+   (o a GitHub Pages / Netlify / etc.).
+2. En los móviles: cierra la app, borra la caché del sitio o
+   desinstala y vuelve a "Añadir a pantalla de inicio".

@@ -1937,8 +1937,7 @@
         return;
       }
       if (!window.isSecureContext) {
-        alert("Las notificaciones solo funcionan en HTTPS (GitHub Pages, Netlify, etc.).
-Ahora estás en: " + location.protocol);
+        alert("Las notificaciones solo funcionan en HTTPS (GitHub Pages, Netlify, etc.).\nAhora estás en: " + location.protocol);
         return;
       }
       if (!("Notification" in window)) {
@@ -1967,8 +1966,7 @@ Ahora estás en: " + location.protocol);
           // Pedir permiso al navegador
           let perm = Notification.permission;
           if (perm === "denied") {
-            alert("Has bloqueado las notificaciones para este sitio.
-Ve a Ajustes del navegador → Notificaciones y permite esta web.");
+            alert("Has bloqueado las notificaciones para este sitio.\nVe a Ajustes del navegador → Notificaciones y permite esta web.");
             return;
           }
           await OneSignal.User.PushSubscription.optIn();
@@ -1979,15 +1977,12 @@ Ve a Ajustes del navegador → Notificaciones y permite esta web.");
           } else if (Notification.permission === "denied") {
             alert("Has denegado el permiso. Actívalo en Ajustes del navegador.");
           } else {
-            alert("No se pudo activar. En iPhone: añade la app a la pantalla de inicio y ábrela desde el icono.
-En Android: revisa que las notificaciones del navegador estén permitidas.");
+            alert("No se pudo activar. En iPhone: añade la app a la pantalla de inicio y ábrela desde el icono.\nEn Android: revisa que las notificaciones del navegador estén permitidas.");
           }
         }
       } catch (e) {
         console.warn("toggleNotifications error:", e);
-        alert("Error al activar avisos: " + (e.message || e) + "
-
-URL actual: " + location.href);
+        alert("Error al activar avisos: " + (e.message || e) + "\n\nURL actual: " + location.href);
       }
     }
 
