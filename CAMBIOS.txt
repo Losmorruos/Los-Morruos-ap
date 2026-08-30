@@ -3,37 +3,50 @@ Los Morruos App — Archivos restaurados / corregidos
 
 Fecha: 2026-08-30
 
-Problema corregido
-------------------
-Error de JavaScript (SyntaxError: Invalid or unexpected token) que
-impedía que se ejecutara el script principal de la app.
+Problemas corregidos
+--------------------
+1. Error de JavaScript (SyntaxError) en index.html
+   - 4 cadenas (alert) con saltos de línea dentro de comillas dobles
+     en la función toggleNotifications().
 
-Causa: 4 cadenas (alert) con saltos de línea dentro de comillas dobles
-en la función toggleNotifications() de index.html.
+2. Error de OneSignal al activar notificaciones
+   - OneSignal buscaba OneSignalSDKWorker.js en la raíz del dominio
+     y devolvía 404.
+   - Se añaden los workers que OneSignal espera.
 
 Cambios realizados
 ------------------
 1. index.html
-   - Corregidas las 4 cadenas rotas (se usan \n en lugar de saltos de línea reales).
-   - El resto del código se mantiene igual.
+   - Corregidas las 4 cadenas rotas (se usan \n).
 
 2. sw.js
-   - Versión de caché actualizada de "morruos-v7" a "morruos-v8"
-     para forzar la actualización en dispositivos que ya tenían la app instalada.
+   - Versión de caché: morruos-v9
+     (sube este número cada vez que publiques cambios importantes).
+
+3. OneSignalSDKWorker.js (NUEVO)
+   - importScripts del worker oficial de OneSignal.
+
+4. OneSignalSDKUpdaterWorker.js (NUEVO)
+   - Mismo contenido (requerido por algunas versiones del SDK).
 
 Archivos incluidos
 ------------------
-- index.html   (corregido)
-- sw.js        (versión de caché actualizada)
+- index.html
+- sw.js
+- OneSignalSDKWorker.js
+- OneSignalSDKUpdaterWorker.js
 - data.json
 - manifest.json
 - logo.png
 - README.md
-- CAMBIOS.txt  (este archivo)
+- CAMBIOS.txt
 
 Cómo publicar
 -------------
-1. Sube todo el contenido de esta carpeta al repositorio
-   (o a GitHub Pages / Netlify / etc.).
-2. En los móviles: cierra la app, borra la caché del sitio o
+1. Sube TODO el contenido de esta carpeta al repositorio
+   (rama main) o a tu hosting.
+2. En el panel de OneSignal → Settings → Web:
+   Site URL debe ser exactamente:
+   https://losmorruos.github.io/Los-Morruos-ap/
+3. En los móviles: cierra la app, borra caché del sitio o
    desinstala y vuelve a "Añadir a pantalla de inicio".
