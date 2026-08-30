@@ -5,7 +5,7 @@ importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 // IMPORTANTE: sube este número cada vez que publiques cambios en index.html,
 // logo.png o manifest.json. Si no lo cambias, los móviles seguirán viendo
 // la versión antigua aunque hayas subido archivos nuevos al hosting.
-const CACHE = "morruos-v7";
+const CACHE = "morruos-v8";
 const ASSETS = ["./index.html", "./logo.png", "./manifest.json"];
 
 self.addEventListener("install", (e) => {
