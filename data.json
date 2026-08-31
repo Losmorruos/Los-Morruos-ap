@@ -34,52 +34,44 @@
   "matches": [],
   "players": [
     {
-      "name": "Juan Pérez",
-      "pos": "Tirador",
-      "num": 1,
-      "age": 34
+      "name": "* Morro Jable A *",
+      "num": null,
+      "age": null
     },
     {
-      "name": "Manuel Rodríguez",
-      "pos": "Apoyo",
-      "num": 2,
-      "age": 28
+      "name": "Alexis Rosa Gonzáles",
+      "num": null,
+      "age": null
     },
     {
-      "name": "Antonio García",
-      "pos": "Tirador",
-      "num": 3,
-      "age": 41
+      "name": "Amadeu Rosa Barbosa",
+      "num": null,
+      "age": null
     },
     {
-      "name": "Francisco Díaz",
-      "pos": "Apoyo",
-      "num": 4,
-      "age": 25
+      "name": "Pedro Acosta Frances",
+      "num": null,
+      "age": null
     },
     {
-      "name": "José Hernández",
-      "pos": "Tirador",
-      "num": 5,
-      "age": 37
+      "name": "Guanárteme Gonzáles Estupiñán",
+      "num": null,
+      "age": null
     },
     {
-      "name": "Pedro Cabrera",
-      "pos": "Apoyo",
-      "num": 6,
-      "age": 31
+      "name": "Jonathan Diz Padin",
+      "num": null,
+      "age": null
     },
     {
-      "name": "Luis Morales",
-      "pos": "Tirador",
-      "num": 7,
-      "age": 29
+      "name": "Juan Ramon Fernandez Acosta",
+      "num": null,
+      "age": null
     },
     {
-      "name": "Carlos Medina",
-      "pos": "Apoyo",
-      "num": 8,
-      "age": 44
+      "name": "Oscar Araya Gopar",
+      "num": null,
+      "age": null
     }
   ],
   "news": [
@@ -122,7 +114,7 @@
       "time": "10:12"
     }
   ],
-  "_syncStamp": "mtegkq65igp9",
+  "_syncStamp": "mthvh9g8o2xn",
   "trainings": [
     {
       "date": "2026-09-02",
@@ -141,12 +133,12 @@
   ],
   "gallery": [],
   "venue": {
-    "name": "Cancha Los Morruos · Morro Jable",
-    "address": "Morro Jable, Pájara, Fuerteventura",
-    "lat": 28.048,
-    "lng": -14.358,
-    "mapsUrl": "https://www.google.com/maps?q=Morro+Jable+Fuerteventura",
-    "howto": "Cancha municipal en la zona de Morro Jable. Confirmar sede antes del partido por si hay cambios."
+    "name": "Estacion de Guaguas de Morro Jable",
+    "address": "",
+    "lat": null,
+    "lng": null,
+    "mapsUrl": "https://maps.app.goo.gl/WazJzdLAAwVGBKxn9",
+    "howto": ""
   },
   "socios": {
     "info": "Sé socio de Club Deportivo Los Morruos y apoya la bola canaria en Fuerteventura.",
