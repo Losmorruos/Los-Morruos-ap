@@ -122,5 +122,40 @@
       "time": "10:12"
     }
   ],
-  "_syncStamp": "mtegkq65igp9"
+  "_syncStamp": "mtegkq65igp9",
+  "trainings": [
+    {
+      "date": "2026-09-02",
+      "time": "19:00",
+      "place": "Cancha Morro Jable",
+      "title": "Entrenamiento general",
+      "notes": "Traer ropa oscura y agua."
+    },
+    {
+      "date": "2026-09-04",
+      "time": "19:00",
+      "place": "Cancha Morro Jable",
+      "title": "Técnica de tiro",
+      "notes": "Enfoque en precisión."
+    }
+  ],
+  "gallery": [],
+  "venue": {
+    "name": "Cancha Los Morruos · Morro Jable",
+    "address": "Morro Jable, Pájara, Fuerteventura",
+    "lat": 28.048,
+    "lng": -14.358,
+    "mapsUrl": "https://www.google.com/maps?q=Morro+Jable+Fuerteventura",
+    "howto": "Cancha municipal en la zona de Morro Jable. Confirmar sede antes del partido por si hay cambios."
+  },
+  "socios": {
+    "info": "Sé socio de Club Deportivo Los Morruos y apoya la bola canaria en Fuerteventura.",
+    "fee": "Consultar con el club",
+    "benefits": [
+      "Acceso prioritario a eventos del club",
+      "Descuentos en material cuando haya acuerdos",
+      "Participación en asambleas"
+    ],
+    "contact": "+34650858521 / ClubdeportivolosMorruos@gmail.com"
+  }
 }

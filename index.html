@@ -84,6 +84,24 @@
       padding: 8px 14px; border: 1px solid #3a3a3a; cursor: pointer; font-size: 13px;
     }
     .admin-btn-danger { background: #7f1d1d; color: #fca5a5; }
+
+    .countdown-box { display:flex; gap:8px; justify-content:center; margin-top:10px; }
+    .countdown-unit { background:#1a1a1a; border:1px solid #2A2A2A; border-radius:10px; min-width:52px; padding:8px 6px; text-align:center; }
+    .countdown-unit .num { font-family:'Oswald',sans-serif; font-size:1.35rem; color:#F5C518; line-height:1; }
+    .countdown-unit .lbl { font-size:9px; color:#888; text-transform:uppercase; margin-top:2px; }
+    .empty-state { text-align:center; padding:28px 16px; color:#6b7280; font-size:14px; border:1px dashed #2A2A2A; border-radius:14px; background:#111; }
+    .share-btn { display:inline-flex; align-items:center; gap:6px; background:#1f1f1f; border:1px solid #2A2A2A; color:#e5e5e5; border-radius:10px; padding:6px 12px; font-size:12px; cursor:pointer; }
+    .share-btn:active { background:#2a2a2a; }
+    .gallery-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .gallery-item { aspect-ratio:1; border-radius:12px; overflow:hidden; background:#1a1a1a; border:1px solid #2A2A2A; }
+    .gallery-item img { width:100%; height:100%; object-fit:cover; }
+    .guest-btn { width:100%; margin-top:10px; background:transparent; border:1px solid #2A2A2A; color:#a3a3a3; border-radius:12px; padding:12px; font-size:14px; cursor:pointer; }
+    .guest-btn:hover { border-color:#F5C518; color:#F5C518; }
+    .map-frame { width:100%; height:220px; border:0; border-radius:14px; background:#1a1a1a; }
+    .stat-card { background:#141414; border:1px solid #2A2A2A; border-radius:14px; padding:14px; text-align:center; }
+    .stat-card .val { font-family:'Oswald',sans-serif; font-size:1.6rem; color:#F5C518; }
+    .stat-card .lbl { font-size:11px; color:#888; margin-top:2px; }
+
   </style>
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <!-- Firebase (compat) para registro de usuarios y actividad en tiempo real -->
@@ -114,6 +132,7 @@
       </div>
       <p id="reg-error" class="text-xs text-red-400 hidden text-center"></p>
       <button onclick="submitRegistration()" class="admin-btn w-full">Entrar a la app</button>
+      <button type="button" onclick="enterAsGuest()" class="guest-btn">Entrar como invitado (solo consulta)</button>
       <p class="text-[10px] text-gray-600 text-center">Tus datos se guardan solo en este dispositivo para el club.</p>
     </div>
   </div>
@@ -170,6 +189,28 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
         Redes Sociales
       </button>
+
+      <button onclick="goTo('entrenos')" class="menu-item" data-menu="entrenos">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Entrenamientos
+      </button>
+      <button onclick="goTo('galeria')" class="menu-item" data-menu="galeria">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Galería
+      </button>
+      <button onclick="goTo('mapa')" class="menu-item" data-menu="mapa">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Cancha / Mapa
+      </button>
+      <button onclick="goTo('stats')" class="menu-item" data-menu="stats">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Estadísticas
+      </button>
+      <button onclick="goTo('socios')" class="menu-item" data-menu="socios">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Socios
+      </button>
+
       <button onclick="goTo('chat')" class="menu-item" data-menu="chat">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
         Chat del Club
@@ -375,8 +416,9 @@
     <section id="tab-chat" class="tab-content">
       <div class="flex items-center justify-between mb-3">
         <h2 class="font-display text-xl text-gold">Chat del Club</h2>
-        <span class="text-[11px] bg-green-900/50 text-green-400 px-2 py-0.5 rounded-full">Demo local</span>
+        <span id="chat-status-badge" class="text-[11px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full">Local</span>
       </div>
+      <p id="chat-hint" class="text-[11px] text-gray-500 mb-2">Los mensajes se sincronizan en tiempo real cuando Firebase está conectado (configuración en Administración).</p>
       <div id="chat-messages" class="chat-messages space-y-3 mb-3 pr-1"></div>
       <div class="flex gap-2 sticky bottom-0 bg-dark pt-2">
         <input id="chat-input" type="text" placeholder="Escribe un mensaje..." 
@@ -408,6 +450,50 @@
       </div>
     </section>
 
+
+    <section id="tab-entrenos" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-3">Entrenamientos</h2>
+      <div id="entrenos-list" class="space-y-3"></div>
+    </section>
+    <section id="tab-galeria" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-3">Galería</h2>
+      <p class="text-xs text-gray-500 mb-3">Momentos del club</p>
+      <div id="gallery-grid" class="gallery-grid"></div>
+    </section>
+    <section id="tab-mapa" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-3">Cancha / Ubicación</h2>
+      <div class="card p-4 mb-4">
+        <h3 class="font-semibold text-gold mb-1" id="venue-name">Cancha del club</h3>
+        <p class="text-sm text-gray-400 mb-3" id="venue-address"></p>
+        <div id="venue-map-wrap"></div>
+        <a id="venue-maps-link" href="#" target="_blank" rel="noopener" class="admin-btn w-full mt-3 block text-center no-underline">Abrir en Google Maps</a>
+      </div>
+      <div class="card p-4">
+        <h3 class="font-semibold text-gold mb-2">Cómo llegar</h3>
+        <p class="text-sm text-gray-400" id="venue-howto">Consulta la ubicación en el mapa.</p>
+      </div>
+    </section>
+    <section id="tab-stats" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-3">Estadísticas</h2>
+      <div id="stats-grid" class="grid grid-cols-2 gap-3 mb-5"></div>
+      <div class="card p-4">
+        <h3 class="font-semibold text-gold mb-2">Resumen temporada</h3>
+        <p class="text-sm text-gray-400" id="stats-summary">Cuando haya partidos registrados aparecerán aquí.</p>
+      </div>
+    </section>
+    <section id="tab-socios" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-3">Socios</h2>
+      <div class="card p-4 mb-4">
+        <h3 class="font-semibold text-gold mb-2">Ser socio del club</h3>
+        <p class="text-sm text-gray-400 mb-3" id="socios-info">Apoya a Los Morruos. La información de cuotas se publicará aquí.</p>
+        <div class="text-sm space-y-2" id="socios-details"></div>
+      </div>
+      <div class="card p-4">
+        <h3 class="font-semibold text-gold mb-2">Contacto socios</h3>
+        <p class="text-sm text-gray-400" id="socios-contact">Usa el contacto del club.</p>
+      </div>
+    </section>
+
     <!-- ADMIN -->
     <section id="tab-admin" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-2">Administración</h2>
@@ -433,6 +519,10 @@
           <button onclick="showAdminTab('news')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="news">Noticias</button>
           <button onclick="showAdminTab('club')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="club">Club / Redes</button>
           <button onclick="showAdminTab('users')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="users">Usuarios</button>
+          <button onclick="showAdminTab('trainings')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="trainings">Entrenamientos</button>
+          <button onclick="showAdminTab('gallery')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="gallery">Galería</button>
+          <button onclick="showAdminTab('venue')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="venue">Cancha</button>
+          <button onclick="showAdminTab('sociosadmin')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="sociosadmin">Socios</button>
           <button onclick="showAdminTab('ai')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="ai">Asistente IA</button>
         </div>
 
@@ -558,6 +648,72 @@
             <button onclick="saveFirebaseConfig()" class="admin-btn w-full">Guardar y conectar Firebase</button>
             <button onclick="clearFirebaseConfig()" class="admin-btn-secondary admin-btn-danger w-full">Desconectar Firebase</button>
             <p id="firebase-config-status" class="text-[11px] text-gray-500 text-center"></p>
+            <details class="text-[11px] text-gray-500 mt-2">
+              <summary class="cursor-pointer text-gold">Reglas Firestore recomendadas (chat + usuarios)</summary>
+              <pre class="mt-2 p-2 bg-black/40 rounded text-[10px] overflow-x-auto whitespace-pre-wrap">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /registrations/{docId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasAll(['nombre','apellidos','telefono','registeredAt']);
+    }
+    match /activity/{docId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['t','msg']);
+    }
+    match /chat/{docId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['user','text','t'])
+                    &amp;&amp; request.resource.data.text is string
+                    &amp;&amp; request.resource.data.text.size() &lt;= 500;
+      allow update, delete: if false;
+    }
+  }
+}</pre>
+              <p class="mt-1">Pégalas en Firebase Console → Firestore → Rules → Publicar.</p>
+            </details>
+          </div>
+        </div>
+
+        
+        <div id="atab-trainings" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Entrenamientos</h3>
+            <p class="text-xs text-gray-500">Fecha|Hora|Lugar|Título|Notas (una línea por entrenamiento)</p>
+            <textarea id="a-trainings" class="admin-input h-40 font-mono text-xs"></textarea>
+            <button onclick="saveTrainings()" class="admin-btn w-full">Guardar entrenamientos</button>
+          </div>
+        </div>
+        <div id="atab-gallery" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Galería (URLs)</h3>
+            <p class="text-xs text-gray-500">URL|Caption (una línea por foto)</p>
+            <textarea id="a-gallery" class="admin-input h-40 font-mono text-xs"></textarea>
+            <button onclick="saveGallery()" class="admin-btn w-full">Guardar galería</button>
+          </div>
+        </div>
+        <div id="atab-venue" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Cancha / Ubicación</h3>
+            <div><label class="text-xs text-gray-400">Nombre</label><input id="a-venue-name" class="admin-input mt-1" /></div>
+            <div><label class="text-xs text-gray-400">Dirección</label><input id="a-venue-address" class="admin-input mt-1" /></div>
+            <div class="grid grid-cols-2 gap-2">
+              <div><label class="text-xs text-gray-400">Lat</label><input id="a-venue-lat" class="admin-input mt-1" placeholder="28.048" /></div>
+              <div><label class="text-xs text-gray-400">Lng</label><input id="a-venue-lng" class="admin-input mt-1" placeholder="-14.358" /></div>
+            </div>
+            <div><label class="text-xs text-gray-400">URL Google Maps</label><input id="a-venue-maps" class="admin-input mt-1" /></div>
+            <div><label class="text-xs text-gray-400">Cómo llegar</label><textarea id="a-venue-howto" class="admin-input h-20 mt-1"></textarea></div>
+            <button onclick="saveVenue()" class="admin-btn w-full">Guardar cancha</button>
+          </div>
+        </div>
+        <div id="atab-sociosadmin" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Info socios</h3>
+            <div><label class="text-xs text-gray-400">Texto principal</label><textarea id="a-socios-info" class="admin-input h-24 mt-1"></textarea></div>
+            <div><label class="text-xs text-gray-400">Cuota</label><input id="a-socios-fee" class="admin-input mt-1" placeholder="30 € / temporada" /></div>
+            <div><label class="text-xs text-gray-400">Beneficios (uno por línea)</label><textarea id="a-socios-benefits" class="admin-input h-24 mt-1"></textarea></div>
+            <div><label class="text-xs text-gray-400">Contacto socios</label><input id="a-socios-contact" class="admin-input mt-1" /></div>
+            <button onclick="saveSocios()" class="admin-btn w-full">Guardar socios</button>
           </div>
         </div>
 
@@ -719,7 +875,9 @@
     let db = null;                 // Firestore
     let usersUnsub = null;         // onSnapshot unsubscribe
     let activityUnsub = null;
+    let chatUnsub = null;
     let firebaseReady = false;
+    let liveChatMessages = []; // mensajes en vivo desde Firestore
 
     // ── Repositorio de GitHub donde vive data.json (fijo para todos los móviles) ──
     // Solo el TOKEN se guarda en cada dispositivo admin. Owner/repo/branch son públicos.
@@ -977,6 +1135,7 @@
     function renderAll() {
       renderHome(); renderStandings(); renderCalendario(); renderResultados();
       renderPlayers(); renderNews(); renderTorneos(); renderClub(); renderRedes(); renderChat();
+      renderEntrenos(); renderGaleria(); renderMapa(); renderStats(); renderSocios(); enhanceHomeCards(); startCountdownTicker();
       if (adminOk) fillAdminForms();
     }
 
@@ -1180,30 +1339,127 @@
           <div><p class="font-semibold">${i.name}</p><p class="text-xs text-gray-500">${i.val || "Pendiente de configurar"}</p></div></a>`).join("");
     }
 
+    function updateChatBadge() {
+      const badge = document.getElementById("chat-status-badge");
+      const hint = document.getElementById("chat-hint");
+      if (!badge) return;
+      if (firebaseReady && chatUnsub) {
+        badge.textContent = "● En vivo";
+        badge.className = "text-[11px] bg-green-900/50 text-green-400 px-2 py-0.5 rounded-full";
+        if (hint) hint.textContent = "Chat en tiempo real con Firebase. Todos los del club ven los mensajes al instante.";
+      } else if (firebaseReady) {
+        badge.textContent = "Firebase";
+        badge.className = "text-[11px] bg-green-900/40 text-green-400 px-2 py-0.5 rounded-full";
+        if (hint) hint.textContent = "Firebase conectado. Abre el chat o espera a que arranque el listener.";
+      } else {
+        badge.textContent = "Local";
+        badge.className = "text-[11px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full";
+        if (hint) hint.textContent = "Sin Firebase: el chat es solo en este dispositivo. Configúralo en Administración → Usuarios.";
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function formatChatTime(isoOrTime) {
+      if (!isoOrTime) return "";
+      try {
+        // Si ya es HH:MM
+        if (/^\d{1,2}:\d{2}$/.test(isoOrTime)) return isoOrTime;
+        const d = new Date(isoOrTime);
+        if (isNaN(d.getTime())) return String(isoOrTime);
+        const today = new Date();
+        const sameDay = d.toDateString() === today.toDateString();
+        const hh = d.getHours().toString().padStart(2, "0");
+        const mm = d.getMinutes().toString().padStart(2, "0");
+        if (sameDay) return hh + ":" + mm;
+        const dd = d.getDate().toString().padStart(2, "0");
+        const mo = (d.getMonth() + 1).toString().padStart(2, "0");
+        return dd + "/" + mo + " " + hh + ":" + mm;
+      } catch { return String(isoOrTime); }
+    }
+
+    function isMyChatMessage(m) {
+      if (!currentUser) return !!m.me;
+      const myPhone = (currentUser.telefono || "").replace(/\D/g, "");
+      const myName = ((currentUser.nombre || "") + " " + (currentUser.apellidos || "")).trim();
+      if (m.phone && myPhone && String(m.phone).replace(/\D/g, "") === myPhone) return true;
+      if (m.user && myName && m.user === myName) return true;
+      return !!m.me;
+    }
+
     function renderChat() {
       const box = document.getElementById("chat-messages");
-      box.innerHTML = (data.chat || []).map(m => `
-        <div class="flex ${m.me ? 'justify-end' : 'justify-start'}"><div class="max-w-[80%] ${m.me ? 'chat-bubble-me' : 'chat-bubble-other'} px-3.5 py-2">
-          ${!m.me ? `<p class="text-[11px] font-semibold text-gold mb-0.5">${m.user}</p>` : ''}<p class="text-sm leading-snug">${m.text}</p>
-          <p class="text-[10px] ${m.me ? 'text-black/50' : 'text-gray-500'} text-right mt-1">${m.time}</p></div></div>`).join("");
+      if (!box) return;
+      updateChatBadge();
+      // Preferir mensajes en vivo de Firestore; si no hay, data.chat local
+      const list = (liveChatMessages && liveChatMessages.length)
+        ? liveChatMessages
+        : (data && data.chat ? data.chat : []);
+      if (!list.length) {
+        box.innerHTML = `<div class="empty-state">Sé el primero en escribir en el chat del club 🐐</div>`;
+        return;
+      }
+      box.innerHTML = list.map(m => {
+        const me = isMyChatMessage(m);
+        const user = escapeHtml(m.user || "Usuario");
+        const text = escapeHtml(m.text || "");
+        const time = formatChatTime(m.t || m.time || m.createdAt);
+        return `<div class="flex ${me ? "justify-end" : "justify-start"}"><div class="max-w-[80%] ${me ? "chat-bubble-me" : "chat-bubble-other"} px-3.5 py-2">
+          ${!me ? `<p class="text-[11px] font-semibold text-gold mb-0.5">${user}</p>` : ""}<p class="text-sm leading-snug">${text}</p>
+          <p class="text-[10px] ${me ? "text-black/50" : "text-gray-500"} text-right mt-1">${time}</p></div></div>`;
+      }).join("");
       box.scrollTop = box.scrollHeight;
     }
 
     async function sendMessage() {
       const input = document.getElementById("chat-input");
-      const text = input.value.trim();
+      const text = (input && input.value || "").trim();
       if (!text) return;
+      if (!currentUser || !currentUser.nombre) {
+        alert("Regístrate o entra como invitado para escribir en el chat.");
+        return;
+      }
+      const userName = ((currentUser.nombre || "") + (currentUser.apellidos ? " " + currentUser.apellidos : "")).trim() || "Usuario";
+      const phone = (currentUser.telefono || "").replace(/\D/g, "");
       const now = new Date();
-      const time = now.getHours().toString().padStart(2,"0") + ":" + now.getMinutes().toString().padStart(2,"0");
-      if (!data.chat) data.chat = [];
-      data.chat.push({ me: true, user: "Tú", text, time });
-      input.value = "";
-      saveDataLocal();          // siempre guarda en este dispositivo
-      renderChat();
+      const iso = now.toISOString();
+      const time = now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
+      const msg = {
+        user: userName,
+        text: text.slice(0, 500),
+        t: iso,
+        time,
+        phone: phone || null,
+        guest: !!currentUser.guest
+      };
+      if (input) input.value = "";
 
-      // Si hay token configurado, intenta publicar también a GitHub
-      // (así el resto de teléfonos ven el mensaje al recargar)
-      if (githubWriteConfigured()) {
+      // 1) Firebase en tiempo real (preferido)
+      if (firebaseReady && db) {
+        try {
+          await db.collection("chat").add(msg);
+          // El onSnapshot actualizará la UI
+          try { if (typeof logActivity === "function") logActivity(userName + " escribió en el chat"); } catch {}
+          return;
+        } catch (e) {
+          console.warn("Chat Firebase write failed, fallback local:", e);
+          alert("No se pudo enviar por Firebase (" + (e.message || e) + "). Se guarda solo en este dispositivo.");
+        }
+      }
+
+      // 2) Fallback local (+ GitHub si hay token admin)
+      if (!data.chat) data.chat = [];
+      data.chat.push({ me: true, user: userName, text: msg.text, time, t: iso, phone });
+      if (data.chat.length > 200) data.chat = data.chat.slice(-200);
+      try { if (typeof saveDataLocal === "function") saveDataLocal(); } catch {}
+      renderChat();
+      if (typeof githubWriteConfigured === "function" && githubWriteConfigured()) {
         try {
           const r = await pushRemote();
           if (!r.ok) console.warn("No se pudo publicar el chat:", r.msg);
@@ -1212,6 +1468,7 @@
         }
       }
     }
+
 
     function openDrawer() {
       document.getElementById("drawer").classList.add("open");
@@ -1282,11 +1539,13 @@
         // Reiniciar listeners anteriores
         if (usersUnsub) { usersUnsub(); usersUnsub = null; }
         if (activityUnsub) { activityUnsub(); activityUnsub = null; }
+        if (chatUnsub) { chatUnsub(); chatUnsub = null; }
         const ok = initFirebase();
         if (ok) {
-          status.textContent = "✓ Firebase conectado. Los registros y la actividad se sincronizan en tiempo real.";
+          status.textContent = "✓ Firebase conectado. Usuarios, actividad y chat en tiempo real.";
           startFirebaseListeners();
           refreshUsersList();
+          updateChatBadge();
         } else {
           status.textContent = "Error al inicializar Firebase. Revisa la configuración.";
         }
@@ -1298,10 +1557,14 @@
       if (!confirm("¿Desconectar Firebase de este dispositivo?")) return;
       if (usersUnsub) { usersUnsub(); usersUnsub = null; }
       if (activityUnsub) { activityUnsub(); activityUnsub = null; }
+      if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+      liveChatMessages = [];
       localStorage.removeItem(FIREBASE_CFG_KEY);
       firebaseReady = false;
       db = null;
       updateFirebaseBadge();
+      updateChatBadge();
+      renderChat();
       document.getElementById("a-firebase-config").value = "";
       document.getElementById("firebase-config-status").textContent = "Firebase desconectado.";
       refreshUsersList();
@@ -1310,6 +1573,7 @@
       if (!firebaseReady || !db) return;
       if (usersUnsub) usersUnsub();
       if (activityUnsub) activityUnsub();
+      if (chatUnsub) { try { chatUnsub(); } catch {} chatUnsub = null; }
 
       // Usuarios en tiempo real (ordenados por fecha desc)
       usersUnsub = db.collection("registrations")
@@ -1338,6 +1602,40 @@
         }, err => {
           console.warn("Activity listener error:", err);
         });
+
+      // Chat en tiempo real
+      if (chatUnsub) { try { chatUnsub(); } catch {} chatUnsub = null; }
+      chatUnsub = db.collection("chat")
+        .orderBy("t", "asc")
+        .limitToLast(150)
+        .onSnapshot(snap => {
+          const list = [];
+          snap.forEach(doc => {
+            const d = doc.data() || {};
+            list.push({ id: doc.id, ...d });
+          });
+          liveChatMessages = list;
+          // Caché local opcional
+          try {
+            if (data) {
+              data.chat = list.map(m => ({
+                user: m.user, text: m.text, time: m.time || formatChatTime(m.t), t: m.t, phone: m.phone, me: false
+              }));
+            }
+          } catch {}
+          renderChat();
+        }, err => {
+          console.warn("Chat listener error:", err);
+          // Si falta índice o reglas, avisar
+          const badge = document.getElementById("chat-status-badge");
+          if (badge) {
+            badge.textContent = "Error chat";
+            badge.className = "text-[11px] bg-red-900/50 text-red-300 px-2 py-0.5 rounded-full";
+          }
+          const hint = document.getElementById("chat-hint");
+          if (hint) hint.textContent = "Error del chat en vivo: " + (err.message || err) + ". Revisa reglas de Firestore (colección chat).";
+        });
+      updateChatBadge();
     }
 
     // ── Registro de usuarios ──
@@ -1604,6 +1902,217 @@
       return "No he entendido del todo. Prueba con «ayuda» para ver los comandos disponibles, o usa las pestañas del panel de administración para editar manualmente.";
     }
 
+
+    // ========== MEJORAS v2 ==========
+    function enterAsGuest() {
+      currentUser = { nombre: "Invitado", apellidos: "", telefono: "", guest: true, registeredAt: new Date().toISOString() };
+      try { localStorage.setItem(USER_KEY, JSON.stringify(currentUser)); } catch {}
+      const overlay = document.getElementById("register-overlay");
+      if (overlay) overlay.classList.add("hidden");
+      try { if (typeof logActivity === "function") logActivity("Entró como invitado"); } catch {}
+      if (typeof refreshAll === "function") refreshAll();
+      else if (typeof renderHome === "function") { renderHome(); enhanceHomeCards(); }
+    }
+
+    function formatCountdown(targetDate, targetTime) {
+      try {
+        const parts = (targetDate || "").split("-").map(Number);
+        if (parts.length < 3 || !parts[0]) return null;
+        const [y, m, d] = parts;
+        const tp = (targetTime || "00:00").split(":").map(Number);
+        const target = new Date(y, m - 1, d, tp[0] || 0, tp[1] || 0, 0);
+        let diff = target - new Date();
+        if (diff < 0) return { past: true };
+        const days = Math.floor(diff / 86400000); diff -= days * 86400000;
+        const hours = Math.floor(diff / 3600000); diff -= hours * 3600000;
+        const mins = Math.floor(diff / 60000); diff -= mins * 60000;
+        const secs = Math.floor(diff / 1000);
+        return { days, hours, mins, secs, past: false };
+      } catch { return null; }
+    }
+    function countdownHTML(cd) {
+      if (!cd) return "";
+      if (cd.past) return '<p class="text-xs text-center text-gray-500 mt-2">Partido en curso o finalizado</p>';
+      return `<div class="countdown-box">
+        <div class="countdown-unit"><div class="num">${cd.days}</div><div class="lbl">días</div></div>
+        <div class="countdown-unit"><div class="num">${String(cd.hours).padStart(2,"0")}</div><div class="lbl">hrs</div></div>
+        <div class="countdown-unit"><div class="num">${String(cd.mins).padStart(2,"0")}</div><div class="lbl">min</div></div>
+        <div class="countdown-unit"><div class="num">${String(cd.secs).padStart(2,"0")}</div><div class="lbl">seg</div></div>
+      </div>`;
+    }
+    function shareText(title, text) {
+      const payload = { title: title || "Los Morruos", text: text || "", url: location.href };
+      if (navigator.share) navigator.share(payload).catch(() => {});
+      else {
+        const full = `${title}\n${text}\n${location.href}`;
+        if (navigator.clipboard) navigator.clipboard.writeText(full).then(() => alert("Copiado ✓")).catch(() => prompt("Copia:", full));
+        else prompt("Copia:", full);
+      }
+    }
+    function emptyState(msg) {
+      return `<div class="empty-state">${msg || "Aún no hay datos publicados."}</div>`;
+    }
+    function renderEntrenos() {
+      const el = document.getElementById("entrenos-list");
+      if (!el) return;
+      const list = data.trainings || data.entrenamientos || [];
+      if (!list.length) { el.innerHTML = emptyState("Todavía no hay entrenamientos publicados."); return; }
+      el.innerHTML = list.map(t => `<div class="card p-4">
+        <p class="font-semibold text-gold">${t.title || "Entrenamiento"}</p>
+        <p class="text-sm text-gray-300 mt-1">${t.date || ""}${t.time ? " · " + t.time : ""}</p>
+        <p class="text-xs text-gray-500 mt-1">${t.place || ""}</p>
+        ${t.notes ? `<p class="text-sm text-gray-400 mt-2">${t.notes}</p>` : ""}
+      </div>`).join("");
+    }
+    function renderGaleria() {
+      const el = document.getElementById("gallery-grid");
+      if (!el) return;
+      const list = data.gallery || [];
+      if (!list.length) { el.innerHTML = `<div style="grid-column:1/-1">${emptyState("La galería se irá llenando con fotos del club.")}</div>`; return; }
+      el.innerHTML = list.map(g => `<div class="gallery-item"><img src="${g.url || g.src}" alt="${g.caption || ""}" loading="lazy" /></div>`).join("");
+    }
+    function renderMapa() {
+      const v = data.venue || {};
+      const name = v.name || "Cancha Los Morruos";
+      const address = v.address || "Morro Jable, Fuerteventura";
+      const lat = v.lat || 28.048, lng = v.lng || -14.358;
+      const mapsUrl = v.mapsUrl || `https://www.google.com/maps?q=${lat},${lng}`;
+      const nameEl = document.getElementById("venue-name");
+      const addrEl = document.getElementById("venue-address");
+      const wrap = document.getElementById("venue-map-wrap");
+      const link = document.getElementById("venue-maps-link");
+      const howto = document.getElementById("venue-howto");
+      if (nameEl) nameEl.textContent = name;
+      if (addrEl) addrEl.textContent = address;
+      if (howto && v.howto) howto.textContent = v.howto;
+      if (link) link.href = mapsUrl;
+      if (wrap) wrap.innerHTML = `<iframe class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=15&output=embed"></iframe>`;
+    }
+    function renderStats() {
+      const grid = document.getElementById("stats-grid");
+      const sum = document.getElementById("stats-summary");
+      if (!grid) return;
+      const matches = data.matches || [];
+      let played = 0, wins = 0, draws = 0, losses = 0;
+      matches.forEach(m => {
+        const r = (m.resultado || m.result || "").toString();
+        if (!r || !r.includes("-")) return;
+        played++;
+        const [a, b] = r.split("-").map(x => parseInt(x.trim(), 10));
+        if (isNaN(a) || isNaN(b)) return;
+        const home = m.local === 1 || m.local === "1" || m.home === true;
+        const us = home ? a : b, them = home ? b : a;
+        if (us > them) wins++; else if (us < them) losses++; else draws++;
+      });
+      const players = (data.players || []).length;
+      grid.innerHTML = `
+        <div class="stat-card"><div class="val">${played}</div><div class="lbl">Partidos</div></div>
+        <div class="stat-card"><div class="val">${wins}</div><div class="lbl">Victorias</div></div>
+        <div class="stat-card"><div class="val">${draws}</div><div class="lbl">Empates</div></div>
+        <div class="stat-card"><div class="val">${losses}</div><div class="lbl">Derrotas</div></div>
+        <div class="stat-card"><div class="val">${players}</div><div class="lbl">Jugadores</div></div>
+        <div class="stat-card"><div class="val">${(data.news || []).length}</div><div class="lbl">Noticias</div></div>`;
+      if (sum) sum.textContent = played ? `Temporada: ${wins}V · ${draws}E · ${losses}D en ${played} partidos.` : "Cuando se registren resultados aparecerán aquí.";
+    }
+    function renderSocios() {
+      const s = data.socios || {};
+      const info = document.getElementById("socios-info");
+      const det = document.getElementById("socios-details");
+      const contact = document.getElementById("socios-contact");
+      if (info && s.info) info.textContent = s.info;
+      if (contact) contact.textContent = s.contact || (data.club && data.club.contact) || "Contacto del club";
+      if (det) {
+        let h = "";
+        if (s.fee) h += `<p><span class="text-gold">Cuota:</span> ${s.fee}</p>`;
+        if (s.benefits && s.benefits.length) h += `<p class="text-gold mt-2">Beneficios:</p><ul class="list-disc pl-5 text-gray-400">` + s.benefits.map(b => `<li>${b}</li>`).join("") + `</ul>`;
+        det.innerHTML = h || `<p class="text-gray-500">Próximamente información de cuotas.</p>`;
+      }
+    }
+    let _cdTimer = null;
+    function startCountdownTicker() {
+      if (_cdTimer) clearInterval(_cdTimer);
+      _cdTimer = setInterval(() => {
+        document.querySelectorAll("[data-cd-date]").forEach(node => {
+          node.innerHTML = countdownHTML(formatCountdown(node.dataset.cdDate, node.dataset.cdTime));
+        });
+      }, 1000);
+    }
+    function enhanceHomeCards() {
+      const box = document.getElementById("home-next-matches");
+      if (!box) return;
+      let matches = [];
+      try { matches = typeof getNextMatches === "function" ? getNextMatches() : (data.nextMatches || []); } catch { matches = data.nextMatches || []; }
+      const cards = box.querySelectorAll(".card");
+      cards.forEach((card, i) => {
+        const m = matches[i];
+        if (!m) return;
+        let cd = card.querySelector("[data-cd-date]");
+        if (!cd) { cd = document.createElement("div"); cd.setAttribute("data-cd-date", m.date || ""); cd.setAttribute("data-cd-time", m.time || "00:00"); card.appendChild(cd); }
+        else { cd.setAttribute("data-cd-date", m.date || ""); cd.setAttribute("data-cd-time", m.time || "00:00"); }
+        cd.innerHTML = countdownHTML(formatCountdown(m.date, m.time));
+        if (!card.querySelector(".share-btn")) {
+          const btn = document.createElement("button");
+          btn.className = "share-btn mt-3 w-full justify-center";
+          btn.textContent = "Compartir partido";
+          btn.onclick = () => shareText(`Los Morruos · ${m.team || ""}`, `Próximo: ${m.team || ""} vs ${m.rival || ""} · ${m.date || ""} ${m.time || ""} · ${m.place || ""}`);
+          card.appendChild(btn);
+        }
+      });
+      if (!matches.length && !box.innerHTML.trim()) box.innerHTML = emptyState("No hay próximo partido publicado.");
+      const hr = document.getElementById("home-results");
+      if (hr && !hr.innerHTML.trim()) hr.innerHTML = emptyState("Aún no hay resultados.");
+    }
+    function saveTrainings() {
+      const raw = (document.getElementById("a-trainings")?.value || "").trim();
+      data.trainings = raw ? raw.split("\n").map(line => {
+        const p = line.split("|").map(s => s.trim());
+        return { date: p[0]||"", time: p[1]||"", place: p[2]||"", title: p[3]||"Entrenamiento", notes: p[4]||"" };
+      }).filter(t => t.date || t.title) : [];
+      persistExtra("Entrenamientos actualizados");
+    }
+    function saveGallery() {
+      const raw = (document.getElementById("a-gallery")?.value || "").trim();
+      data.gallery = raw ? raw.split("\n").map(line => {
+        const p = line.split("|").map(s => s.trim());
+        return { url: p[0]||"", caption: p[1]||"" };
+      }).filter(g => g.url) : [];
+      persistExtra("Galería actualizada");
+    }
+    function saveVenue() {
+      data.venue = {
+        name: document.getElementById("a-venue-name")?.value.trim() || "",
+        address: document.getElementById("a-venue-address")?.value.trim() || "",
+        lat: parseFloat(document.getElementById("a-venue-lat")?.value) || null,
+        lng: parseFloat(document.getElementById("a-venue-lng")?.value) || null,
+        mapsUrl: document.getElementById("a-venue-maps")?.value.trim() || "",
+        howto: document.getElementById("a-venue-howto")?.value.trim() || ""
+      };
+      persistExtra("Cancha actualizada");
+    }
+    function saveSocios() {
+      data.socios = {
+        info: document.getElementById("a-socios-info")?.value.trim() || "",
+        fee: document.getElementById("a-socios-fee")?.value.trim() || "",
+        benefits: (document.getElementById("a-socios-benefits")?.value || "").split("\n").map(s => s.trim()).filter(Boolean),
+        contact: document.getElementById("a-socios-contact")?.value.trim() || ""
+      };
+      persistExtra("Socios actualizados");
+    }
+    function persistExtra(msg) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+      if (typeof refreshAll === "function") refreshAll();
+      else {
+        renderEntrenos(); renderGaleria(); renderMapa(); renderStats(); renderSocios();
+      }
+      if (typeof saveData === "function") {
+        try { saveData(msg); return; } catch {}
+      }
+      if (typeof publishToGitHub === "function" && typeof githubWriteConfigured === "function" && githubWriteConfigured()) {
+        publishToGitHub().then(() => alert(msg + " ✓")).catch(() => alert(msg + " (local)"));
+      } else alert(msg + " ✓");
+    }
+
+
     function goTo(name) {
       document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
       const tab = document.getElementById("tab-" + name);
@@ -1718,6 +2227,22 @@
         await sendPushNotification(pushInfo.title, pushInfo.body);
       }
       alert((label || "Guardado") + "\n\n" + (r?.msg || ""));
+
+      // Campos nuevos (entrenos, galería, cancha, socios)
+      try {
+        const tr = (data.trainings || []).map(t => [t.date||"",t.time||"",t.place||"",t.title||"",t.notes||""].join("|")).join("\n");
+        const elT = document.getElementById("a-trainings"); if (elT) elT.value = tr;
+        const gal = (data.gallery || []).map(g => [g.url||"",g.caption||""].join("|")).join("\n");
+        const elG = document.getElementById("a-gallery"); if (elG) elG.value = gal;
+        const v = data.venue || {};
+        const setv = (id,val) => { const e = document.getElementById(id); if (e) e.value = (val == null ? "" : val); };
+        setv("a-venue-name", v.name); setv("a-venue-address", v.address);
+        setv("a-venue-lat", v.lat); setv("a-venue-lng", v.lng); setv("a-venue-maps", v.mapsUrl); setv("a-venue-howto", v.howto);
+        const s = data.socios || {};
+        setv("a-socios-info", s.info); setv("a-socios-fee", s.fee); setv("a-socios-contact", s.contact);
+        const elB = document.getElementById("a-socios-benefits"); if (elB) elB.value = (s.benefits || []).join("\n");
+      } catch (e) { console.warn("fill extra", e); }
+
     }
 
     function readNextForm(prefix, teamName) {
