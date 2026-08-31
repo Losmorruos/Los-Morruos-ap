@@ -70,3 +70,14 @@ Los guardados usan el mismo flujo local + GitHub / push que ya tenías.
 4. Publica las reglas (incluye `match /chat/{docId}`)
 5. Abre el chat en dos móviles: los mensajes aparecen al instante
 
+
+
+## Actualización v12
+
+- **Chat eliminado** del menú y de la app.
+- **Estadísticas** separadas: Morro Jable A y Morro Jable B (pestañas).
+- **Plantilla**: solo nombres y apellidos; separada en A y B. Admin: `Nombre|A` o `Nombre|B`.
+- **Galería admin**: botón para elegir fotos del móvil/PC (se redimensionan y guardan).
+- **Merchandising**: Camiseta, Suéter, Chándal (editable en admin).
+- **Avisos push**: mejor diagnóstico (iOS PWA, permisos, App ID, dominio OneSignal).
+

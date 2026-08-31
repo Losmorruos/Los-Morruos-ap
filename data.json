@@ -34,39 +34,36 @@
   "matches": [],
   "players": [
     {
-      "name": "* Morro Jable A *",
-      "num": null,
-      "age": null
+      "name": "Juan Pérez",
+      "team": "A"
     },
     {
-      "name": "Alexis Rosa Gonzáles",
-      "num": null,
-      "age": null
+      "name": "Manuel Rodríguez",
+      "team": "A"
     },
     {
-      "name": "Pedro Acosta Frances",
-      "num": null,
-      "age": null
+      "name": "Antonio García",
+      "team": "A"
     },
     {
-      "name": "Guanárteme Gonzáles Estupiñán",
-      "num": null,
-      "age": null
+      "name": "Francisco Díaz",
+      "team": "A"
     },
     {
-      "name": "Jonathan Diz Padin",
-      "num": null,
-      "age": null
+      "name": "José Hernández",
+      "team": "B"
     },
     {
-      "name": "Juan Ramon Fernandez Acosta",
-      "num": null,
-      "age": null
+      "name": "Pedro Cabrera",
+      "team": "B"
     },
     {
-      "name": "Oscar Araya Gopar",
-      "num": null,
-      "age": null
+      "name": "Luis Morales",
+      "team": "B"
+    },
+    {
+      "name": "Carlos Medina",
+      "team": "B"
     }
   ],
   "news": [
@@ -95,21 +92,8 @@
     "fb": "https://www.facebook.com/share/1E7QBuM3Sk/",
     "x": ""
   },
-  "chat": [
-    {
-      "me": false,
-      "user": "Admin",
-      "text": "¡Bienvenidos al chat de Los Morruos! 🐐",
-      "time": "10:00"
-    },
-    {
-      "me": false,
-      "user": "Juan",
-      "text": "¿Alguien va al partido del sábado?",
-      "time": "10:12"
-    }
-  ],
-  "_syncStamp": "mthviemxoaaf",
+  "chat": [],
+  "_syncStamp": "mtegkq65igp9",
   "trainings": [
     {
       "date": "2026-09-02",
@@ -128,12 +112,12 @@
   ],
   "gallery": [],
   "venue": {
-    "name": "Estacion de Guaguas de Morro Jable",
-    "address": "",
-    "lat": null,
-    "lng": null,
-    "mapsUrl": "https://maps.app.goo.gl/WazJzdLAAwVGBKxn9",
-    "howto": ""
+    "name": "Cancha Los Morruos · Morro Jable",
+    "address": "Morro Jable, Pájara, Fuerteventura",
+    "lat": 28.048,
+    "lng": -14.358,
+    "mapsUrl": "https://www.google.com/maps?q=Morro+Jable+Fuerteventura",
+    "howto": "Cancha municipal en la zona de Morro Jable. Confirmar sede antes del partido por si hay cambios."
   },
   "socios": {
     "info": "Sé socio de Club Deportivo Los Morruos y apoya la bola canaria en Fuerteventura.",
@@ -144,5 +128,25 @@
       "Participación en asambleas"
     ],
     "contact": "+34650858521 / ClubdeportivolosMorruos@gmail.com"
-  }
+  },
+  "merch": [
+    {
+      "name": "Camiseta",
+      "price": "Consultar",
+      "desc": "Camiseta oficial negra y dorada",
+      "available": true
+    },
+    {
+      "name": "Suéter",
+      "price": "Consultar",
+      "desc": "Suéter oficial del club",
+      "available": true
+    },
+    {
+      "name": "Chándal",
+      "price": "Consultar",
+      "desc": "Chándal completo Los Morruos",
+      "available": true
+    }
+  ]
 }

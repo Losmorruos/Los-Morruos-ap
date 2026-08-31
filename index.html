@@ -206,14 +206,14 @@
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         Estadísticas
       </button>
+
+      <button onclick="goTo('merch')" class="menu-item" data-menu="merch">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        Merchandising
+      </button>
       <button onclick="goTo('socios')" class="menu-item" data-menu="socios">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         Socios
-      </button>
-
-      <button onclick="goTo('chat')" class="menu-item" data-menu="chat">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-        Chat del Club
       </button>
       <button onclick="goTo('club')" class="menu-item" data-menu="club">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -246,9 +246,9 @@
         <img src="logo.png" alt="" class="w-8 h-8 rounded-full object-cover border border-gold/60" />
         <span class="font-display text-base text-gold tracking-wide">LOS MORRUOS</span>
       </div>
-      <button onclick="goTo('chat')" class="p-2 -mr-1 rounded-xl hover:bg-dark-card relative">
+      <button onclick="goTo('merch')" class="p-2 -mr-1 rounded-xl hover:bg-dark-card relative" title="Merchandising">
         <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
         </svg>
       </button>
     </div>
@@ -404,7 +404,12 @@
 
     <section id="tab-jugadores" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-4">Plantilla</h2>
-      <div class="grid grid-cols-2 gap-3" id="players-grid"></div>
+      <div class="flex gap-2 mb-4">
+        <button onclick="showPlayersTeam('A')" id="players-tab-a" class="flex-1 admin-btn text-sm py-2">Morro Jable A</button>
+        <button onclick="showPlayersTeam('B')" id="players-tab-b" class="flex-1 admin-btn-secondary text-sm py-2">Morro Jable B</button>
+      </div>
+      <h3 class="font-display text-gold text-base mb-3" id="players-team-title">Morro Jable A</h3>
+      <div class="space-y-2" id="players-grid"></div>
     </section>
 
     <section id="tab-redes" class="tab-content">
@@ -413,24 +418,7 @@
       <div class="space-y-3" id="redes-list"></div>
     </section>
 
-    <section id="tab-chat" class="tab-content">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="font-display text-xl text-gold">Chat del Club</h2>
-        <span id="chat-status-badge" class="text-[11px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full">Local</span>
-      </div>
-      <p id="chat-hint" class="text-[11px] text-gray-500 mb-2">Los mensajes se sincronizan en tiempo real cuando Firebase está conectado (configuración en Administración).</p>
-      <div id="chat-messages" class="chat-messages space-y-3 mb-3 pr-1"></div>
-      <div class="flex gap-2 sticky bottom-0 bg-dark pt-2">
-        <input id="chat-input" type="text" placeholder="Escribe un mensaje..." 
-               class="flex-1 bg-dark-card border border-dark-border rounded-full px-4 py-2.5 text-sm outline-none focus:border-gold/50"
-               onkeydown="if(event.key==='Enter') sendMessage()" />
-        <button onclick="sendMessage()" class="w-11 h-11 rounded-full bg-gold text-dark flex items-center justify-center shrink-0 active:scale-95 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-        </button>
-      </div>
-    </section>
-
-    <section id="tab-club" class="tab-content">
+<section id="tab-club" class="tab-content">
       <div class="text-center mb-6">
         <img src="logo.png" alt="Logo" class="w-28 h-28 mx-auto rounded-2xl object-cover border-2 border-gold shadow-xl shadow-gold/10" />
         <h2 class="font-display text-2xl text-gold mt-4">Club Deportivo Los Morruos</h2>
@@ -475,12 +463,24 @@
     </section>
     <section id="tab-stats" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-3">Estadísticas</h2>
+      <div class="flex gap-2 mb-4">
+        <button onclick="showStatsTeam('A')" id="stats-tab-a" class="flex-1 admin-btn text-sm py-2">Morro Jable A</button>
+        <button onclick="showStatsTeam('B')" id="stats-tab-b" class="flex-1 admin-btn-secondary text-sm py-2">Morro Jable B</button>
+      </div>
+      <h3 class="font-display text-gold text-base mb-2" id="stats-team-title">Morro Jable A · 1ª Categoría</h3>
       <div id="stats-grid" class="grid grid-cols-2 gap-3 mb-5"></div>
       <div class="card p-4">
         <h3 class="font-semibold text-gold mb-2">Resumen temporada</h3>
         <p class="text-sm text-gray-400" id="stats-summary">Cuando haya partidos registrados aparecerán aquí.</p>
       </div>
     </section>
+    
+    <section id="tab-merch" class="tab-content">
+      <h2 class="font-display text-xl text-gold mb-2">Merchandising</h2>
+      <p class="text-sm text-gray-400 mb-4">Productos oficiales del club. Consulta disponibilidad y tallas con el club.</p>
+      <div id="merch-list" class="space-y-3"></div>
+    </section>
+
     <section id="tab-socios" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-3">Socios</h2>
       <div class="card p-4 mb-4">
@@ -523,6 +523,7 @@
           <button onclick="showAdminTab('gallery')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="gallery">Galería</button>
           <button onclick="showAdminTab('venue')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="venue">Cancha</button>
           <button onclick="showAdminTab('sociosadmin')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="sociosadmin">Socios</button>
+          <button onclick="showAdminTab('merch')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="merch">Merch</button>
           <button onclick="showAdminTab('ai')" class="admin-tab admin-btn-secondary whitespace-nowrap" data-atab="ai">Asistente IA</button>
         </div>
 
@@ -594,7 +595,7 @@
         <div id="atab-players" class="admin-tab-content hidden">
           <div class="card p-4 space-y-3">
             <h3 class="font-semibold text-gold">Plantilla</h3>
-            <p class="text-xs text-gray-500">Nombre|Posición|Número|Edad (una línea por jugador)</p>
+            <p class="text-xs text-gray-500">Nombre|Equipo(A/B) — solo nombre y apellidos; A = Morro Jable A, B = Morro Jable B</p>
             <textarea id="a-players" class="admin-input h-48 font-mono text-xs"></textarea>
             <button onclick="savePlayers()" class="admin-btn w-full">Guardar plantilla</button>
           </div>
@@ -686,9 +687,18 @@ service cloud.firestore {
         </div>
         <div id="atab-gallery" class="admin-tab-content hidden">
           <div class="card p-4 space-y-3">
-            <h3 class="font-semibold text-gold">Galería (URLs)</h3>
-            <p class="text-xs text-gray-500">URL|Caption (una línea por foto)</p>
-            <textarea id="a-gallery" class="admin-input h-40 font-mono text-xs"></textarea>
+            <h3 class="font-semibold text-gold">Galería</h3>
+            <p class="text-xs text-gray-500">Añade fotos desde el móvil o el ordenador. También puedes pegar URLs abajo.</p>
+            <div>
+              <label class="admin-btn w-full block text-center cursor-pointer">
+                📷 Elegir fotos de la galería
+                <input type="file" id="a-gallery-files" accept="image/*" multiple class="hidden" onchange="addGalleryFiles(event)" />
+              </label>
+            </div>
+            <p class="text-[10px] text-gray-500">Las fotos se guardan en este dispositivo (y se publican en data.json si tienes GitHub configurado). Usa imágenes no demasiado pesadas.</p>
+            <div id="a-gallery-preview" class="gallery-grid"></div>
+            <p class="text-xs text-gray-500 mt-2">O URLs externas (opcional): URL|Caption</p>
+            <textarea id="a-gallery" class="admin-input h-24 font-mono text-xs"></textarea>
             <button onclick="saveGallery()" class="admin-btn w-full">Guardar galería</button>
           </div>
         </div>
@@ -714,6 +724,18 @@ service cloud.firestore {
             <div><label class="text-xs text-gray-400">Beneficios (uno por línea)</label><textarea id="a-socios-benefits" class="admin-input h-24 mt-1"></textarea></div>
             <div><label class="text-xs text-gray-400">Contacto socios</label><input id="a-socios-contact" class="admin-input mt-1" /></div>
             <button onclick="saveSocios()" class="admin-btn w-full">Guardar socios</button>
+          </div>
+        </div>
+
+        
+        <div id="atab-merch" class="admin-tab-content hidden">
+          <div class="card p-4 space-y-3">
+            <h3 class="font-semibold text-gold">Merchandising</h3>
+            <p class="text-xs text-gray-500">Nombre|Precio|Descripción|Disponible(si/no) — una línea por producto</p>
+            <textarea id="a-merch" class="admin-input h-40 font-mono text-xs" placeholder="Camiseta|25€|Camiseta oficial negra y dorada|si
+Suéter|35€|Suéter del club|si
+Chándal|45€|Chándal completo|si"></textarea>
+            <button onclick="saveMerch()" class="admin-btn w-full">Guardar merchandising</button>
           </div>
         </div>
 
@@ -763,10 +785,11 @@ service cloud.firestore {
         <div class="card p-4 space-y-3">
           <h3 class="font-semibold text-gold text-sm">Avisos push (OneSignal)</h3>
           <p class="text-[11px] text-gray-500 leading-relaxed">
-            Pega aquí la <strong>REST API Key</strong> de tu app de OneSignal (Dashboard → Settings → Keys &amp; IDs).
-            Solo se guarda en este dispositivo. A partir de ahí, cada vez que guardes un cambio de partido, un resultado
-            o una noticia y se publique en GitHub, se enviará un aviso a todos los que hayan activado "Activar avisos"
-            en el menú.
+            Para que los avisos funcionen hacen falta <strong>dos cosas</strong>:<br>
+            1) Cada socio pulsa <strong>Activar avisos</strong> en el menú (y acepta el permiso).<br>
+            2) Tú pegas aquí la <strong>REST API Key</strong> (OneSignal → Settings → Keys &amp; IDs) y guardas.<br>
+            También el dominio de la app debe estar en OneSignal → Settings → Platforms → Web (URL de GitHub Pages).<br>
+            App ID actual en código: <code class="text-gold">f35f765a-8ead-416d-b642-fc075bbcdf92</code>
           </p>
           <div>
             <label class="text-xs text-gray-400">REST API Key de OneSignal</label>
@@ -828,14 +851,19 @@ service cloud.firestore {
         { date: "2026-07-27", time: "18:00", rival: "C.D. Tefía", home: false, result: "10-13", jornada: 8 },
       ],
       players: [
-        { name: "Juan Pérez", pos: "Tirador", num: 1, age: 34 },
-        { name: "Manuel Rodríguez", pos: "Apoyo", num: 2, age: 28 },
-        { name: "Antonio García", pos: "Tirador", num: 3, age: 41 },
-        { name: "Francisco Díaz", pos: "Apoyo", num: 4, age: 25 },
-        { name: "José Hernández", pos: "Tirador", num: 5, age: 37 },
-        { name: "Pedro Cabrera", pos: "Apoyo", num: 6, age: 31 },
-        { name: "Luis Morales", pos: "Tirador", num: 7, age: 29 },
-        { name: "Carlos Medina", pos: "Apoyo", num: 8, age: 44 },
+        { name: "Juan Pérez", team: "A" },
+        { name: "Manuel Rodríguez", team: "A" },
+        { name: "Antonio García", team: "A" },
+        { name: "Francisco Díaz", team: "A" },
+        { name: "José Hernández", team: "B" },
+        { name: "Pedro Cabrera", team: "B" },
+        { name: "Luis Morales", team: "B" },
+        { name: "Carlos Medina", team: "B" },
+      ],
+      merch: [
+        { name: "Camiseta", price: "Consultar", desc: "Camiseta oficial negra y dorada", available: true },
+        { name: "Suéter", price: "Consultar", desc: "Suéter oficial del club", available: true },
+        { name: "Chándal", price: "Consultar", desc: "Chándal completo Los Morruos", available: true },
       ],
       news: [
         { date: "2026-08-24", title: "Victoria 13-9 frente a C.D. Corralejo", text: "Los Morruos consiguieron una importante victoria en casa ante el líder de la clasificación." },
@@ -1134,7 +1162,7 @@ service cloud.firestore {
 
     function renderAll() {
       renderHome(); renderStandings(); renderCalendario(); renderResultados();
-      renderPlayers(); renderNews(); renderTorneos(); renderClub(); renderRedes(); renderChat();
+      renderPlayers(); renderNews(); renderTorneos(); renderClub(); renderRedes(); /* chat eliminado */
       renderEntrenos(); renderGaleria(); renderMapa(); renderStats(); renderSocios(); enhanceHomeCards(); startCountdownTicker();
       if (adminOk) fillAdminForms();
     }
@@ -1300,9 +1328,35 @@ service cloud.firestore {
     }
 
     function renderPlayers() {
-      document.getElementById("players-grid").innerHTML = (data.players || []).map(p => `
-        <div class="card p-3 text-center"><div class="player-avatar w-14 h-14 rounded-full mx-auto flex items-center justify-center text-dark font-display text-xl font-bold mb-2">${p.num}</div>
-          <p class="font-semibold text-sm leading-tight">${p.name}</p><p class="text-[11px] text-gold mt-0.5">${p.pos}</p><p class="text-[11px] text-gray-500">${p.age} años</p></div>`).join("") || '<p class="text-sm text-gray-500 col-span-2">Sin jugadores</p>';
+      const grid = document.getElementById("players-grid");
+      if (!grid) return;
+      const team = window._playersTeam || "A";
+      const title = document.getElementById("players-team-title");
+      const btnA = document.getElementById("players-tab-a");
+      const btnB = document.getElementById("players-tab-b");
+      if (title) title.textContent = team === "B" ? "Morro Jable B" : "Morro Jable A";
+      if (btnA) { btnA.className = team === "A" ? "flex-1 admin-btn text-sm py-2" : "flex-1 admin-btn-secondary text-sm py-2"; }
+      if (btnB) { btnB.className = team === "B" ? "flex-1 admin-btn text-sm py-2" : "flex-1 admin-btn-secondary text-sm py-2"; }
+      const list = (data.players || []).filter(p => {
+        const t = (p.team || p.equipo || "A").toString().toUpperCase();
+        if (team === "B") return t.includes("B");
+        return !t.includes("B"); // A by default
+      });
+      if (!list.length) {
+        grid.innerHTML = typeof emptyState === "function" ? emptyState("No hay jugadores en esta plantilla.") : "<p class='text-gray-500 text-sm'>Sin jugadores</p>";
+        return;
+      }
+      grid.innerHTML = list.map(p => {
+        const name = p.name || p.nombre || "Jugador";
+        return `<div class="card px-4 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gold/20 text-gold flex items-center justify-center font-display text-sm">${(name[0]||"?").toUpperCase()}</div>
+          <p class="font-medium text-sm">${name}</p>
+        </div>`;
+      }).join("");
+    }
+    function showPlayersTeam(t) {
+      window._playersTeam = t;
+      renderPlayers();
     }
 
     function renderNews() {
@@ -1458,7 +1512,7 @@ service cloud.firestore {
       data.chat.push({ me: true, user: userName, text: msg.text, time, t: iso, phone });
       if (data.chat.length > 200) data.chat = data.chat.slice(-200);
       try { if (typeof saveDataLocal === "function") saveDataLocal(); } catch {}
-      renderChat();
+      /* renderChat eliminado */
       if (typeof githubWriteConfigured === "function" && githubWriteConfigured()) {
         try {
           const r = await pushRemote();
@@ -1564,7 +1618,7 @@ service cloud.firestore {
       db = null;
       updateFirebaseBadge();
       updateChatBadge();
-      renderChat();
+      /* renderChat eliminado */
       document.getElementById("a-firebase-config").value = "";
       document.getElementById("firebase-config-status").textContent = "Firebase desconectado.";
       refreshUsersList();
@@ -1623,7 +1677,7 @@ service cloud.firestore {
               }));
             }
           } catch {}
-          renderChat();
+          /* renderChat eliminado */
         }, err => {
           console.warn("Chat listener error:", err);
           // Si falta índice o reglas, avisar
@@ -1992,8 +2046,21 @@ service cloud.firestore {
       const grid = document.getElementById("stats-grid");
       const sum = document.getElementById("stats-summary");
       if (!grid) return;
-      const matches = data.matches || [];
-      let played = 0, wins = 0, draws = 0, losses = 0;
+      const team = window._statsTeam || "A";
+      const title = document.getElementById("stats-team-title");
+      const btnA = document.getElementById("stats-tab-a");
+      const btnB = document.getElementById("stats-tab-b");
+      if (title) title.textContent = team === "B" ? "Morro Jable B · 2ª Categoría" : "Morro Jable A · 1ª Categoría";
+      if (btnA) btnA.className = team === "A" ? "flex-1 admin-btn text-sm py-2" : "flex-1 admin-btn-secondary text-sm py-2";
+      if (btnB) btnB.className = team === "B" ? "flex-1 admin-btn text-sm py-2" : "flex-1 admin-btn-secondary text-sm py-2";
+
+      const matches = (data.matches || []).filter(m => {
+        const t = (m.team || m.equipo || "A").toString();
+        if (team === "B") return t.includes("B");
+        // A: explicit A or empty/unknown
+        return t.includes("A") || (!t.includes("B") && !t);
+      });
+      let played = 0, wins = 0, draws = 0, losses = 0, gf = 0, gc = 0;
       matches.forEach(m => {
         const r = (m.resultado || m.result || "").toString();
         if (!r || !r.includes("-")) return;
@@ -2002,18 +2069,70 @@ service cloud.firestore {
         if (isNaN(a) || isNaN(b)) return;
         const home = m.local === 1 || m.local === "1" || m.home === true;
         const us = home ? a : b, them = home ? b : a;
+        gf += us; gc += them;
         if (us > them) wins++; else if (us < them) losses++; else draws++;
       });
-      const players = (data.players || []).length;
+      const players = (data.players || []).filter(p => {
+        const t = (p.team || p.equipo || "A").toString().toUpperCase();
+        if (team === "B") return t.includes("B");
+        return !t.includes("B");
+      }).length;
       grid.innerHTML = `
         <div class="stat-card"><div class="val">${played}</div><div class="lbl">Partidos</div></div>
         <div class="stat-card"><div class="val">${wins}</div><div class="lbl">Victorias</div></div>
         <div class="stat-card"><div class="val">${draws}</div><div class="lbl">Empates</div></div>
         <div class="stat-card"><div class="val">${losses}</div><div class="lbl">Derrotas</div></div>
+        <div class="stat-card"><div class="val">${gf}</div><div class="lbl">Puntos a favor</div></div>
+        <div class="stat-card"><div class="val">${gc}</div><div class="lbl">Puntos en contra</div></div>
         <div class="stat-card"><div class="val">${players}</div><div class="lbl">Jugadores</div></div>
-        <div class="stat-card"><div class="val">${(data.news || []).length}</div><div class="lbl">Noticias</div></div>`;
-      if (sum) sum.textContent = played ? `Temporada: ${wins}V · ${draws}E · ${losses}D en ${played} partidos.` : "Cuando se registren resultados aparecerán aquí.";
+        <div class="stat-card"><div class="val">${played ? Math.round((wins/played)*100) : 0}%</div><div class="lbl">% Victorias</div></div>`;
+      if (sum) sum.textContent = played
+        ? `Morro Jable ${team}: ${wins}V · ${draws}E · ${losses}D en ${played} partidos (${gf}-${gc}).`
+        : `Aún no hay resultados registrados para Morro Jable ${team}.`;
     }
+    function showStatsTeam(t) {
+      window._statsTeam = t;
+      renderStats();
+    }
+
+    function renderMerch() {
+      const el = document.getElementById("merch-list");
+      if (!el) return;
+      const list = data.merch || data.merchandise || [
+        { name: "Camiseta", price: "Consultar", desc: "Camiseta oficial del club (negro y dorado)", available: true },
+        { name: "Suéter", price: "Consultar", desc: "Suéter oficial Los Morruos", available: true },
+        { name: "Chándal", price: "Consultar", desc: "Chándal completo del club", available: true }
+      ];
+      el.innerHTML = list.map(item => `
+        <div class="card p-4 flex gap-4 items-start">
+          <div class="w-14 h-14 rounded-xl bg-gold/15 text-gold flex items-center justify-center text-2xl shrink-0">👕</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <p class="font-semibold text-gold">${item.name || item.nombre}</p>
+              <span class="text-sm font-medium">${item.price || item.precio || ""}</span>
+            </div>
+            <p class="text-sm text-gray-400 mt-1">${item.desc || item.descripcion || ""}</p>
+            <p class="text-[11px] mt-2 ${item.available === false ? "text-red-400" : "text-green-400"}">
+              ${item.available === false ? "Agotado / no disponible" : "Disponible — consulta tallas con el club"}
+            </p>
+          </div>
+        </div>`).join("");
+    }
+    function saveMerch() {
+      const raw = (document.getElementById("a-merch")?.value || "").trim();
+      data.merch = raw ? raw.split("\n").map(line => {
+        const p = line.split("|").map(s => s.trim());
+        const av = (p[3] || "si").toLowerCase();
+        return {
+          name: p[0] || "",
+          price: p[1] || "",
+          desc: p[2] || "",
+          available: !(av === "no" || av === "0" || av === "false")
+        };
+      }).filter(x => x.name) : [];
+      persistExtra("Merchandising actualizado");
+    }
+
     function renderSocios() {
       const s = data.socios || {};
       const info = document.getElementById("socios-info");
@@ -2070,12 +2189,90 @@ service cloud.firestore {
       }).filter(t => t.date || t.title) : [];
       persistExtra("Entrenamientos actualizados");
     }
+
+    // Galería: fotos locales (base64) + URLs
+    function addGalleryFiles(ev) {
+      const files = Array.from(ev.target.files || []);
+      if (!files.length) return;
+      if (!data.gallery) data.gallery = [];
+      let pending = files.length;
+      const maxBytes = 900 * 1024; // ~0.9MB por foto para no hinchar data.json
+      files.forEach(file => {
+        if (!file.type.startsWith("image/")) { pending--; return; }
+        const reader = new FileReader();
+        reader.onload = () => {
+          let dataUrl = reader.result;
+          // Si es muy grande, intentar reducir con canvas
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const maxW = 1200;
+              let w = img.width, h = img.height;
+              if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+              const canvas = document.createElement("canvas");
+              canvas.width = w; canvas.height = h;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0, w, h);
+              let quality = 0.72;
+              dataUrl = canvas.toDataURL("image/jpeg", quality);
+              while (dataUrl.length > maxBytes * 1.37 && quality > 0.4) {
+                quality -= 0.1;
+                dataUrl = canvas.toDataURL("image/jpeg", quality);
+              }
+            } catch (e) { console.warn(e); }
+            data.gallery.push({ url: dataUrl, caption: file.name.replace(/\.[^.]+$/, "") });
+            pending--;
+            if (pending <= 0) {
+              renderAdminGalleryPreview();
+              renderGaleria();
+              alert("Fotos añadidas. Pulsa «Guardar galería» para confirmar.");
+            }
+          };
+          img.onerror = () => {
+            data.gallery.push({ url: dataUrl, caption: file.name });
+            pending--;
+            if (pending <= 0) { renderAdminGalleryPreview(); renderGaleria(); }
+          };
+          img.src = dataUrl;
+        };
+        reader.readAsDataURL(file);
+      });
+      ev.target.value = "";
+    }
+    function renderAdminGalleryPreview() {
+      const el = document.getElementById("a-gallery-preview");
+      if (!el) return;
+      const list = data.gallery || [];
+      if (!list.length) { el.innerHTML = ""; return; }
+      el.innerHTML = list.map((g, i) => `
+        <div class="gallery-item relative">
+          <img src="${g.url || g.src}" alt="" />
+          <button type="button" onclick="removeGalleryItem(${i})" class="absolute top-1 right-1 bg-black/70 text-red-300 text-xs px-1.5 py-0.5 rounded">✕</button>
+        </div>`).join("");
+    }
+    function removeGalleryItem(i) {
+      if (!data.gallery) return;
+      data.gallery.splice(i, 1);
+      renderAdminGalleryPreview();
+      renderGaleria();
+    }
+
     function saveGallery() {
       const raw = (document.getElementById("a-gallery")?.value || "").trim();
-      data.gallery = raw ? raw.split("\n").map(line => {
+      const fromUrls = raw ? raw.split("\n").map(line => {
         const p = line.split("|").map(s => s.trim());
-        return { url: p[0]||"", caption: p[1]||"" };
-      }).filter(g => g.url) : [];
+        return { url: p[0] || "", caption: p[1] || "" };
+      }).filter(g => g.url && !g.url.startsWith("data:")) : [];
+      // Mantener las que ya están en data.gallery (incl. data URLs de archivos)
+      const existing = (data.gallery || []).filter(g => g && g.url);
+      // Añadir solo URLs nuevas que no estén
+      const urls = new Set(existing.map(g => g.url));
+      fromUrls.forEach(g => { if (!urls.has(g.url)) existing.push(g); });
+      data.gallery = existing;
+      // Actualizar textarea solo con URLs externas
+      const el = document.getElementById("a-gallery");
+      if (el) el.value = existing.filter(g => g.url && !String(g.url).startsWith("data:")).map(g => [g.url, g.caption||""].join("|")).join("\n");
+      renderAdminGalleryPreview();
       persistExtra("Galería actualizada");
     }
     function saveVenue() {
@@ -2114,13 +2311,16 @@ service cloud.firestore {
 
 
     function goTo(name) {
+      if (name === "merch" && typeof renderMerch === "function") try { renderMerch(); } catch {}
+      if (name === "stats" && typeof renderStats === "function") try { renderStats(); } catch {}
+      if (name === "jugadores" && typeof renderPlayers === "function") try { renderPlayers(); } catch {}
+
       document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
       const tab = document.getElementById("tab-" + name);
       if (tab) tab.classList.add("active");
       document.querySelectorAll(".menu-item").forEach(el => el.classList.toggle("active", el.dataset.menu === name));
       closeDrawer();
       window.scrollTo({ top: 0, behavior: "smooth" });
-      if (name === "chat") renderChat();
       if (name === "admin") {
         document.getElementById("admin-login").classList.toggle("hidden", adminOk);
         document.getElementById("admin-panel").classList.toggle("hidden", !adminOk);
@@ -2190,7 +2390,7 @@ service cloud.firestore {
       if (elA) elA.value = getStandingsA().map(fmt).join("\n");
       if (elB) elB.value = getStandingsB().map(fmt).join("\n");
       document.getElementById("a-matches").value = (data.matches || []).map(m => `${m.date}|${m.time || ""}|${m.rival}|${m.home ? 1 : 0}|${m.result || ""}|${m.jornada || ""}|${m.team || ""}`).join("\n");
-      document.getElementById("a-players").value = (data.players || []).map(p => `${p.name}|${p.pos}|${p.num}|${p.age}`).join("\n");
+      document.getElementById("a-players").value = (data.players || []).map(p => `${p.name}|${p.team || "A"}`).join("\n");
       document.getElementById("a-news").value = (data.news || []).map(n => `${n.date}|${n.title}|${n.text}`).join("\n");
       document.getElementById("a-club-about").value = data.club?.about || "";
       document.getElementById("a-club-contact").value = data.club?.contact || "";
@@ -2241,6 +2441,13 @@ service cloud.firestore {
         const s = data.socios || {};
         setv("a-socios-info", s.info); setv("a-socios-fee", s.fee); setv("a-socios-contact", s.contact);
         const elB = document.getElementById("a-socios-benefits"); if (elB) elB.value = (s.benefits || []).join("\n");
+
+        const elM = document.getElementById("a-merch");
+        if (elM) {
+          elM.value = (data.merch || []).map(m => [m.name, m.price, m.desc, m.available === false ? "no" : "si"].join("|")).join("\n");
+        }
+        try { renderAdminGalleryPreview(); } catch {}
+
       } catch (e) { console.warn("fill extra", e); }
 
     }
@@ -2331,11 +2538,29 @@ service cloud.firestore {
       await afterSave("Partidos guardados ✓", pushInfo);
     }
     async function savePlayers() {
-      data.players = document.getElementById("a-players").value.trim().split("\n").filter(Boolean).map(line => {
-        const [name, pos, num, age] = line.split("|").map(s => s.trim());
-        return { name, pos, num: +num, age: +age };
-      });
-      await afterSave("Plantilla guardada ✓");
+      const raw = (document.getElementById("a-players")?.value || "").trim();
+      data.players = raw ? raw.split("\n").map(line => {
+        const p = line.split("|").map(s => s.trim());
+        // Formato nuevo: Nombre|A o B
+        // Compat: Nombre|pos|num|age o Nombre|pos|num|age|team
+        if (p.length <= 2) {
+          return { name: p[0] || "", team: (p[1] || "A").toUpperCase().includes("B") ? "B" : "A" };
+        }
+        const team = (p[4] || p[1] || "A").toString().toUpperCase();
+        return {
+          name: p[0] || "",
+          pos: p.length > 2 ? (p[1] || "") : "",
+          num: p[2] || "",
+          age: p[3] || "",
+          team: team.includes("B") ? "B" : "A"
+        };
+      }).filter(x => x.name) : [];
+      // persist via existing flow if available
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+      renderPlayers();
+      if (typeof afterSave === "function") afterSave("Plantilla guardada ✓");
+      else if (typeof persistExtra === "function") persistExtra("Plantilla guardada ✓");
+      else alert("Plantilla guardada ✓");
     }
     async function saveNews() {
       data.news = document.getElementById("a-news").value.trim().split("\n").filter(Boolean).map(line => {
@@ -2451,63 +2676,83 @@ service cloud.firestore {
 
     function updateNotifButton() {
       const label = document.getElementById("notif-toggle-label");
-      if (!label || !window.OneSignal) return;
-      const optedIn = window.OneSignal.User?.PushSubscription?.optedIn;
-      label.textContent = optedIn ? "Avisos activados ✓" : "Activar avisos";
+      if (!label) return;
+      try {
+        const optedIn = window.OneSignal?.User?.PushSubscription?.optedIn;
+        label.textContent = optedIn ? "Avisos activados ✓" : "Activar avisos";
+      } catch {
+        label.textContent = "Activar avisos";
+      }
     }
 
     async function toggleNotifications() {
       if (!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID.startsWith("TU_")) {
-        alert("Las notificaciones aún no están configuradas en esta app.");
+        alert("Falta el App ID de OneSignal en el código (ONESIGNAL_APP_ID).\nCrea una app en onesignal.com y pega el App ID.");
         return;
       }
-      if (!window.isSecureContext) {
-        alert("Las notificaciones solo funcionan en HTTPS (GitHub Pages, Netlify, etc.).\nAhora estás en: " + location.protocol);
+      if (location.protocol !== "https:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+        alert("Las notificaciones solo funcionan en HTTPS (GitHub Pages, etc.).\nAhora estás en: " + location.protocol);
         return;
       }
-      if (!("Notification" in window)) {
+      if (!("Notification" in window) && !("PushManager" in window)) {
         alert("Este navegador no soporta notificaciones push.");
         return;
       }
-      if (oneSignalInitError) {
-        alert("Error al iniciar OneSignal: " + (oneSignalInitError.message || oneSignalInitError));
+      // iOS: debe ser PWA instalada
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+      if (isIOS && !isStandalone) {
+        alert("En iPhone/iPad:\n1) Abre la app en Safari\n2) Comparte → «Añadir a pantalla de inicio»\n3) Ábrela desde el icono\n4) Activa avisos otra vez.\n\nSin instalarla como app, iOS no permite push.");
         return;
       }
-      // Si OneSignal aún no ha cargado, espera un momento
+      if (oneSignalInitError) {
+        alert("Error al iniciar OneSignal: " + (oneSignalInitError.message || oneSignalInitError) + "\n\nRevisa que el App ID sea correcto y que el dominio esté permitido en OneSignal (Settings → Platforms → Web).");
+        return;
+      }
       if (!window.OneSignal) {
-        alert("OneSignal todavía se está cargando. Espera 2 segundos y vuelve a pulsar.");
+        // esperar hasta 5s
+        for (let i = 0; i < 10 && !window.OneSignal; i++) await new Promise(r => setTimeout(r, 500));
+      }
+      if (!window.OneSignal) {
+        alert("OneSignal no cargó.\nComprueba conexión a internet y que no haya bloqueadores.\nApp ID: " + ONESIGNAL_APP_ID);
         return;
       }
       try {
         const OneSignal = window.OneSignal;
+        // Asegurar init
+        if (!OneSignal.User) {
+          await OneSignal.init({
+            appId: ONESIGNAL_APP_ID,
+            serviceWorkerParam: { scope: "./" },
+            serviceWorkerPath: "sw.js",
+            allowLocalhostAsSecureOrigin: true
+          });
+        }
+        const perm = Notification.permission;
+        if (perm === "denied") {
+          alert("Has bloqueado las notificaciones para este sitio.\n\nChrome/Android: icono candado → Notificaciones → Permitir.\nSafari: Ajustes → Safari → [sitio] → Permitir.");
+          return;
+        }
         const optedIn = OneSignal.User?.PushSubscription?.optedIn;
         if (optedIn) {
-          if (confirm("¿Desactivar los avisos en este dispositivo?")) {
-            await OneSignal.User.PushSubscription.optOut();
-            updateNotifButton();
-            alert("Avisos desactivados.");
-          }
+          await OneSignal.User.PushSubscription.optOut();
+          updateNotifButton();
+          alert("Avisos desactivados en este dispositivo.");
         } else {
-          // Pedir permiso al navegador
-          let perm = Notification.permission;
-          if (perm === "denied") {
-            alert("Has bloqueado las notificaciones para este sitio.\nVe a Ajustes del navegador → Notificaciones y permite esta web.");
-            return;
-          }
+          await OneSignal.Notifications.requestPermission();
           await OneSignal.User.PushSubscription.optIn();
           updateNotifButton();
           const nowOpted = OneSignal.User?.PushSubscription?.optedIn;
+          const id = OneSignal.User?.PushSubscription?.id;
           if (nowOpted) {
-            alert("✓ Avisos activados. Recibirás notificaciones del club.");
-          } else if (Notification.permission === "denied") {
-            alert("Has denegado el permiso. Actívalo en Ajustes del navegador.");
+            alert("✓ Avisos activados.\nID suscripción: " + (id || "ok") + "\n\nRecibirás notificaciones cuando el admin publique partidos, resultados o noticias (si tiene la REST API Key configurada).");
           } else {
-            alert("No se pudo activar. En iPhone: añade la app a la pantalla de inicio y ábrela desde el icono.\nEn Android: revisa que las notificaciones del navegador estén permitidas.");
+            alert("No se pudo completar la suscripción.\nPermiso del navegador: " + Notification.permission + "\n\nPrueba: recargar la página, aceptar el permiso, y en OneSignal Dashboard → Audience comprueba que aparece un usuario.");
           }
         }
       } catch (e) {
         console.warn("toggleNotifications error:", e);
-        alert("Error al activar avisos: " + (e.message || e) + "\n\nURL actual: " + location.href);
+        alert("Error: " + (e.message || e));
       }
     }
 
