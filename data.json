@@ -44,11 +44,6 @@
       "age": null
     },
     {
-      "name": "Amadeu Rosa Barbosa",
-      "num": null,
-      "age": null
-    },
-    {
       "name": "Pedro Acosta Frances",
       "num": null,
       "age": null
@@ -114,7 +109,7 @@
       "time": "10:12"
     }
   ],
-  "_syncStamp": "mthvh9g8o2xn",
+  "_syncStamp": "mthviemxoaaf",
   "trainings": [
     {
       "date": "2026-09-02",
