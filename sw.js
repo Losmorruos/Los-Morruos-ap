@@ -1,10 +1,10 @@
 // Service worker de la app + OneSignal (mismo scope del subdirectorio)
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-// v20: Firebase global + migración automática + recuperación de arranque.
-// IMPORTANTE: los scripts se inyectan dentro del <script> principal de index.html,
-// por lo que NO deben contener etiquetas <script> anidadas.
-const CACHE = "morruos-v20-firebase-global";
+// v21: Firebase global + migración + registro obligatorio + listado robusto.
+// Los scripts se inyectan dentro del <script> principal de index.html y NO llevan
+// etiquetas <script> anidadas.
+const CACHE = "morruos-v21-firebase-registros";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 const FIREBASE_FIX_SCRIPT = `
@@ -18,6 +18,7 @@ const FIREBASE_FIX_SCRIPT = `
     appId: "1:43160020256:web:b9d394558e23ebfbdfa345",
     measurementId: "G-HNZNTJD835"
   };
+
   try {
     const nativeGetItem = Storage.prototype.getItem;
     Storage.prototype.getItem = function (key) {
@@ -25,23 +26,28 @@ const FIREBASE_FIX_SCRIPT = `
       return nativeGetItem.call(this, key);
     };
   } catch (_) {}
+
   async function syncCurrentUser() {
     try {
-      if (!firebaseReady || !db || !currentUser || currentUser.guest) return;
+      if (!firebaseReady || !db || !currentUser || currentUser.guest) return false;
       const u = currentUser;
       const nombre = String(u.nombre || "").trim();
       const apellidos = String(u.apellidos || "").trim();
       const telefono = String(u.telefono || "").trim();
-      const id = telefono.replace(/\D/g, "");
-      if (!nombre || !apellidos || id.length < 9) return;
+      const id = telefono.replace(/\\D/g, "");
+      if (!nombre || !apellidos || id.length < 9) return false;
       await db.collection("registrations").doc(id).set({
         nombre, apellidos, telefono,
         registeredAt: u.registeredAt || new Date().toISOString()
       }, { merge: true });
+      return true;
     } catch (e) {
       console.warn("Migración Firebase de usuario local no completada:", e);
+      return false;
     }
   }
+
+  // Migrar el usuario que ya estaba guardado localmente en este dispositivo.
   const migrationTimer = setInterval(() => {
     if (typeof firebaseReady !== "undefined" && firebaseReady && typeof db !== "undefined" && db && typeof currentUser !== "undefined" && currentUser && !currentUser.guest) {
       syncCurrentUser();
@@ -51,10 +57,103 @@ const FIREBASE_FIX_SCRIPT = `
 })();
 `;
 
+const REGISTRATION_AND_ADMIN_FIX_SCRIPT = `
+(function () {
+  // Desde ahora un alta no se considera completada hasta que Firestore acepta
+  // el documento. Así evitamos que un fallo de Firebase deje usuarios solo en local.
+  function installRegistrationGuard() {
+    try {
+      if (typeof submitRegistration !== "function" || submitRegistration.__morruosGuarded) return;
+      const original = submitRegistration;
+      async function guardedSubmitRegistration() {
+        try {
+          if (!firebaseReady || !db) {
+            if (typeof initFirebase === "function") initFirebase();
+          }
+          if (!firebaseReady || !db) {
+            const err = document.getElementById("reg-error");
+            if (err) {
+              err.textContent = "No se pudo conectar con Firebase. Comprueba tu conexión e inténtalo de nuevo.";
+              err.classList.remove("hidden");
+            }
+            return;
+          }
+          await original();
+
+          // Verificación final: comprobamos que el documento realmente existe.
+          const u = (typeof currentUser !== "undefined") ? currentUser : null;
+          const id = u && u.telefono ? String(u.telefono).replace(/\\D/g, "") : "";
+          if (!id) return;
+          const snap = await db.collection("registrations").doc(id).get();
+          if (!snap.exists) {
+            const err = document.getElementById("reg-error");
+            if (err) {
+              err.textContent = "No se pudo guardar el registro en el servidor. Inténtalo de nuevo.";
+              err.classList.remove("hidden");
+            }
+            const overlay = document.getElementById("register-overlay");
+            if (overlay) overlay.classList.remove("hidden");
+          }
+        } catch (e) {
+          console.error("Registro Firebase no completado:", e);
+          const err = document.getElementById("reg-error");
+          if (err) {
+            err.textContent = "No se pudo guardar el registro. Comprueba la conexión e inténtalo de nuevo.";
+            err.classList.remove("hidden");
+          }
+          const overlay = document.getElementById("register-overlay");
+          if (overlay) overlay.classList.remove("hidden");
+        }
+      }
+      guardedSubmitRegistration.__morruosGuarded = true;
+      window.submitRegistration = guardedSubmitRegistration;
+    } catch (_) {}
+  }
+
+  // Reemplaza la consulta ordenada por una lectura simple y ordenación en cliente.
+  // Así ningún registro queda fuera por problemas de índice/campos faltantes.
+  function installRobustUsersListener() {
+    try {
+      if (typeof firebaseReady === "undefined" || !firebaseReady || !db) return;
+      if (typeof renderUsersList !== "function") return;
+      if (window.__morruosRobustUsersListener) return;
+
+      if (usersUnsub) usersUnsub();
+      usersUnsub = db.collection("registrations").limit(500).onSnapshot(function (snap) {
+        const list = [];
+        snap.forEach(function (doc) {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+        list.sort(function (a, b) {
+          return String(b.registeredAt || "").localeCompare(String(a.registeredAt || ""));
+        });
+        renderUsersList(list);
+      }, function (err) {
+        console.error("Error leyendo registrations en Firebase:", err);
+        try { renderUsersList([]); } catch (_) {}
+        const status = document.getElementById("firebase-config-status");
+        if (status) status.textContent = "Firebase conectado, pero no se pudieron leer los registros.";
+      });
+      window.__morruosRobustUsersListener = true;
+    } catch (e) {
+      console.error("No se pudo instalar el listener robusto de usuarios:", e);
+    }
+  }
+
+  const timer = setInterval(function () {
+    installRegistrationGuard();
+    installRobustUsersListener();
+    if (typeof submitRegistration === "function" && window.__morruosRobustUsersListener) clearInterval(timer);
+  }, 700);
+  setTimeout(function () {
+    installRegistrationGuard();
+    installRobustUsersListener();
+  }, 5000);
+})();
+`;
+
 const STARTUP_RECOVERY_SCRIPT = `
 (function () {
-  // Recuperación: si una promesa de arranque falla (red, caché o datos),
-  // la portada se pinta igualmente con DEFAULT en vez de quedarse vacía.
   function recover() {
     try {
       if (typeof data !== "undefined" && !data && typeof DEFAULT !== "undefined") {
@@ -76,8 +175,8 @@ const STARTUP_RECOVERY_SCRIPT = `
 
 function injectFixes(html) {
   const marker = '    const DEFAULT = {';
-  if (html.includes("GLOBAL_FIREBASE_CONFIG")) return html;
-  const fixed = FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + "\n";
+  if (html.includes("GLOBAL_FIREBASE_CONFIG") && html.includes("__morruosRobustUsersListener")) return html;
+  const fixed = FIREBASE_FIX_SCRIPT + REGISTRATION_AND_ADMIN_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + "\n";
   return html.includes(marker)
     ? html.replace(marker, fixed + marker)
     : html.includes("</body>")
@@ -119,7 +218,7 @@ self.addEventListener("fetch", (e) => {
       if (url.pathname.endsWith("/index.html") || url.pathname.endsWith("/Los-Morruos-ap/")) {
         try {
           const html = await res.clone().text();
-          if (!html.includes("GLOBAL_FIREBASE_CONFIG")) {
+          if (!html.includes("__morruosRobustUsersListener")) {
             res = new Response(injectFixes(html), { status: res.status, statusText: res.statusText, headers: res.headers });
           }
         } catch (_) {}
