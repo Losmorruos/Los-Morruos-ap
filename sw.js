@@ -1,8 +1,8 @@
 // Service Worker de Los Morruos + OneSignal.
-// v26: evita pantalla vacía si la carga remota de data.json se retrasa.
+// v27: selector social de compartir cargado como script independiente.
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE = "morruos-v26-data-startup";
+const CACHE = "morruos-v27-social-share";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 const FIREBASE_FIX_SCRIPT = `
@@ -33,7 +33,7 @@ const FIREBASE_FIX_SCRIPT = `
       const id = telefono.replace(/\\D/g, "");
       if (!nombre || !apellidos || id.length < 9) return;
       await db.collection("registrations").doc(id).set({ nombre, apellidos, telefono, registeredAt: u.registeredAt || new Date().toISOString() }, { merge: true });
-    } catch (e) { console.warn("Migración Firebase no completada:", e); }
+    } catch (_) {}
   }
   const timer = setInterval(function () {
     try {
@@ -54,20 +54,18 @@ const ROBUST_USERS_SCRIPT = `
       db.collection("registrations").limit(500).onSnapshot(function (snap) {
         const list = [];
         snap.forEach(function (doc) { list.push({ id: doc.id, ...doc.data() }); });
-        list.sort(function (a,b) { return String(b.registeredAt || "").localeCompare(String(a.registeredAt || "")); });
+        list.sort(function(a,b){ return String(b.registeredAt || "").localeCompare(String(a.registeredAt || "")); });
         renderUsersList(list);
-      }, function () { try { renderUsersList([]); } catch (_) {} });
+      }, function(){ try { renderUsersList([]); } catch (_) {} });
       installed = true;
       window.__morruosRobustUsersListener = true;
-    } catch (e) { console.error("No se pudo instalar listener de usuarios:", e); }
+    } catch (_) {}
   }
-  const timer = setInterval(function () { install(); if (installed) clearInterval(timer); }, 700);
+  const timer = setInterval(function(){ install(); if(installed) clearInterval(timer); }, 700);
   setTimeout(install, 3500);
 })();
 `;
 
-// Recuperación rápida: la pantalla principal no depende de que GitHub responda.
-// loadData() puede tardar por red; mientras tanto usamos la copia local/default y pintamos la app.
 const STARTUP_RECOVERY_SCRIPT = `
 (function () {
   function recover(force) {
@@ -75,133 +73,130 @@ const STARTUP_RECOVERY_SCRIPT = `
       if ((force || typeof data === "undefined" || !data) && typeof DEFAULT !== "undefined") {
         let base = null;
         try { base = JSON.parse(localStorage.getItem("morruos_data") || "null"); } catch (_) {}
-        data = base && typeof base === "object"
-          ? Object.assign(JSON.parse(JSON.stringify(DEFAULT)), base)
-          : JSON.parse(JSON.stringify(DEFAULT));
+        data = base && typeof base === "object" ? Object.assign(JSON.parse(JSON.stringify(DEFAULT)), base) : JSON.parse(JSON.stringify(DEFAULT));
         if (typeof normalizeNextMatches === "function") data.nextMatches = normalizeNextMatches(data);
       }
       if (typeof renderAll === "function") renderAll();
-    } catch (e) { console.warn("Recuperación de arranque no completada:", e); }
+    } catch (_) {}
   }
-  window.addEventListener("unhandledrejection", function () { recover(false); });
-  setTimeout(function () { recover(true); }, 250);
-  setTimeout(function () {
+  window.addEventListener("unhandledrejection", function(){ recover(false); });
+  setTimeout(function(){ recover(true); }, 300);
+  setTimeout(function(){
     try {
       const box = document.getElementById("home-next-matches");
       if (box && !box.innerHTML.trim()) recover(true);
     } catch (_) {}
-  }, 2000);
+  }, 2200);
 })();
 `;
 
 const SOCIAL_SHARE_SCRIPT = `
 (function () {
+  function esc(s) {
+    return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\\"/g,"&quot;");
+  }
   function openSocialMenu(title, text) {
     const safeTitle = String(title || "Los Morruos");
     const safeText = String(text || "");
     const url = location.href;
     const full = safeTitle + "\\n" + safeText + "\\n" + url;
-    const enc = encodeURIComponent(full);
-    const wa = "https://wa.me/?text=" + enc;
+    const wa = "https://wa.me/?text=" + encodeURIComponent(full);
     const fb = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url) + "&quote=" + encodeURIComponent(safeTitle + "\\n" + safeText);
     const x = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(safeTitle + "\\n" + safeText) + "&url=" + encodeURIComponent(url);
     const tg = "https://t.me/share/url?url=" + encodeURIComponent(url) + "&text=" + encodeURIComponent(safeTitle + "\\n" + safeText);
-
+    const old = document.getElementById("morruos-social-share-overlay");
+    if (old) old.remove();
     const overlay = document.createElement("div");
     overlay.id = "morruos-social-share-overlay";
-    overlay.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:20px;";
-    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+    overlay.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.84);display:flex;align-items:center;justify-content:center;padding:20px;";
     const box = document.createElement("div");
-    box.style.cssText = "background:#141414;border:1px solid #F5C518;border-radius:18px;padding:20px;max-width:390px;width:100%;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6);";
+    box.style.cssText = "background:#141414;border:1px solid #F5C518;border-radius:18px;padding:20px;max-width:390px;width:100%;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.7);";
     box.innerHTML = "<h3 style='color:#F5C518;margin:0 0 8px;font-size:20px'>Compartir partido</h3>" +
-      "<p style='color:#aaa;font-size:13px;line-height:1.45;margin:0 0 14px'>" + safeText.replace(/&/g,"&amp;").replace(/</g,"&lt;") + "</p>" +
+      "<p style='color:#aaa;font-size:13px;line-height:1.45;margin:0 0 14px'>" + esc(safeText) + "</p>" +
       "<div style='display:grid;gap:10px'>" +
-      "<a target='_blank' rel='noopener noreferrer' href='" + wa + "' style='display:block;background:#25D366;color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>🟢 WhatsApp</a>" +
-      "<a target='_blank' rel='noopener noreferrer' href='" + fb + "' style='display:block;background:#1877F2;color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>🔵 Facebook</a>" +
-      "<a target='_blank' rel='noopener noreferrer' href='https://www.instagram.com/' style='display:block;background:linear-gradient(90deg,#833AB4,#FD1D1D,#FCAF45);color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>📸 Instagram</a>" +
-      "<a target='_blank' rel='noopener noreferrer' href='" + x + "' style='display:block;background:#000;color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>𝕏 X / Twitter</a>" +
-      "<a target='_blank' rel='noopener noreferrer' href='" + tg + "' style='display:block;background:#229ED9;color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>✈️ Telegram</a>" +
+      "<a href='" + wa + "' target='_blank' rel='noopener noreferrer' style='display:block;background:#25D366;color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>🟢 WhatsApp</a>" +
+      "<a href='" + fb + "' target='_blank' rel='noopener noreferrer' style='display:block;background:#1877F2;color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>🔵 Facebook</a>" +
+      "<a href='https://www.instagram.com/' target='_blank' rel='noopener noreferrer' style='display:block;background:#833AB4;color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>📸 Instagram</a>" +
+      "<a href='" + x + "' target='_blank' rel='noopener noreferrer' style='display:block;background:#000;color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>𝕏 X / Twitter</a>" +
+      "<a href='" + tg + "' target='_blank' rel='noopener noreferrer' style='display:block;background:#229ED9;color:#fff;padding:13px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700'>✈️ Telegram</a>" +
       "<button id='morruos-more-share' type='button' style='width:100%;padding:13px;border:0;border-radius:10px;background:#F5C518;color:#0A0A0A;font-weight:700'>📱 Más opciones</button>" +
       "<button id='morruos-copy-share' type='button' style='width:100%;padding:13px;border:0;border-radius:10px;background:#2A2A2A;color:#fff;font-weight:700'>📋 Copiar texto y enlace</button>" +
       "<button id='morruos-close-share' type='button' style='width:100%;padding:10px;border:0;background:transparent;color:#888'>Cerrar</button>" +
       "</div>";
     overlay.appendChild(box);
     document.body.appendChild(overlay);
-    document.getElementById("morruos-more-share").onclick = function() {
-      if (navigator.share) navigator.share({title:safeTitle,text:safeText,url:url}).catch(function(){});
-    };
-    document.getElementById("morruos-copy-share").onclick = function() {
-      const done = function(){ this.textContent="✓ Copiado"; };
-      if (navigator.clipboard) navigator.clipboard.writeText(full).then(done.bind(this)).catch(function(){ prompt("Copia este texto:",full); });
+    overlay.addEventListener("click", function(e){ if(e.target === overlay) overlay.remove(); });
+    document.getElementById("morruos-more-share").onclick = function(){ if(navigator.share) navigator.share({title:safeTitle,text:safeText,url:url}).catch(function(){}); };
+    document.getElementById("morruos-copy-share").onclick = function(){
+      const b=this;
+      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(full).then(function(){b.textContent="✓ Copiado";}).catch(function(){prompt("Copia este texto:",full);});
       else prompt("Copia este texto:",full);
     };
     document.getElementById("morruos-close-share").onclick = function(){ overlay.remove(); };
   }
-
-  window.shareText = function(title, text) { openSocialMenu(title, text); };
-
-  document.addEventListener("click", function(e) {
+  window.shareText = function(title,text){ openSocialMenu(title,text); };
+  document.addEventListener("click", function(e){
     const btn = e.target && e.target.closest ? e.target.closest("button") : null;
-    if (!btn) return;
-    if ((btn.textContent || "").trim().toLowerCase() === "compartir partido") {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      const card = btn.closest(".card");
-      const titleNode = card && card.querySelector(".font-display.text-lg.font-bold.text-gold");
-      const title = titleNode ? titleNode.textContent.trim() : "Los Morruos";
-      const p = card ? card.querySelector(".mt-4.text-center p.text-sm") : null;
-      const info = p ? p.textContent.trim() : "Próximo partido de Los Morruos";
-      openSocialMenu(title, info);
+    if(!btn) return;
+    if((btn.textContent || "").trim().toLowerCase() !== "compartir partido") return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    let card = btn.closest(".card");
+    let title = "Los Morruos";
+    let text = "Próximo partido de Los Morruos";
+    if(card){
+      const titleNode = card.querySelector(".font-display.text-lg.font-bold.text-gold");
+      const p = card.querySelector(".mt-4.text-center p.text-sm");
+      if(titleNode) title = titleNode.textContent.trim();
+      if(p) text = p.textContent.trim();
     }
+    openSocialMenu(title,text);
   }, true);
 })();
 `;
 
 function injectFixes(html) {
+  // Los scripts de compatibilidad se insertan en un <script> independiente al final.
+  // Esto evita depender del orden de inicialización del script principal.
   const all = FIREBASE_FIX_SCRIPT + ROBUST_USERS_SCRIPT + STARTUP_RECOVERY_SCRIPT + SOCIAL_SHARE_SCRIPT;
-  const marker = "    const DEFAULT = {";
-  if (html.includes(marker)) return html.replace(marker, all + "\n" + marker);
-  if (html.includes("</body>")) return html.replace("</body>", "<script>" + all + "</script></body>");
-  return html + "<script>" + all + "</script>";
+  const tag = "<script>" + all + "</script>";
+  if (html.includes("</body>")) return html.replace("</body>", tag + "</body>");
+  return html + tag;
 }
 
-self.addEventListener("install", function(event) {
-  event.waitUntil(caches.open(CACHE).then(async function(cache) {
-    for (const asset of ASSETS) {
-      try {
-        const res = await fetch(asset, {cache:"no-store"});
-        if (!res.ok) continue;
-        if (asset === "./index.html") {
+self.addEventListener("install", function(event){
+  event.waitUntil(caches.open(CACHE).then(async function(cache){
+    for(const asset of ASSETS){
+      try{
+        const res = await fetch(asset,{cache:"no-store"});
+        if(!res.ok) continue;
+        if(asset === "./index.html"){
           const html = await res.text();
-          const fixed = injectFixes(html);
-          await cache.put(asset, new Response(fixed, {status:res.status,statusText:res.statusText,headers:{"Content-Type":"text/html; charset=utf-8"}}));
+          await cache.put(asset,new Response(injectFixes(html),{status:res.status,statusText:res.statusText,headers:{"Content-Type":"text/html; charset=utf-8"}}));
         } else await cache.put(asset,res);
-      } catch (_) {}
+      }catch(_){}
     }
   }));
   self.skipWaiting();
 });
 
-self.addEventListener("activate", function(event) {
-  event.waitUntil(caches.keys().then(function(keys){
-    return Promise.all(keys.filter(function(key){return key!==CACHE;}).map(function(key){return caches.delete(key);}));
-  }));
+self.addEventListener("activate", function(event){
+  event.waitUntil(caches.keys().then(function(keys){ return Promise.all(keys.filter(function(k){return k!==CACHE;}).map(function(k){return caches.delete(k);})); }));
   self.clients.claim();
 });
 
-self.addEventListener("fetch", function(event) {
+self.addEventListener("fetch", function(event){
   const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) return;
+  if(url.origin !== self.location.origin) return;
   event.respondWith(fetch(event.request,{cache:"no-store"}).then(async function(res){
-    if (url.pathname.endsWith("/index.html") || url.pathname.endsWith("/Los-Morruos-ap/") || url.pathname === "/") {
-      try {
+    if(url.pathname.endsWith("/index.html") || url.pathname.endsWith("/Los-Morruos-ap/") || url.pathname === "/"){
+      try{
         const html = await res.clone().text();
-        const fixed = injectFixes(html);
-        res = new Response(fixed,{status:res.status,statusText:res.statusText,headers:res.headers});
-      } catch (_) {}
+        res = new Response(injectFixes(html),{status:res.status,statusText:res.statusText,headers:res.headers});
+      }catch(_){}
     }
     const clone=res.clone();
     caches.open(CACHE).then(function(cache){cache.put(event.request,clone).catch(function(){});}).catch(function(){});
     return res;
-  }).catch(function(){return caches.match(event.request).then(function(r){return r||caches.match("./index.html");});}));
+  }).catch(function(){ return caches.match(event.request).then(function(r){return r || caches.match("./index.html");}); }));
 });
