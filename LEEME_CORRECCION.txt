@@ -1,0 +1,17 @@
+LOS MORRUOS - VERSION CORREGIDA
+
+Esta versión combina la versión completa con galería/merchandising y los
+recursos de la aplicación.
+
+Correcciones:
+- Arreglado el split("\n") de saveMerch(), que rompía todo el JavaScript.
+- Arreglados dos mensajes de GitHub que tenían saltos de línea literales
+  dentro de cadenas JavaScript.
+- Incrementada la versión de caché del Service Worker a morruos-v16 para
+  evitar que el navegador conserve la versión rota.
+
+Instalación:
+1. Sustituye los archivos del proyecto por los de este ZIP.
+2. Sube todo a GitHub.
+3. Abre la app y haz una recarga completa.
+4. Si estaba instalada como PWA, ciérrala completamente y vuelve a abrirla.

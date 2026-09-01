@@ -3,7 +3,7 @@ importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
 // IMPORTANTE: sube este número cada vez que publiques cambios en index.html,
 // logo.png o manifest.json.
-const CACHE = "morruos-v15";
+const CACHE = "morruos-v16";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 self.addEventListener("install", (e) => {

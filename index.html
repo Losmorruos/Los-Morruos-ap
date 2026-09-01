@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="logo-192.png" />
   <link rel="apple-touch-icon" sizes="192x192" href="logo-192.png" />
   <link rel="apple-touch-icon" sizes="512x512" href="logo-512.png" />
-  <meta name="app-build" content="2026-09-01-merch-whatsapp"><title>Los Morruos | Bola Canaria</title>
+  <meta name="app-build" content="2026-09-01-correccion-js"><title>Los Morruos | Bola Canaria</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -1237,10 +1237,8 @@ Chándal|45€|Chándal completo|si"></textarea>
           if (putRes.ok) {
             const verified = await verifyPublished(stamp);
             return verified
-              ? { ok: true, msg: "Publicado en GitHub ✓ y verificado.
-Las fotos de la galería quedan guardadas." }
-              : { ok: true, msg: "Guardado correctamente en GitHub ✓
-Las fotos de la galería quedan conservadas. Puede tardar 1-2 minutos en verse en otros móviles." };
+              ? { ok: true, msg: "Publicado en GitHub ✓ y verificado.\nLas fotos de la galería quedan guardadas." }
+              : { ok: true, msg: "Guardado correctamente en GitHub ✓\nLas fotos de la galería quedan conservadas. Puede tardar 1-2 minutos en verse en otros móviles." };
           }
 
           if (putRes.status === 409 && attempt < 3) {
@@ -2354,8 +2352,7 @@ Las fotos de la galería quedan conservadas. Puede tardar 1-2 minutos en verse e
 
     function saveMerch() {
       const raw = (document.getElementById("a-merch")?.value || "").trim();
-      data.merch = raw ? raw.split("
-").map(line => {
+      data.merch = raw ? raw.split("\n").map(line => {
         const p = line.split("|").map(s => s.trim());
         const av = (p[3] || "si").toLowerCase();
         return {
