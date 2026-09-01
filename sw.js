@@ -1,8 +1,8 @@
 // Service Worker de Los Morruos + OneSignal.
-// v27: selector social de compartir cargado como script independiente.
+// v28: compartir partidos forzado a menú propio y renovación de caché.
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE = "morruos-v27-social-share";
+const CACHE = "morruos-v28-social-share";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 const FIREBASE_FIX_SCRIPT = `
@@ -138,7 +138,8 @@ const SOCIAL_SHARE_SCRIPT = `
   document.addEventListener("click", function(e){
     const btn = e.target && e.target.closest ? e.target.closest("button") : null;
     if(!btn) return;
-    if((btn.textContent || "").trim().toLowerCase() !== "compartir partido") return;
+    const label = (btn.textContent || "").trim().toLowerCase();
+    if(!btn.classList.contains("share-btn") && label !== "compartir partido") return;
     e.preventDefault();
     e.stopImmediatePropagation();
     let card = btn.closest(".card");
@@ -156,8 +157,6 @@ const SOCIAL_SHARE_SCRIPT = `
 `;
 
 function injectFixes(html) {
-  // Los scripts de compatibilidad se insertan en un <script> independiente al final.
-  // Esto evita depender del orden de inicialización del script principal.
   const all = FIREBASE_FIX_SCRIPT + ROBUST_USERS_SCRIPT + STARTUP_RECOVERY_SCRIPT + SOCIAL_SHARE_SCRIPT;
   const tag = "<script>" + all + "</script>";
   if (html.includes("</body>")) return html.replace("</body>", tag + "</body>");
