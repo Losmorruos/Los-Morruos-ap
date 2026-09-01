@@ -1,12 +1,15 @@
-# Workers OneSignal para la raíz de https://losmorruos.github.io
+LOS MORRUOS - FIREBASE CONFIGURADO
 
-Sube estos 2 archivos a un repo llamado **Losmorruos.github.io** (raíz, sin carpetas).
+Se ha integrado la configuración web de Firebase proporcionada para que la
+aplicación use el proyecto compartido "los-morruos" en lugar de depender de
+una configuración introducida manualmente en cada móvil.
 
-1. github.com/new → nombre: `Losmorruos.github.io` → Create
-2. Add file → Upload files → sube los dos .js → Commit
-3. Espera 1-2 min y comprueba:
-   - https://losmorruos.github.io/OneSignalSDKWorker.js
-   - https://losmorruos.github.io/OneSignalSDKUpdaterWorker.js
-4. OneSignal → SITE URL: https://losmorruos.github.io → Save
-5. En el móvil: Activar avisos
+IMPORTANTE:
+- La lista de usuarios solo será compartida si Firebase Authentication /
+  Firestore (o la base de datos que usa el código) tiene sus reglas y
+  colecciones configuradas correctamente.
+- La apiKey web de Firebase no es una contraseña privada; aun así, las reglas
+  de Firebase deben proteger correctamente los datos.
+- Después de subir los archivos, hay que recargar/borrar caché de la PWA.
 
+Se validaron los bloques JavaScript embebidos sin errores de sintaxis.

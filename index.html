@@ -13,7 +13,18 @@
   <link rel="apple-touch-icon" sizes="192x192" href="logo-192.png" />
   <link rel="apple-touch-icon" sizes="512x512" href="logo-512.png" />
   <meta name="app-build" content="2026-09-01-correccion-js"><title>Los Morruos | Bola Canaria</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD975LbcmD-5roITCDT8SFBQVo1Kb2g_es",
+  authDomain: "los-morruos.firebaseapp.com",
+  projectId: "los-morruos",
+  storageBucket: "los-morruos.firebasestorage.app",
+  messagingSenderId: "43160020256",
+  appId: "1:43160020256:web:b9d394558e23ebfbdfa345",
+  measurementId: "G-HNZNTJD835"
+};
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -967,6 +978,7 @@ Chándal|45€|Chándal completo|si"></textarea>
     const USERS_LIST_KEY = "morruos_users_list";
     const ACTIVITY_KEY = "morruos_activity_log";
     const FIREBASE_CFG_KEY = "morruos_firebase_cfg";
+// Firebase está configurado de forma global para todos los usuarios.
     // App ID de OneSignal (público, se puede dejar en el código). Sustitúyelo
     // por el que te da OneSignal al crear tu app en su dashboard.
     const ONESIGNAL_APP_ID = "f35f765a-8ead-416d-b642-fc075bbcdf92";
