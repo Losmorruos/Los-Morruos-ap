@@ -768,7 +768,7 @@ service cloud.firestore {
                 <input type="file" id="a-gallery-files" accept="image/*" multiple class="hidden" onchange="addGalleryFiles(event)" />
               </label>
             </div>
-            <p class="text-[10px] text-gray-500">Las fotos se guardan en este dispositivo (y se publican en data.json si tienes GitHub configurado). Usa imágenes no demasiado pesadas.</p>
+            <p class="text-[10px] text-gray-500">Las fotos se guardan en la app y, si GitHub está configurado, se publican en data.json. La app conserva una copia de respaldo y protege la galería cuando se guardan otros cambios. Usa imágenes no demasiado pesadas.</p>
             <div id="a-gallery-preview" class="gallery-grid"></div>
             <p class="text-xs text-gray-500 mt-2">O URLs externas (opcional): URL|Caption</p>
             <textarea id="a-gallery" class="admin-input h-24 font-mono text-xs"></textarea>
@@ -960,6 +960,7 @@ Chándal|45€|Chándal completo|si"></textarea>
 
     const ADMIN_PASS = "morruos2026";
     const STORAGE_KEY = "morruos_data_v1";
+    const GALLERY_BACKUP_KEY = "morruos_gallery_backup_v1";
     const REMOTE_CFG_KEY = "morruos_remote_cfg";
     const ONESIGNAL_CFG_KEY = "morruos_onesignal_cfg";
     const USER_KEY = "morruos_current_user";
@@ -1126,6 +1127,54 @@ Chándal|45€|Chándal completo|si"></textarea>
       return false;
     }
 
+    function galleryItems(list) {
+      return Array.isArray(list) ? list.filter(g => g && (g.url || g.src)) : [];
+    }
+
+    function galleryKey(g) {
+      return String(g?.url || g?.src || "").trim();
+    }
+
+    function mergeGallery(primary, secondary) {
+      const result = [];
+      const seen = new Set();
+      [...galleryItems(primary), ...galleryItems(secondary)].forEach(g => {
+        const key = galleryKey(g);
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        result.push({ url: g.url || g.src, caption: g.caption || "" });
+      });
+      return result;
+    }
+
+    function saveGalleryBackup() {
+      try {
+        const list = galleryItems(data?.gallery);
+        if (list.length) localStorage.setItem(GALLERY_BACKUP_KEY, JSON.stringify(list));
+      } catch {}
+    }
+
+    function loadGalleryBackup() {
+      try {
+        const raw = localStorage.getItem(GALLERY_BACKUP_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        return galleryItems(list);
+      } catch {
+        return [];
+      }
+    }
+
+    async function getLatestRemoteData(headers) {
+      try {
+        const res = await fetch(githubRawUrl(), { cache: "no-store" });
+        if (!res.ok) return null;
+        const record = await res.json();
+        return record && typeof record === "object" ? record : null;
+      } catch {
+        return null;
+      }
+    }
+
     async function pushRemote() {
       if (!githubConfigured()) {
         return { ok: false, msg: "Configura primero tu usuario y repositorio de GitHub." };
@@ -1133,43 +1182,76 @@ Chándal|45€|Chándal completo|si"></textarea>
       if (!remoteCfg.token) {
         return { ok: false, msg: "Pega tu token de acceso personal de GitHub para poder publicar desde la app." };
       }
+
       const headers = {
         "Authorization": "Bearer " + remoteCfg.token,
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28"
       };
-      // Marca única para poder identificar ESTE guardado concreto cuando comprobemos
-      // si ya se ve publicado (así no confundimos un guardado viejo con el nuevo).
+
+      // IMPORTANTE: antes de escribir data.json, recuperamos la versión actual
+      // de GitHub y conservamos su galería. Así, si otro dispositivo guarda
+      // noticias, jugadores, merchandising, etc., no puede borrar las fotos
+      // que ya estaban publicadas por un administrador.
+      try {
+        const latest = await getLatestRemoteData(headers);
+        if (latest && Array.isArray(latest.gallery)) {
+          data.gallery = mergeGallery(data.gallery, latest.gallery);
+        }
+      } catch (e) {
+        console.warn("No se pudo fusionar la galería remota", e);
+      }
+
+      saveGalleryBackup();
+
       const stamp = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       data._syncStamp = stamp;
+
       try {
-        // Si el sha cambia mientras publicamos (409), reintenta hasta 4 veces con SHA fresco
         for (let attempt = 0; attempt < 4; attempt++) {
           const sha = await fetchCurrentSha(headers);
+
+          // Volver a leer la galería justo antes del PUT para evitar que una
+          // escritura concurrente elimine las fotos.
+          try {
+            const latest = await getLatestRemoteData(headers);
+            if (latest && Array.isArray(latest.gallery)) {
+              data.gallery = mergeGallery(data.gallery, latest.gallery);
+              saveGalleryBackup();
+            }
+          } catch {}
+
           const body = {
             message: "Actualizar datos desde la app (" + new Date().toISOString() + ")",
             content: utf8ToBase64(JSON.stringify(data, null, 2)),
             branch: remoteCfg.branch
           };
           if (sha) body.sha = sha;
+
           const putRes = await fetch(githubApiUrl(), {
             method: "PUT",
             headers: { ...headers, "Content-Type": "application/json" },
             body: JSON.stringify(body)
           });
+
           if (putRes.ok) {
             const verified = await verifyPublished(stamp);
             return verified
-              ? { ok: true, msg: "Publicado en GitHub ✓ y verificado.\nYa se ve en todos los móviles." }
-              : { ok: true, msg: "Guardado correctamente en GitHub ✓\nGitHub está tardando más de lo normal en actualizar la copia pública (puede pasar). Puede tardar 1-2 minutos en verse en los demás móviles — no hace falta que lo vuelvas a guardar." };
+              ? { ok: true, msg: "Publicado en GitHub ✓ y verificado.
+Las fotos de la galería quedan guardadas." }
+              : { ok: true, msg: "Guardado correctamente en GitHub ✓
+Las fotos de la galería quedan conservadas. Puede tardar 1-2 minutos en verse en otros móviles." };
           }
+
           if (putRes.status === 409 && attempt < 3) {
             await new Promise(r => setTimeout(r, 300 + attempt * 200));
             continue;
           }
+
           const t = await putRes.text();
           return { ok: false, msg: "Error al publicar: " + putRes.status + " " + t };
         }
+
         return { ok: false, msg: "Error al publicar: demasiados conflictos. Inténtalo de nuevo." };
       } catch (e) {
         return { ok: false, msg: "Error: " + e.message };
@@ -1195,7 +1277,10 @@ Chándal|45€|Chándal completo|si"></textarea>
           torneos: remote.torneos || DEFAULT.torneos,
           merch: normalizarMerchandising(remote.merch || remote.merchandise || DEFAULT.merch),
           club: { ...DEFAULT.club, ...(remote.club || {}) },
-          chat: remote.chat || DEFAULT.chat
+          chat: remote.chat || DEFAULT.chat,
+          gallery: galleryItems(remote.gallery).length
+            ? remote.gallery
+            : loadGalleryBackup()
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         return;
@@ -2371,6 +2456,7 @@ Chándal|45€|Chándal completo|si"></textarea>
               }
             } catch (e) { console.warn(e); }
             data.gallery.push({ url: dataUrl, caption: file.name.replace(/\.[^.]+$/, "") });
+            saveGalleryBackup();
             pending--;
             if (pending <= 0) {
               renderAdminGalleryPreview();
@@ -2380,6 +2466,7 @@ Chándal|45€|Chándal completo|si"></textarea>
           };
           img.onerror = () => {
             data.gallery.push({ url: dataUrl, caption: file.name });
+            saveGalleryBackup();
             pending--;
             if (pending <= 0) { renderAdminGalleryPreview(); renderGaleria(); }
           };
@@ -2419,6 +2506,7 @@ Chándal|45€|Chándal completo|si"></textarea>
       const urls = new Set(existing.map(g => g.url));
       fromUrls.forEach(g => { if (!urls.has(g.url)) existing.push(g); });
       data.gallery = existing;
+      saveGalleryBackup();
       // Actualizar textarea solo con URLs externas
       const el = document.getElementById("a-gallery");
       if (el) el.value = existing.filter(g => g.url && !String(g.url).startsWith("data:")).map(g => [g.url, g.caption||""].join("|")).join("\n");
