@@ -1,8 +1,8 @@
 // Service Worker de Los Morruos + OneSignal.
-// v25: compartir partidos con selector forzado y fallback de eventos.
+// v26: evita pantalla vacía si la carga remota de data.json se retrasa.
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE = "morruos-v25-social-share";
+const CACHE = "morruos-v26-data-startup";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 const FIREBASE_FIX_SCRIPT = `
@@ -66,21 +66,31 @@ const ROBUST_USERS_SCRIPT = `
 })();
 `;
 
+// Recuperación rápida: la pantalla principal no depende de que GitHub responda.
+// loadData() puede tardar por red; mientras tanto usamos la copia local/default y pintamos la app.
 const STARTUP_RECOVERY_SCRIPT = `
 (function () {
-  function recover() {
+  function recover(force) {
     try {
-      if (typeof data !== "undefined" && !data && typeof DEFAULT !== "undefined") {
-        data = JSON.parse(JSON.stringify(DEFAULT));
+      if ((force || typeof data === "undefined" || !data) && typeof DEFAULT !== "undefined") {
+        let base = null;
+        try { base = JSON.parse(localStorage.getItem("morruos_data") || "null"); } catch (_) {}
+        data = base && typeof base === "object"
+          ? Object.assign(JSON.parse(JSON.stringify(DEFAULT)), base)
+          : JSON.parse(JSON.stringify(DEFAULT));
         if (typeof normalizeNextMatches === "function") data.nextMatches = normalizeNextMatches(data);
       }
       if (typeof renderAll === "function") renderAll();
-    } catch (_) {}
+    } catch (e) { console.warn("Recuperación de arranque no completada:", e); }
   }
-  window.addEventListener("unhandledrejection", recover);
+  window.addEventListener("unhandledrejection", function () { recover(false); });
+  setTimeout(function () { recover(true); }, 250);
   setTimeout(function () {
-    try { const box = document.getElementById("home-next-matches"); if (box && !box.innerHTML.trim()) recover(); } catch (_) {}
-  }, 3500);
+    try {
+      const box = document.getElementById("home-next-matches");
+      if (box && !box.innerHTML.trim()) recover(true);
+    } catch (_) {}
+  }, 2000);
 })();
 `;
 
@@ -130,7 +140,6 @@ const SOCIAL_SHARE_SCRIPT = `
 
   window.shareText = function(title, text) { openSocialMenu(title, text); };
 
-  // Captura el clic aunque el HTML tenga un onclick antiguo que llame a otra función.
   document.addEventListener("click", function(e) {
     const btn = e.target && e.target.closest ? e.target.closest("button") : null;
     if (!btn) return;
