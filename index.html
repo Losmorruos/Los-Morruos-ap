@@ -441,7 +441,10 @@
 
     <section id="tab-entrenos" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-3">Entrenamientos</h2>
-      <div id="entrenos-list" class="space-y-3"></div>
+      <p class="text-xs text-gray-500 mb-3">Horarios e información de los entrenamientos del club.</p>
+      <div class="card p-4">
+        <div id="entrenos-notes" class="text-sm text-gray-200 whitespace-pre-wrap leading-relaxed min-h-[120px]"></div>
+      </div>
     </section>
     <section id="tab-galeria" class="tab-content">
       <h2 class="font-display text-xl text-gold mb-3">Galería</h2>
@@ -680,8 +683,8 @@ service cloud.firestore {
         <div id="atab-trainings" class="admin-tab-content hidden">
           <div class="card p-4 space-y-3">
             <h3 class="font-semibold text-gold">Entrenamientos</h3>
-            <p class="text-xs text-gray-500">Fecha|Hora|Lugar|Título|Notas (una línea por entrenamiento)</p>
-            <textarea id="a-trainings" class="admin-input h-40 font-mono text-xs"></textarea>
+            <p class="text-xs text-gray-500">Escribe libremente lo que quieras que vean todos (horarios, lugar, avisos…).</p>
+            <textarea id="a-trainings" class="admin-input h-48 text-sm" placeholder="Ejemplo:&#10;Entrenamientos lunes y miércoles a las 18:30&#10;Cancha de Morro Jable&#10;Traer ropa oscura y agua."></textarea>
             <button onclick="saveTrainings()" class="admin-btn w-full">Guardar entrenamientos</button>
           </div>
         </div>
@@ -2007,16 +2010,22 @@ Chándal|45€|Chándal completo|si"></textarea>
       return `<div class="empty-state">${msg || "Aún no hay datos publicados."}</div>`;
     }
     function renderEntrenos() {
-      const el = document.getElementById("entrenos-list");
+      const el = document.getElementById("entrenos-notes") || document.getElementById("entrenos-list");
       if (!el) return;
-      const list = data.trainings || data.entrenamientos || [];
-      if (!list.length) { el.innerHTML = emptyState("Todavía no hay entrenamientos publicados."); return; }
-      el.innerHTML = list.map(t => `<div class="card p-4">
-        <p class="font-semibold text-gold">${t.title || "Entrenamiento"}</p>
-        <p class="text-sm text-gray-300 mt-1">${t.date || ""}${t.time ? " · " + t.time : ""}</p>
-        <p class="text-xs text-gray-500 mt-1">${t.place || ""}</p>
-        ${t.notes ? `<p class="text-sm text-gray-400 mt-2">${t.notes}</p>` : ""}
-      </div>`).join("");
+      // Texto libre: trainingNotes o, si viene el formato antiguo (array), lo unimos
+      let text = data.trainingNotes || data.entrenamientosTexto || "";
+      if (!text && Array.isArray(data.trainings) && data.trainings.length) {
+        text = data.trainings.map(t => {
+          if (typeof t === "string") return t;
+          const parts = [t.title, t.date, t.time, t.place, t.notes].filter(Boolean);
+          return parts.join(" · ");
+        }).join("\n");
+      }
+      if (!String(text).trim()) {
+        el.innerHTML = '<p class="text-gray-500">Aún no hay información de entrenamientos.</p>';
+      } else {
+        el.textContent = text;
+      }
     }
     function renderGaleria() {
       const el = document.getElementById("gallery-grid");
@@ -2182,11 +2191,10 @@ Chándal|45€|Chándal completo|si"></textarea>
       if (hr && !hr.innerHTML.trim()) hr.innerHTML = emptyState("Aún no hay resultados.");
     }
     function saveTrainings() {
-      const raw = (document.getElementById("a-trainings")?.value || "").trim();
-      data.trainings = raw ? raw.split("\n").map(line => {
-        const p = line.split("|").map(s => s.trim());
-        return { date: p[0]||"", time: p[1]||"", place: p[2]||"", title: p[3]||"Entrenamiento", notes: p[4]||"" };
-      }).filter(t => t.date || t.title) : [];
+      const raw = (document.getElementById("a-trainings")?.value || "");
+      data.trainingNotes = raw;
+      // Compat: vaciar array antiguo para no mezclar
+      data.trainings = [];
       persistExtra("Entrenamientos actualizados");
     }
 
@@ -2430,8 +2438,14 @@ Chándal|45€|Chándal completo|si"></textarea>
 
       // Campos nuevos (entrenos, galería, cancha, socios)
       try {
-        const tr = (data.trainings || []).map(t => [t.date||"",t.time||"",t.place||"",t.title||"",t.notes||""].join("|")).join("\n");
-        const elT = document.getElementById("a-trainings"); if (elT) elT.value = tr;
+        const elT = document.getElementById("a-trainings");
+        if (elT) {
+          let tnotes = data.trainingNotes || data.entrenamientosTexto || "";
+          if (!tnotes && Array.isArray(data.trainings) && data.trainings.length) {
+            tnotes = data.trainings.map(t => typeof t === "string" ? t : [t.title,t.date,t.time,t.place,t.notes].filter(Boolean).join(" · ")).join("\n");
+          }
+          elT.value = tnotes;
+        }
         const gal = (data.gallery || []).map(g => [g.url||"",g.caption||""].join("|")).join("\n");
         const elG = document.getElementById("a-gallery"); if (elG) elG.value = gal;
         const v = data.venue || {};
@@ -2660,11 +2674,15 @@ Chándal|45€|Chándal completo|si"></textarea>
     OneSignalDeferred.push(async function (OneSignal) {
       if (!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID.startsWith("TU_")) return; // no configurado todavía
       try {
+        // Scope bajo el subdirectorio de GitHub Pages (/Los-Morruos-ap/)
+        const swScope = (location.pathname.replace(/\/[^/]*$/, "/") || "/");
         await OneSignal.init({
           appId: ONESIGNAL_APP_ID,
-          serviceWorkerParam: { scope: "./" },
-          serviceWorkerPath: "sw.js",
-          allowLocalhostAsSecureOrigin: true
+          serviceWorkerParam: { scope: swScope },
+          serviceWorkerPath: "OneSignalSDKWorker.js",
+          serviceWorkerUpdaterPath: "OneSignalSDKUpdaterWorker.js",
+          allowLocalhostAsSecureOrigin: true,
+          notifyButton: { enable: false }
         });
         updateNotifButton();
         OneSignal.User.PushSubscription.addEventListener("change", updateNotifButton);
@@ -2721,11 +2739,14 @@ Chándal|45€|Chándal completo|si"></textarea>
         const OneSignal = window.OneSignal;
         // Asegurar init
         if (!OneSignal.User) {
+          const swScope2 = (location.pathname.replace(/\/[^/]*$/, "/") || "/");
           await OneSignal.init({
             appId: ONESIGNAL_APP_ID,
-            serviceWorkerParam: { scope: "./" },
-            serviceWorkerPath: "sw.js",
-            allowLocalhostAsSecureOrigin: true
+            serviceWorkerParam: { scope: swScope2 },
+            serviceWorkerPath: "OneSignalSDKWorker.js",
+            serviceWorkerUpdaterPath: "OneSignalSDKUpdaterWorker.js",
+            allowLocalhostAsSecureOrigin: true,
+            notifyButton: { enable: false }
           });
         }
         const perm = Notification.permission;

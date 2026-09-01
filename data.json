@@ -34,52 +34,36 @@
   "matches": [],
   "players": [
     {
-      "name": "Alexis Rosa Gonzáles",
+      "name": "Juan Pérez",
       "team": "A"
     },
     {
-      "name": "Amadeu Rosa Barbosa",
+      "name": "Manuel Rodríguez",
       "team": "A"
     },
     {
-      "name": "Pedro Acosta Francés",
+      "name": "Antonio García",
       "team": "A"
     },
     {
-      "name": "Guanárteme Gonzáles Estupiñán",
+      "name": "Francisco Díaz",
       "team": "A"
     },
     {
-      "name": "Jonathan Diz Padin",
-      "team": "A"
+      "name": "José Hernández",
+      "team": "B"
     },
     {
-      "name": "Juan Ramon Fernández Acosta",
-      "team": "A"
+      "name": "Pedro Cabrera",
+      "team": "B"
     },
     {
-      "name": "Oscar Araya Gopar",
-      "team": "A"
-    }
-  ],
-  "merch": [
-    {
-      "name": "Camiseta",
-      "price": "Consultar",
-      "desc": "Camiseta oficial negra y dorada",
-      "available": true
+      "name": "Luis Morales",
+      "team": "B"
     },
     {
-      "name": "Suéter",
-      "price": "Consultar",
-      "desc": "Suéter oficial del club",
-      "available": true
-    },
-    {
-      "name": "Chándal",
-      "price": "Consultar",
-      "desc": "Chándal completo Los Morruos",
-      "available": true
+      "name": "Carlos Medina",
+      "team": "B"
     }
   ],
   "news": [
@@ -109,16 +93,8 @@
     "x": ""
   },
   "chat": [],
-  "_syncStamp": "mthwthufvjv6",
-  "trainings": [
-    {
-      "date": "Lunes y Miércoles 18:30",
-      "time": "",
-      "place": "",
-      "title": "Entrenamiento",
-      "notes": ""
-    }
-  ],
+  "_syncStamp": "mtegkq65igp9",
+  "trainings": [],
   "gallery": [],
   "venue": {
     "name": "Cancha Los Morruos · Morro Jable",
@@ -137,5 +113,26 @@
       "Participación en asambleas"
     ],
     "contact": "+34650858521 / ClubdeportivolosMorruos@gmail.com"
-  }
+  },
+  "merch": [
+    {
+      "name": "Camiseta",
+      "price": "Consultar",
+      "desc": "Camiseta oficial negra y dorada",
+      "available": true
+    },
+    {
+      "name": "Suéter",
+      "price": "Consultar",
+      "desc": "Suéter oficial del club",
+      "available": true
+    },
+    {
+      "name": "Chándal",
+      "price": "Consultar",
+      "desc": "Chándal completo Los Morruos",
+      "available": true
+    }
+  ],
+  "trainingNotes": "Entrenamientos lunes y miércoles a las 18:30\nCancha de Morro Jable\nTraer ropa oscura y agua."
 }
