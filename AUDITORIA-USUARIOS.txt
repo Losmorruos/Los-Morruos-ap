@@ -1,0 +1,16 @@
+AUDITORIA LOS MORRUOS
+
+JavaScript: OK (validado con Node.js)
+Firebase config: integrado
+Firestore/API de datos compartidos detectado: SÍ
+Authentication detectado: NO
+Uso de localStorage relacionado con usuarios: SÍ
+
+IMPORTANTE:
+Esta auditoría no puede comprobar desde un archivo local si las reglas de
+Firestore permiten escribir/leer ni si la colección remota contiene usuarios.
+Eso requiere probar contra el proyecto Firebase online.
+
+Si la app utiliza localStorage para guardar los registros y no existe un
+addDoc/setDoc hacia Firestore para cada registro, los usuarios NO serán
+compartidos entre móviles; habría que implementar esa escritura.
