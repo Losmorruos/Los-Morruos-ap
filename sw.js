@@ -1,10 +1,8 @@
 // Service worker de la app + OneSignal (mismo scope del subdirectorio)
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-// v21: Firebase global + migración + registro obligatorio + listado robusto.
-// Los scripts se inyectan dentro del <script> principal de index.html y NO llevan
-// etiquetas <script> anidadas.
-const CACHE = "morruos-v21-firebase-registros";
+// v22: Firebase + registros robustos + WhatsApp de merchandising.
+const CACHE = "morruos-v22-firebase-registros-whatsapp";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 const FIREBASE_FIX_SCRIPT = `
@@ -47,7 +45,6 @@ const FIREBASE_FIX_SCRIPT = `
     }
   }
 
-  // Migrar el usuario que ya estaba guardado localmente en este dispositivo.
   const migrationTimer = setInterval(() => {
     if (typeof firebaseReady !== "undefined" && firebaseReady && typeof db !== "undefined" && db && typeof currentUser !== "undefined" && currentUser && !currentUser.guest) {
       syncCurrentUser();
@@ -59,8 +56,6 @@ const FIREBASE_FIX_SCRIPT = `
 
 const REGISTRATION_AND_ADMIN_FIX_SCRIPT = `
 (function () {
-  // Desde ahora un alta no se considera completada hasta que Firestore acepta
-  // el documento. Así evitamos que un fallo de Firebase deje usuarios solo en local.
   function installRegistrationGuard() {
     try {
       if (typeof submitRegistration !== "function" || submitRegistration.__morruosGuarded) return;
@@ -79,8 +74,6 @@ const REGISTRATION_AND_ADMIN_FIX_SCRIPT = `
             return;
           }
           await original();
-
-          // Verificación final: comprobamos que el documento realmente existe.
           const u = (typeof currentUser !== "undefined") ? currentUser : null;
           const id = u && u.telefono ? String(u.telefono).replace(/\\D/g, "") : "";
           if (!id) return;
@@ -110,14 +103,11 @@ const REGISTRATION_AND_ADMIN_FIX_SCRIPT = `
     } catch (_) {}
   }
 
-  // Reemplaza la consulta ordenada por una lectura simple y ordenación en cliente.
-  // Así ningún registro queda fuera por problemas de índice/campos faltantes.
   function installRobustUsersListener() {
     try {
       if (typeof firebaseReady === "undefined" || !firebaseReady || !db) return;
       if (typeof renderUsersList !== "function") return;
       if (window.__morruosRobustUsersListener) return;
-
       if (usersUnsub) usersUnsub();
       usersUnsub = db.collection("registrations").limit(500).onSnapshot(function (snap) {
         const list = [];
@@ -152,6 +142,34 @@ const REGISTRATION_AND_ADMIN_FIX_SCRIPT = `
 })();
 `;
 
+const MERCH_WHATSAPP_FIX_SCRIPT = `
+(function () {
+  const NUMBER = "34650858521";
+
+  window.comprarPorWhatsApp = function (nombre, precio) {
+    const producto = String(nombre || "producto").trim();
+    const precioTexto = String(precio || "").trim();
+    const mensaje = `Hola, quiero consultar por ${producto}${precioTexto ? ` (${precioTexto})` : ""} de Los Morruos. ¿Me puedes indicar disponibilidad, tallas y precio?`;
+    const url = `https://wa.me/${NUMBER}?text=${encodeURIComponent(mensaje)}`;
+    window.location.href = url;
+  };
+
+  function cambiarTextoBotones(root) {
+    try {
+      (root || document).querySelectorAll("button").forEach(function (btn) {
+        if ((btn.textContent || "").includes("Comprar por WhatsApp")) {
+          btn.innerHTML = btn.innerHTML.replace("Comprar por WhatsApp", "Consultar por WhatsApp");
+        }
+      });
+    } catch (_) {}
+  }
+
+  cambiarTextoBotones(document);
+  const observer = new MutationObserver(function () { cambiarTextoBotones(document); });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+})();
+`;
+
 const STARTUP_RECOVERY_SCRIPT = `
 (function () {
   function recover() {
@@ -175,8 +193,8 @@ const STARTUP_RECOVERY_SCRIPT = `
 
 function injectFixes(html) {
   const marker = '    const DEFAULT = {';
-  if (html.includes("GLOBAL_FIREBASE_CONFIG") && html.includes("__morruosRobustUsersListener")) return html;
-  const fixed = FIREBASE_FIX_SCRIPT + REGISTRATION_AND_ADMIN_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + "\n";
+  if (html.includes("__morruosRobustUsersListener") && html.includes("Consultar por WhatsApp")) return html;
+  const fixed = FIREBASE_FIX_SCRIPT + REGISTRATION_AND_ADMIN_FIX_SCRIPT + MERCH_WHATSAPP_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + "\\n";
   return html.includes(marker)
     ? html.replace(marker, fixed + marker)
     : html.includes("</body>")
@@ -218,7 +236,7 @@ self.addEventListener("fetch", (e) => {
       if (url.pathname.endsWith("/index.html") || url.pathname.endsWith("/Los-Morruos-ap/")) {
         try {
           const html = await res.clone().text();
-          if (!html.includes("__morruosRobustUsersListener")) {
+          if (!html.includes("__morruosRobustUsersListener") || !html.includes("Consultar por WhatsApp")) {
             res = new Response(injectFixes(html), { status: res.status, statusText: res.statusText, headers: res.headers });
           }
         } catch (_) {}
