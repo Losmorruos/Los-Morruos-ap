@@ -1,134 +1,40 @@
 {
-  "nextMatch": {
-    "team": "Morro Jable A",
-    "rival": "Ejemplo 1",
-    "date": "2026-09-06",
-    "time": "18:00",
-    "place": "Estación de Guaguas de Morro Jable",
-    "home": true,
-    "comp": "Liga Insular"
-  },
+  "nextMatch": {"team":"Morro Jable A","rival":"Ejemplo 1","date":"2026-09-06","time":"18:00","place":"Estación de Guaguas de Morro Jable","home":true,"comp":"Liga Insular"},
   "nextMatches": [
-    {
-      "team": "Morro Jable A",
-      "rival": "Ejemplo 1",
-      "date": "2026-09-06",
-      "time": "18:00",
-      "place": "Estación de Guaguas de Morro Jable",
-      "home": true,
-      "comp": "Liga Insular"
-    },
-    {
-      "team": "Morro Jable B",
-      "rival": "Ejemplo  2",
-      "date": "2026-09-06",
-      "time": "17:00",
-      "place": "Cancha Municipal · Puerto del Rosario",
-      "home": false,
-      "comp": "Liga Insular"
-    }
+    {"team":"Morro Jable A","rival":"Ejemplo 1","date":"2026-09-06","time":"18:00","place":"Estación de Guaguas de Morro Jable","home":true,"comp":"Liga Insular"},
+    {"team":"Morro Jable B","rival":"Ejemplo  2","date":"2026-09-06","time":"17:00","place":"Cancha Municipal · Puerto del Rosario","home":false,"comp":"Liga Insular"}
   ],
   "standingsA": [],
   "standingsB": [],
   "standings": [],
   "matches": [],
   "players": [
-    {
-      "name": "Alexis Rosa Gonzáles",
-      "team": "A"
-    },
-    {
-      "name": "Amadeu Rosa Barbosa",
-      "team": "A"
-    },
-    {
-      "name": "Pedro Acosta Frances",
-      "team": "A"
-    },
-    {
-      "name": "Guanarteme Gonzáles Estupiñán",
-      "team": "A"
-    },
-    {
-      "name": "Jonathan Diz Padin",
-      "team": "A"
-    },
-    {
-      "name": "Juan Ramon Fernández Acosta",
-      "team": "A"
-    },
-    {
-      "name": "Oscar Araya Gopar",
-      "team": "A"
-    }
+    {"name":"Alexis Rosa Gonzáles","team":"A"},
+    {"name":"Amadeu Rosa Barbosa","team":"A"},
+    {"name":"Pedro Acosta Frances","team":"A"},
+    {"name":"Guanarteme Gonzáles Estupiñán","team":"A"},
+    {"name":"Jonathan Diz Padin","team":"A"},
+    {"name":"Juan Ramon Fernández Acosta","team":"A"},
+    {"name":"Oscar Araya Gopar","team":"A"}
   ],
   "merch": [
-    {
-      "name": "Camiseta",
-      "price": "Consultar",
-      "desc": "Camiseta oficial negra y dorada",
-      "available": true
-    },
-    {
-      "name": "Suéter",
-      "price": "Consultar",
-      "desc": "Suéter oficial del club",
-      "available": true
-    },
-    {
-      "name": "Chándal",
-      "price": "Consultar",
-      "desc": "Chándal completo Los Morruos",
-      "available": true
-    }
+    {"name":"Camiseta","price":"Consultar","desc":"Camiseta oficial negra y dorada","available":true},
+    {"name":"Suéter","price":"Consultar","desc":"Suéter oficial del club","available":true},
+    {"name":"Chándal","price":"Consultar","desc":"Chándal completo Los Morruos","available":true}
   ],
   "news": [
-    {
-      "date": "PRÓXIMAMENTE PUBLICAREMOS LA INFORMACIÓN DE LA NUEVA TEMPORADA",
-      "title": "",
-      "text": ""
-    }
+    {"date":"2026-09-01","title":"PRÓXIMAMENTE PUBLICAREMOS LA INFORMACIÓN DE LA NUEVA TEMPORADA","text":""}
   ],
   "torneos": [
-    {
-      "title": "Torneo Social Los Morruos",
-      "date": "11 Octubre 2026",
-      "desc": "Jornada de puertas abiertas y partida amistosa."
-    },
-    {
-      "title": "Tiro de Precisión Insular",
-      "date": "Pendiente de fechas",
-      "desc": "Participación del club en la prueba de tiro de precisión."
-    }
+    {"title":"Torneo Social Los Morruos","date":"11 Octubre 2026","desc":"Jornada de puertas abiertas y partida amistosa."},
+    {"title":"Tiro de Precisión Insular","date":"Pendiente de fechas","desc":"Participación del club en la prueba de tiro de precisión."}
   ],
-  "club": {
-    "about": "Club Deportivo Los Morruos es un club de bola canaria de Fuerteventura con dos equipos: Morro Jable A (1ª Categoría) y Morro Jable B (2ª Categoría). Nuestros colores son el negro y el dorado, y nuestro símbolo es la cabra majorera.",
-    "contact": "+34650858521 / ClubdeportivolosMorruos@gmail.com",
-    "ig": "https://www.instagram.com/c.bmorrojable?igsi=djVhZ2FtYXpzbGVy",
-    "fb": "https://www.facebook.com/share/1E7QBuM3Sk/",
-    "x": ""
-  },
+  "club": {"about":"Club Deportivo Los Morruos es un club de bola canaria de Fuerteventura con dos equipos: Morro Jable A (1ª Categoría) y Morro Jable B (2ª Categoría). Nuestros colores son el negro y el dorado, y nuestro símbolo es la cabra majorera.","contact":"+34650858521 / ClubdeportivolosMorruos@gmail.com","ig":"https://www.instagram.com/c.bmorrojable?igsi=djVhZ2FtYXpzbGVy","fb":"https://www.facebook.com/share/1E7QBuM3Sk/","x":""},
   "chat": [],
-  "_syncStamp": "mthyqmagxufk",
+  "_syncStamp":"noticia-fix-2026-09-01",
   "trainings": [],
   "gallery": [],
-  "venue": {
-    "name": "Cancha Los Morruos · Morro Jable",
-    "address": "Morro Jable, Pájara, Fuerteventura",
-    "lat": 28.048,
-    "lng": -14.358,
-    "mapsUrl": "https://www.google.com/maps?q=Morro+Jable+Fuerteventura",
-    "howto": "Cancha municipal en la zona de Morro Jable. Confirmar sede antes del partido por si hay cambios."
-  },
-  "socios": {
-    "info": "Sé socio de Club Deportivo Los Morruos y apoya la bola canaria en Fuerteventura.",
-    "fee": "Consultar con el club",
-    "benefits": [
-      "Acceso prioritario a eventos del club",
-      "Descuentos en material cuando haya acuerdos",
-      "Participación en asambleas"
-    ],
-    "contact": "+34650858521 / ClubdeportivolosMorruos@gmail.com"
-  },
-  "trainingNotes": "Entrenamientos lunes y miércoles a las 18:30\nCancha de Morro Jable\nTraer ropa oscura y agua."
+  "venue": {"name":"Cancha Los Morruos · Morro Jable","address":"Morro Jable, Pájara, Fuerteventura","lat":28.048,"lng":-14.358,"mapsUrl":"https://www.google.com/maps?q=Morro+Jable+Fuerteventura","howto":"Cancha municipal en la zona de Morro Jable. Confirmar sede antes del partido por si hay cambios."},
+  "socios": {"info":"Sé socio de Club Deportivo Los Morruos y apoya la bola canaria en Fuerteventura.","fee":"Consultar con el club","benefits":["Acceso prioritario a eventos del club","Descuentos en material cuando haya acuerdos","Participación en asambleas"],"contact":"+34650858521 / ClubdeportivolosMorruos@gmail.com"},
+  "trainingNotes":"Entrenamientos lunes y miércoles a las 18:30\nCancha de Morro Jable\nTraer ropa oscura y agua."
 }
