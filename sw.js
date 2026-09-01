@@ -1,12 +1,13 @@
 // Service worker de la app + OneSignal (mismo scope del subdirectorio)
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-// v18: Firebase global + migración automática de usuarios antiguos.
-const CACHE = "morruos-v19-firebase-global";
+// v20: Firebase global + migración automática + recuperación de arranque.
+// IMPORTANTE: los scripts se inyectan dentro del <script> principal de index.html,
+// por lo que NO deben contener etiquetas <script> anidadas.
+const CACHE = "morruos-v20-firebase-global";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 const FIREBASE_FIX_SCRIPT = `
-<script>
 (function () {
   const GLOBAL_FIREBASE_CONFIG = {
     apiKey: "AIzaSyD975LbcmD-5roITCDT8SFBQVo1Kb2g_es",
@@ -48,10 +49,9 @@ const FIREBASE_FIX_SCRIPT = `
     }
   }, 1000);
 })();
-</script>`;
+`;
 
 const STARTUP_RECOVERY_SCRIPT = `
-<script>
 (function () {
   // Recuperación: si una promesa de arranque falla (red, caché o datos),
   // la portada se pinta igualmente con DEFAULT en vez de quedarse vacía.
@@ -65,7 +65,6 @@ const STARTUP_RECOVERY_SCRIPT = `
     } catch (_) {}
   }
   window.addEventListener("unhandledrejection", recover);
-  // Seguridad adicional: si la portada sigue vacía unos segundos después de abrir, repintamos.
   setTimeout(function () {
     try {
       const box = document.getElementById("home-next-matches");
@@ -73,7 +72,18 @@ const STARTUP_RECOVERY_SCRIPT = `
     } catch (_) {}
   }, 3500);
 })();
-</script>`;
+`;
+
+function injectFixes(html) {
+  const marker = '    const DEFAULT = {';
+  if (html.includes("GLOBAL_FIREBASE_CONFIG")) return html;
+  const fixed = FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + "\n";
+  return html.includes(marker)
+    ? html.replace(marker, fixed + marker)
+    : html.includes("</body>")
+      ? html.replace("</body>", fixed + "</body>")
+      : html + fixed;
+}
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -84,11 +94,9 @@ self.addEventListener("install", (e) => {
           if (res.ok) {
             if (asset === "./index.html") {
               const html = await res.text();
-              const marker = '    const DEFAULT = {';
-              const fixed = html.includes(marker)
-                ? html.replace(marker, FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + '\n' + marker)
-                : html.includes("</body>") ? html.replace("</body>", FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + "</body>") : html + FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT;
-              await c.put(asset, new Response(fixed, { headers: { "Content-Type": "text/html; charset=utf-8" } }));
+              await c.put(asset, new Response(injectFixes(html), {
+                headers: { "Content-Type": "text/html; charset=utf-8" }
+              }));
             } else await c.put(asset, res);
           }
         } catch (_) {}
@@ -112,11 +120,7 @@ self.addEventListener("fetch", (e) => {
         try {
           const html = await res.clone().text();
           if (!html.includes("GLOBAL_FIREBASE_CONFIG")) {
-            const marker = '    const DEFAULT = {';
-            const fixed = html.includes(marker)
-              ? html.replace(marker, FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + '\n' + marker)
-              : html.includes("</body>") ? html.replace("</body>", FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + "</body>") : html + FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT;
-            res = new Response(fixed, { status: res.status, statusText: res.statusText, headers: res.headers });
+            res = new Response(injectFixes(html), { status: res.status, statusText: res.statusText, headers: res.headers });
           }
         } catch (_) {}
       }
