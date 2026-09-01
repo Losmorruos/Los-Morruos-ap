@@ -2337,9 +2337,9 @@ Chándal|45€|Chándal completo|si"></textarea>
       const producto = String(nombre || "producto").trim();
       const precioTexto = String(precio || "").trim();
       const mensaje = `Hola, quiero consultar por ${producto}${precioTexto ? ` (${precioTexto})` : ""} del Club Los Morruos. ¿Me puedes indicar disponibilidad, tallas y precio?`;
-      const url = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(mensaje)}`;
-      // Navegación directa: evita que el bloqueador de ventanas de la PWA impida abrir WhatsApp.
-      window.location.assign(url);
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+      // Abrimos WhatsApp mediante una navegación real del navegador/PWA.
+      window.location.href = url;
     }
 
     function renderMerch() {
@@ -2378,11 +2378,11 @@ Chándal|45€|Chándal completo|si"></textarea>
                 ${disponible ? "Disponible — consulta tallas con el club" : "Agotado / no disponible"}
               </p>
               ${disponible ? `
-                <button type="button"
-                  onclick="comprarPorWhatsApp(${JSON.stringify(nombre)}, ${JSON.stringify(precio)})"
-                  class="admin-btn w-full mt-3 flex items-center justify-center gap-2">
+                <a href="${`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hola, quiero consultar por ${nombre}${precio ? ` (${precio})` : ""} del Club Los Morruos. ¿Me puedes indicar disponibilidad, tallas y precio?`)}`.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}"
+                  target="_blank" rel="noopener noreferrer"
+                  class="admin-btn w-full mt-3 flex items-center justify-center gap-2 no-underline">
                   <span>📱</span> Consultar por WhatsApp
-                </button>` : ""}
+                </a>` : ""}
             </div>
           </div>`;
       }).join("");

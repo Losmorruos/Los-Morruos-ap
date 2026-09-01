@@ -2,7 +2,7 @@
 // v22: Firebase + registros robustos + WhatsApp de merchandising.
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE = "morruos-v22-firebase-registros-whatsapp";
+const CACHE = "morruos-v23-firebase-registros-whatsapp";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 // Este código se inyecta como JavaScript REAL dentro de <script> en index.html.
@@ -94,33 +94,6 @@ const ROBUST_USERS_SCRIPT = `
 })();
 `;
 
-const MERCH_WHATSAPP_FIX_SCRIPT = `
-(function () {
-  const NUMBER = "34650858521";
-  window.comprarPorWhatsApp = function (nombre, precio) {
-    const producto = String(nombre || "producto").trim();
-    const precioTexto = String(precio || "").trim();
-    const mensaje = \`Hola, quiero consultar por \${producto}\${precioTexto ? \` (\${precioTexto})\` : ""} de Los Morruos. ¿Me puedes indicar disponibilidad, tallas y precio?\`;
-    const url = \`https://api.whatsapp.com/send?phone=\${NUMBER}&text=\${encodeURIComponent(mensaje)}\`;
-    window.location.assign(url);
-  };
-  function cambiarTextoBotones(root) {
-    try {
-      (root || document).querySelectorAll("button").forEach(function (btn) {
-        if ((btn.textContent || "").includes("Comprar por WhatsApp")) {
-          btn.innerHTML = btn.innerHTML.replace("Comprar por WhatsApp", "Consultar por WhatsApp");
-        }
-      });
-    } catch (_) {}
-  }
-  cambiarTextoBotones(document);
-  try {
-    const observer = new MutationObserver(function () { cambiarTextoBotones(document); });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-  } catch (_) {}
-})();
-`;
-
 const STARTUP_RECOVERY_SCRIPT = `
 (function () {
   function recover() {
@@ -143,7 +116,7 @@ const STARTUP_RECOVERY_SCRIPT = `
 `;
 
 function injectFixes(html) {
-  const all = FIREBASE_FIX_SCRIPT + ROBUST_USERS_SCRIPT + MERCH_WHATSAPP_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT;
+  const all = FIREBASE_FIX_SCRIPT + ROBUST_USERS_SCRIPT + STARTUP_RECOVERY_SCRIPT;
   const marker = '    const DEFAULT = {';
   if (html.includes(marker)) return html.replace(marker, all + "\n" + marker);
   if (html.includes("</body>")) return html.replace("</body>", "<script>" + all + "</script></body>");
