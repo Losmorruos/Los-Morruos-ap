@@ -1,8 +1,10 @@
 // Service worker de la app + OneSignal (mismo scope del subdirectorio)
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE = "morruos-v14";
-const ASSETS = ["./index.html", "./logo.png", "./manifest.json"];
+// IMPORTANTE: sube este número cada vez que publiques cambios en index.html,
+// logo.png o manifest.json.
+const CACHE = "morruos-v15";
+const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
@@ -18,9 +20,13 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
+// Solo cacheamos archivos de NUESTRO sitio.
+// Las peticiones a GitHub (data.json) las deja pasar el navegador sin tocarlas.
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
-  if (url.origin !== self.location.origin) return;
+  if (url.origin !== self.location.origin) {
+    return; // no interceptar raw.githubusercontent.com ni la API de GitHub
+  }
   e.respondWith(
     fetch(e.request)
       .then((res) => {

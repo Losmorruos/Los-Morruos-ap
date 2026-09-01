@@ -1,0 +1,42 @@
+CAMBIOS APLICADOS — Los Morruos App
+====================================
+
+1) NUEVO ESCUDO
+   - logo.png, logo-192.png y logo-512.png actualizados con el escudo de la cabra
+     (bola roja y verde, faro y montaña de Fuerteventura).
+
+2) REGISTRO OBLIGATORIO
+   - Se eliminó la opción "Entrar como invitado".
+   - Para usar la app hay que introducir: Nombre + Apellidos + Teléfono.
+   - Los datos se guardan en el dispositivo y, si Firebase está conectado,
+     también en la nube (colección "registrations").
+
+3) TRÁFICO Y REGISTROS EN TIEMPO REAL (ADMIN)
+   - Pestaña Administración → Usuarios:
+     · Contador de registrados
+     · Contador de eventos de actividad
+     · Lista de usuarios (nombre, apellidos, teléfono, fecha)
+     · Log de actividad (aperturas de app, nuevos registros, instalaciones)
+   - Para verlo desde CUALQUIER dispositivo admin:
+     1. Crea proyecto en https://console.firebase.google.com
+     2. Activa Firestore Database
+     3. Crea app web y copia la config JSON
+     4. En la app: Administración → Usuarios → pega config → Guardar y conectar
+     5. Publica las reglas Firestore (están en la misma pantalla)
+
+4) INSTALAR LA APP AUTOMÁTICAMENTE
+   - Android / Chrome: al entrar aparece un banner "Instalar la app" con el
+     prompt nativo del navegador.
+   - iPhone / iPad (Safari): el banner abre una guía paso a paso
+     (Compartir → Añadir a pantalla de inicio), porque iOS no permite el
+     botón automático.
+
+CÓMO PUBLICAR
+-------------
+Sube TODOS estos archivos a tu hosting (Netlify, Vercel, GitHub Pages, etc.):
+  index.html, data.json, manifest.json, sw.js,
+  logo.png, logo-192.png, logo-512.png,
+  OneSignalSDKWorker.js, OneSignalSDKUpdaterWorker.js
+
+Si usas GitHub: sustituye los archivos del repo y haz commit/push.
+El service worker está en versión morruos-v15 (los móviles actualizarán la caché).

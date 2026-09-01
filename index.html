@@ -9,7 +9,9 @@
   <meta name="description" content="Club Deportivo Los Morruos - Bola Canaria Fuerteventura" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="logo.png" />
-  <link rel="apple-touch-icon" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo-192.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="logo-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="logo-512.png" />
   <title>Los Morruos | Bola Canaria</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -95,8 +97,35 @@
     .gallery-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
     .gallery-item { aspect-ratio:1; border-radius:12px; overflow:hidden; background:#1a1a1a; border:1px solid #2A2A2A; }
     .gallery-item img { width:100%; height:100%; object-fit:cover; }
-    .guest-btn { width:100%; margin-top:10px; background:transparent; border:1px solid #2A2A2A; color:#a3a3a3; border-radius:12px; padding:12px; font-size:14px; cursor:pointer; }
-    .guest-btn:hover { border-color:#F5C518; color:#F5C518; }
+    .guest-btn { display:none !important; }
+    #install-banner {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
+      background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+      border-top: 1px solid #F5C518;
+      padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+      display: none; align-items: center; gap: 12px;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+    }
+    #install-banner.show { display: flex; }
+    #install-banner img { width: 48px; height: 48px; border-radius: 12px; border: 1px solid #F5C518; object-fit: cover; flex-shrink: 0; }
+    #install-banner .ib-text { flex: 1; min-width: 0; }
+    #install-banner .ib-text strong { color: #F5C518; display: block; font-size: 14px; }
+    #install-banner .ib-text span { color: #a3a3a3; font-size: 12px; }
+    #install-banner .ib-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    #install-banner button { border: none; border-radius: 10px; padding: 10px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    #install-banner .ib-install { background: #F5C518; color: #0a0a0a; }
+    #install-banner .ib-dismiss { background: #2A2A2A; color: #a3a3a3; }
+    #ios-install-sheet {
+      position: fixed; inset: 0; z-index: 95; background: rgba(0,0,0,0.75);
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    #ios-install-sheet.show { display: flex; }
+    #ios-install-sheet .sheet {
+      background: #141414; border-radius: 20px 20px 0 0; padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+      width: 100%; max-width: 480px; border-top: 1px solid #F5C518;
+    }
+    #ios-install-sheet .step { display: flex; gap: 12px; align-items: flex-start; margin: 12px 0; font-size: 14px; color: #ddd; }
+    #ios-install-sheet .step-num { background: #F5C518; color: #0a0a0a; width: 24px; height: 24px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0; }
     .map-frame { width:100%; height:220px; border:0; border-radius:14px; background:#1a1a1a; }
     .stat-card { background:#141414; border:1px solid #2A2A2A; border-radius:14px; padding:14px; text-align:center; }
     .stat-card .val { font-family:'Oswald',sans-serif; font-size:1.6rem; color:#F5C518; }
@@ -114,7 +143,7 @@
   <div id="register-overlay" class="fixed inset-0 z-[100] bg-dark flex items-center justify-center p-5 hidden">
     <div class="card p-6 w-full max-w-sm space-y-4">
       <div class="text-center">
-        <img src="logo.png" alt="Los Morruos" class="w-16 h-16 rounded-full object-cover border-2 border-gold mx-auto mb-3" />
+        <img src="logo.png" alt="Los Morruos" class="w-20 h-20 rounded-2xl object-cover border-2 border-gold mx-auto mb-3" />
         <h2 class="font-display text-xl text-gold">Bienvenido a Los Morruos</h2>
         <p class="text-sm text-gray-400 mt-1">Regístrate para acceder a la app</p>
       </div>
@@ -132,8 +161,35 @@
       </div>
       <p id="reg-error" class="text-xs text-red-400 hidden text-center"></p>
       <button onclick="submitRegistration()" class="admin-btn w-full">Entrar a la app</button>
-      <button type="button" onclick="enterAsGuest()" class="guest-btn">Entrar como invitado (solo consulta)</button>
-      <p class="text-[10px] text-gray-600 text-center">Tus datos se guardan solo en este dispositivo para el club.</p>
+      <p class="text-[10px] text-gray-600 text-center">El registro es obligatorio. Tus datos (nombre, apellidos y teléfono) se usan solo para el club.</p>
+    </div>
+  </div>
+
+  <!-- Banner instalar PWA (Android/Chrome) -->
+  <div id="install-banner" role="dialog" aria-label="Instalar app">
+    <img src="logo.png" alt="Los Morruos" />
+    <div class="ib-text">
+      <strong>Instala la app Los Morruos</strong>
+      <span>Acceso rápido desde tu pantalla de inicio</span>
+    </div>
+    <div class="ib-actions">
+      <button type="button" class="ib-dismiss" onclick="dismissInstallBanner()">Ahora no</button>
+      <button type="button" class="ib-install" onclick="triggerInstall()">Instalar</button>
+    </div>
+  </div>
+
+  <!-- Instrucciones iOS (Safari no tiene beforeinstallprompt) -->
+  <div id="ios-install-sheet" onclick="if(event.target===this)hideIosInstall()">
+    <div class="sheet">
+      <div class="text-center mb-2">
+        <img src="logo.png" alt="" class="w-14 h-14 rounded-xl border border-gold mx-auto object-cover" />
+        <h3 class="font-display text-lg text-gold mt-2">Instalar en iPhone / iPad</h3>
+        <p class="text-xs text-gray-400 mt-1">Safari no permite el botón automático. Sigue estos pasos:</p>
+      </div>
+      <div class="step"><span class="step-num">1</span><div>Pulsa el botón <strong>Compartir</strong> <span style="font-size:18px">⬆️</span> en la barra de Safari (abajo o arriba).</div></div>
+      <div class="step"><span class="step-num">2</span><div>Desplázate y elige <strong>«Añadir a pantalla de inicio»</strong>.</div></div>
+      <div class="step"><span class="step-num">3</span><div>Confirma con <strong>Añadir</strong>. Ya tendrás el icono como una app.</div></div>
+      <button type="button" onclick="hideIosInstall()" class="admin-btn w-full mt-4">Entendido</button>
     </div>
   </div>
 
@@ -141,7 +197,7 @@
 
   <aside id="drawer" class="drawer fixed top-0 left-0 h-full w-[280px] max-w-[85vw] bg-[#0f0f0f] z-50 flex flex-col border-r border-dark-border shadow-2xl">
     <div class="p-5 border-b border-dark-border flex items-center gap-3">
-      <img src="logo.png" alt="Los Morruos" class="w-12 h-12 rounded-full object-cover border-2 border-gold" />
+      <img src="logo.png" alt="Los Morruos" class="w-12 h-12 rounded-xl object-cover border-2 border-gold" />
       <div>
         <h2 class="font-display text-lg text-gold leading-tight">LOS MORRUOS</h2>
         <p class="text-xs text-gray-500">Bola Canaria · Fuerteventura</p>
@@ -243,7 +299,7 @@
         </svg>
       </button>
       <div class="flex items-center gap-2">
-        <img src="logo.png" alt="" class="w-8 h-8 rounded-full object-cover border border-gold/60" />
+        <img src="logo.png" alt="" class="w-8 h-8 rounded-lg object-cover border border-gold/60" />
         <span class="font-display text-base text-gold tracking-wide">LOS MORRUOS</span>
       </div>
       <button onclick="goTo('merch')" class="p-2 -mr-1 rounded-xl hover:bg-dark-card relative" title="Merchandising">
@@ -627,20 +683,34 @@
 
         <div id="atab-users" class="admin-tab-content hidden">
           <div class="card p-4 space-y-3">
-            <h3 class="font-semibold text-gold">Usuarios registrados</h3>
+            <h3 class="font-semibold text-gold">Tráfico y registros en tiempo real</h3>
             <p class="text-xs text-gray-500">
               <span id="firebase-status-badge" class="inline-block px-2 py-0.5 rounded text-[10px] bg-gray-700 text-gray-300 mr-1">Sin Firebase</span>
-              Total: <strong id="users-count" class="text-gold">0</strong>
               <span id="users-live-hint" class="text-green-400 text-[10px] ml-1 hidden">● en vivo</span>
             </p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="stat-card">
+                <div class="val" id="users-count">0</div>
+                <div class="lbl">Registrados</div>
+              </div>
+              <div class="stat-card">
+                <div class="val" id="activity-count">0</div>
+                <div class="lbl">Eventos de actividad</div>
+              </div>
+            </div>
+            <p class="text-[11px] text-gray-500">Para ver registros y tráfico desde <strong>cualquier dispositivo</strong>, conecta Firebase abajo. Sin Firebase solo se ven los datos de este dispositivo.</p>
+          </div>
+          <div class="card p-4 space-y-3 mt-3">
+            <h3 class="font-semibold text-gold text-sm">Usuarios registrados</h3>
             <div id="users-list" class="space-y-2 max-h-64 overflow-y-auto text-sm"></div>
             <button onclick="refreshUsersList()" class="admin-btn-secondary w-full">Actualizar lista</button>
             <button onclick="exportUsers()" class="admin-btn-secondary w-full">Exportar usuarios (JSON)</button>
             <button onclick="clearLocalUsersOnly()" class="admin-btn-secondary admin-btn-danger w-full">Borrar solo registros locales</button>
           </div>
           <div class="card p-4 space-y-3 mt-3">
-            <h3 class="font-semibold text-gold text-sm">Actividad en tiempo real</h3>
-            <div id="activity-log" class="text-xs text-gray-400 space-y-1 max-h-48 overflow-y-auto font-mono"></div>
+            <h3 class="font-semibold text-gold text-sm">Actividad / tráfico en tiempo real</h3>
+            <p class="text-[11px] text-gray-500 mb-1">Aperturas de app, registros e instalaciones.</p>
+            <div id="activity-log" class="text-xs text-gray-400 space-y-1 max-h-56 overflow-y-auto font-mono"></div>
           </div>
           <div class="card p-4 space-y-3 mt-3">
             <h3 class="font-semibold text-gold text-sm">Configuración Firebase</h3>
@@ -1731,11 +1801,22 @@ Chándal|45€|Chándal completo|si"></textarea>
     function checkRegistration() {
       loadCurrentUser();
       const overlay = document.getElementById("register-overlay");
-      if (!currentUser || !currentUser.nombre || !currentUser.telefono) {
+      // Registro obligatorio: sin invitado. Hace falta nombre + apellidos + teléfono.
+      const incomplete = !currentUser
+        || currentUser.guest
+        || !(currentUser.nombre || "").trim()
+        || !(currentUser.apellidos || "").trim()
+        || !(currentUser.telefono || "").trim();
+      if (incomplete) {
+        // Si había un invitado guardado, lo limpiamos para forzar registro real
+        if (currentUser && currentUser.guest) {
+          try { localStorage.removeItem(USER_KEY); } catch {}
+          currentUser = null;
+        }
         overlay.classList.remove("hidden");
       } else {
         overlay.classList.add("hidden");
-        logActivity((currentUser.nombre || "Usuario") + " abrió la app");
+        logActivity((currentUser.nombre || "Usuario") + " " + (currentUser.apellidos || "") + " abrió la app");
       }
     }
     async function submitRegistration() {
@@ -1800,6 +1881,8 @@ Chándal|45€|Chándal completo|si"></textarea>
     }
     function renderActivityLog(log) {
       const actEl = document.getElementById("activity-log");
+      const countEl = document.getElementById("activity-count");
+      if (countEl) countEl.textContent = (log && log.length) ? String(log.length) : "0";
       if (!actEl) return;
       if (!log || !log.length) {
         actEl.innerHTML = '<p>Sin actividad registrada.</p>';
@@ -1962,13 +2045,12 @@ Chándal|45€|Chándal completo|si"></textarea>
 
     // ========== MEJORAS v2 ==========
     function enterAsGuest() {
-      currentUser = { nombre: "Invitado", apellidos: "", telefono: "", guest: true, registeredAt: new Date().toISOString() };
-      try { localStorage.setItem(USER_KEY, JSON.stringify(currentUser)); } catch {}
-      const overlay = document.getElementById("register-overlay");
-      if (overlay) overlay.classList.add("hidden");
-      try { if (typeof logActivity === "function") logActivity("Entró como invitado"); } catch {}
-      if (typeof refreshAll === "function") refreshAll();
-      else if (typeof renderHome === "function") { renderHome(); enhanceHomeCards(); }
+      // Desactivado: el registro con nombre, apellidos y teléfono es obligatorio.
+      const err = document.getElementById("reg-error");
+      if (err) {
+        err.textContent = "El registro es obligatorio. Introduce tu nombre, apellidos y teléfono.";
+        err.classList.remove("hidden");
+      }
     }
 
     function formatCountdown(targetDate, targetTime) {
@@ -2777,6 +2859,67 @@ Chándal|45€|Chándal completo|si"></textarea>
       }
     }
 
+    // ── Instalar PWA (Android/Chrome + guía iOS) ──
+    let deferredInstallPrompt = null;
+    const INSTALL_DISMISS_KEY = "morruos_install_dismissed";
+
+    function isIos() {
+      return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    }
+    function isStandalone() {
+      return window.matchMedia("(display-mode: standalone)").matches
+        || window.navigator.standalone === true;
+    }
+    function showInstallBanner() {
+      const banner = document.getElementById("install-banner");
+      if (!banner || isStandalone()) return;
+      if (localStorage.getItem(INSTALL_DISMISS_KEY) === "1") return;
+      banner.classList.add("show");
+    }
+    function dismissInstallBanner() {
+      const banner = document.getElementById("install-banner");
+      if (banner) banner.classList.remove("show");
+      try { localStorage.setItem(INSTALL_DISMISS_KEY, "1"); } catch {}
+    }
+    function hideIosInstall() {
+      const sheet = document.getElementById("ios-install-sheet");
+      if (sheet) sheet.classList.remove("show");
+    }
+    function showIosInstall() {
+      const sheet = document.getElementById("ios-install-sheet");
+      if (sheet) sheet.classList.add("show");
+    }
+    async function triggerInstall() {
+      if (isIos()) {
+        showIosInstall();
+        return;
+      }
+      if (!deferredInstallPrompt) {
+        // Fallback: si no hay prompt nativo, mostrar instrucciones genéricas
+        alert("Para instalar la app:\n\n• Chrome/Android: menú ⋮ → «Instalar aplicación» o «Añadir a la pantalla de inicio».\n• Safari iPhone: Compartir → «Añadir a pantalla de inicio».");
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      dismissInstallBanner();
+      if (choice && choice.outcome === "accepted") {
+        try { logActivity("Usuario instaló la PWA"); } catch {}
+      }
+    }
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      // Mostrar banner tras un pequeño delay (mejor UX)
+      setTimeout(showInstallBanner, 1800);
+    });
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      dismissInstallBanner();
+      try { logActivity("App instalada en este dispositivo"); } catch {}
+    });
+
     (async function init() {
       await loadData();
       if (sessionStorage.getItem("morruos_admin") === "1") adminOk = true;
@@ -2786,6 +2929,10 @@ Chándal|45€|Chándal completo|si"></textarea>
       renderAll();
       checkRegistration();
       if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+      // En iOS mostrar banner de instalación si no está en modo standalone
+      if (isIos() && !isStandalone() && localStorage.getItem(INSTALL_DISMISS_KEY) !== "1") {
+        setTimeout(showInstallBanner, 2200);
+      }
 
       // Guardado automático local al salir o al pasar la app a segundo plano
       // (ayuda especialmente en iOS y cuando se cierra la PWA)
