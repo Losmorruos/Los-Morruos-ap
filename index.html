@@ -2334,10 +2334,12 @@ Chándal|45€|Chándal completo|si"></textarea>
     }
 
     function comprarPorWhatsApp(nombre, precio) {
+      const producto = String(nombre || "producto").trim();
       const precioTexto = String(precio || "").trim();
-      const mensaje = `Hola, quiero consultar por ${nombre}${precioTexto ? ` (${precioTexto})` : ""} del Club Los Morruos. ¿Me puedes indicar disponibilidad, tallas y precio?`;
-      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, "_blank", "noopener,noreferrer");
+      const mensaje = `Hola, quiero consultar por ${producto}${precioTexto ? ` (${precioTexto})` : ""} del Club Los Morruos. ¿Me puedes indicar disponibilidad, tallas y precio?`;
+      const url = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(mensaje)}`;
+      // Navegación directa: evita que el bloqueador de ventanas de la PWA impida abrir WhatsApp.
+      window.location.assign(url);
     }
 
     function renderMerch() {

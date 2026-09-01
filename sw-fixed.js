@@ -101,8 +101,8 @@ const MERCH_WHATSAPP_FIX_SCRIPT = `
     const producto = String(nombre || "producto").trim();
     const precioTexto = String(precio || "").trim();
     const mensaje = \`Hola, quiero consultar por \${producto}\${precioTexto ? \` (\${precioTexto})\` : ""} de Los Morruos. ¿Me puedes indicar disponibilidad, tallas y precio?\`;
-    const url = \`https://wa.me/\${NUMBER}?text=\${encodeURIComponent(mensaje)}\`;
-    window.location.href = url;
+    const url = \`https://api.whatsapp.com/send?phone=\${NUMBER}&text=\${encodeURIComponent(mensaje)}\`;
+    window.location.assign(url);
   };
   function cambiarTextoBotones(root) {
     try {

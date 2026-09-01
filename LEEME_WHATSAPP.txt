@@ -1,0 +1,7 @@
+CORRECCIÓN DE WHATSAPP
+
+Se ha corregido el botón «Consultar por WhatsApp» para evitar que window.open sea bloqueado en la PWA.
+Ahora usa navegación directa a api.whatsapp.com con el número del club y el mensaje ya preparado con producto, precio, disponibilidad, tallas y precio.
+
+IMPORTANTE: sustituir también sw.js y sw-fixed.js para que la versión corregida del Service Worker no vuelva a sobrescribir la función.
+Después de subir los archivos, cerrar completamente la PWA/navegador y volver a abrirla para que se instale la nueva caché.
