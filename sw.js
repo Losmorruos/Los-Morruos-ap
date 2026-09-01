@@ -1,12 +1,10 @@
-// Service worker de la app + OneSignal.
-// v22: Firebase + registros robustos + WhatsApp de merchandising.
+// Service Worker de Los Morruos + OneSignal.
+// v24: Firebase robusto + compartir partidos con redes sociales.
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE = "morruos-v23-firebase-registros-whatsapp";
+const CACHE = "morruos-v24-firebase-social-share";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
-// Este código se inyecta como JavaScript REAL dentro de <script> en index.html.
-// Importante: no lleva etiquetas <script> aquí, para evitar que aparezcan como texto.
 const FIREBASE_FIX_SCRIPT = `
 (function () {
   const GLOBAL_FIREBASE_CONFIG = {
@@ -18,7 +16,6 @@ const FIREBASE_FIX_SCRIPT = `
     appId: "1:43160020256:web:b9d394558e23ebfbdfa345",
     measurementId: "G-HNZNTJD835"
   };
-
   try {
     const nativeGetItem = Storage.prototype.getItem;
     Storage.prototype.getItem = function (key) {
@@ -26,32 +23,22 @@ const FIREBASE_FIX_SCRIPT = `
       return nativeGetItem.call(this, key);
     };
   } catch (_) {}
-
   async function syncCurrentUser() {
     try {
-      if (typeof firebaseReady === "undefined" || !firebaseReady || typeof db === "undefined" || !db || typeof currentUser === "undefined" || !currentUser || currentUser.guest) return false;
+      if (typeof firebaseReady === "undefined" || !firebaseReady || typeof db === "undefined" || !db || typeof currentUser === "undefined" || !currentUser || currentUser.guest) return;
       const u = currentUser;
       const nombre = String(u.nombre || "").trim();
       const apellidos = String(u.apellidos || "").trim();
       const telefono = String(u.telefono || "").trim();
       const id = telefono.replace(/\\D/g, "");
-      if (!nombre || !apellidos || id.length < 9) return false;
-      await db.collection("registrations").doc(id).set({
-        nombre, apellidos, telefono,
-        registeredAt: u.registeredAt || new Date().toISOString()
-      }, { merge: true });
-      return true;
-    } catch (e) {
-      console.warn("Migración Firebase de usuario local no completada:", e);
-      return false;
-    }
+      if (!nombre || !apellidos || id.length < 9) return;
+      await db.collection("registrations").doc(id).set({ nombre, apellidos, telefono, registeredAt: u.registeredAt || new Date().toISOString() }, { merge: true });
+    } catch (e) { console.warn("Migración Firebase de usuario local no completada:", e); }
   }
-
-  const migrationTimer = setInterval(function () {
+  const timer = setInterval(function () {
     try {
       if (typeof firebaseReady !== "undefined" && firebaseReady && typeof db !== "undefined" && db && typeof currentUser !== "undefined" && currentUser && !currentUser.guest) {
-        syncCurrentUser();
-        clearInterval(migrationTimer);
+        syncCurrentUser(); clearInterval(timer);
       }
     } catch (_) {}
   }, 1000);
@@ -60,37 +47,25 @@ const FIREBASE_FIX_SCRIPT = `
 
 const ROBUST_USERS_SCRIPT = `
 (function () {
-  let usersUnsub = null;
-  function installRobustUsersListener() {
+  let installed = false;
+  function install() {
     try {
-      if (typeof firebaseReady === "undefined" || !firebaseReady || typeof db === "undefined" || !db) return;
-      if (typeof renderUsersList !== "function") return;
-      if (window.__morruosRobustUsersListener) return;
-      usersUnsub = db.collection("registrations").limit(500).onSnapshot(function (snap) {
+      if (installed || typeof firebaseReady === "undefined" || !firebaseReady || typeof db === "undefined" || !db || typeof renderUsersList !== "function") return;
+      db.collection("registrations").limit(500).onSnapshot(function (snap) {
         const list = [];
         snap.forEach(function (doc) { list.push({ id: doc.id, ...doc.data() }); });
-        list.sort(function (a, b) { return String(b.registeredAt || "").localeCompare(String(a.registeredAt || "")); });
+        list.sort(function (a,b) { return String(b.registeredAt || "").localeCompare(String(a.registeredAt || "")); });
         renderUsersList(list);
       }, function (err) {
         console.error("Error leyendo registrations en Firebase:", err);
         try { renderUsersList([]); } catch (_) {}
-        const status = document.getElementById("firebase-config-status");
-        if (status) status.textContent = "Firebase conectado, pero no se pudieron leer los registros.";
       });
+      installed = true;
       window.__morruosRobustUsersListener = true;
-    } catch (e) {
-      console.error("No se pudo instalar el listener robusto de usuarios:", e);
-    }
+    } catch (e) { console.error("No se pudo instalar el listener robusto de usuarios:", e); }
   }
-  const timer = setInterval(function () {
-    try {
-      if (typeof firebaseReady !== "undefined" && firebaseReady && typeof db !== "undefined" && db) {
-        installRobustUsersListener();
-        if (window.__morruosRobustUsersListener) clearInterval(timer);
-      }
-    } catch (_) {}
-  }, 700);
-  setTimeout(function () { try { installRobustUsersListener(); } catch (_) {} }, 3500);
+  const timer = setInterval(function () { install(); if (installed) clearInterval(timer); }, 700);
+  setTimeout(install, 3500);
 })();
 `;
 
@@ -115,10 +90,70 @@ const STARTUP_RECOVERY_SCRIPT = `
 })();
 `;
 
+// Fuerza un selector de redes para "Compartir partido".
+// No usa navigator.share automáticamente porque en PC/PWA puede ocultar las opciones sociales.
+const SOCIAL_SHARE_SCRIPT = `
+(function () {
+  function makeButton(label, url, extraClass) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = label;
+    a.style.cssText = "display:block;padding:12px;border-radius:10px;text-align:center;text-decoration:none;font-weight:700;color:#fff;" + (extraClass || "background:#2A2A2A;");
+    return a;
+  }
+  window.shareText = function (title, text) {
+    const safeTitle = String(title || "Los Morruos");
+    const safeText = String(text || "");
+    const full = safeTitle + "\\n" + safeText + "\\n" + location.href;
+    const encoded = encodeURIComponent(full);
+    const wa = "https://wa.me/?text=" + encoded;
+    const fb = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(location.href) + "&quote=" + encodeURIComponent(safeTitle + "\\n" + safeText);
+    const x = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(safeTitle + "\\n" + safeText) + "&url=" + encodeURIComponent(location.href);
+    const tg = "https://t.me/share/url?url=" + encodeURIComponent(location.href) + "&text=" + encodeURIComponent(safeTitle + "\\n" + safeText);
+
+    const overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px;";
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) overlay.remove(); });
+    const box = document.createElement("div");
+    box.style.cssText = "background:#141414;border:1px solid #2A2A2A;border-radius:16px;padding:20px;max-width:380px;width:100%;color:#fff;max-height:90vh;overflow:auto;";
+    const h = document.createElement("h3"); h.textContent = "Compartir partido"; h.style.cssText = "color:#F5C518;margin:0 0 6px;font-size:20px;";
+    const p = document.createElement("p"); p.textContent = safeText; p.style.cssText = "color:#aaa;font-size:13px;line-height:1.45;margin:0 0 14px;";
+    const grid = document.createElement("div"); grid.style.cssText = "display:grid;gap:10px;";
+    grid.appendChild(makeButton("WhatsApp", wa, "background:#25D366;"));
+    grid.appendChild(makeButton("Facebook", fb, "background:#1877F2;"));
+    grid.appendChild(makeButton("Instagram", "https://www.instagram.com/", "background:linear-gradient(90deg,#833AB4,#FD1D1D,#FCAF45);"));
+    grid.appendChild(makeButton("X / Twitter", x, "background:#000;"));
+    grid.appendChild(makeButton("Telegram", tg, "background:#229ED9;"));
+    const share = document.createElement("button");
+    share.type = "button"; share.textContent = "📱 Más opciones de compartir";
+    share.style.cssText = "width:100%;padding:12px;border:0;border-radius:10px;background:#F5C518;color:#0A0A0A;font-weight:700;cursor:pointer;";
+    share.onclick = function () { if (navigator.share) navigator.share({ title: safeTitle, text: safeText, url: location.href }).catch(function () {}); else alert("Tu navegador no ofrece más opciones de compartir."); };
+    grid.appendChild(share);
+    const copy = document.createElement("button");
+    copy.type = "button"; copy.textContent = "📋 Copiar texto y enlace";
+    copy.style.cssText = "width:100%;padding:12px;border:0;border-radius:10px;background:#2A2A2A;color:#fff;font-weight:700;cursor:pointer;";
+    copy.onclick = function () {
+      const done = function () { copy.textContent = "✓ Copiado"; setTimeout(function () { overlay.remove(); }, 600); };
+      if (navigator.clipboard) navigator.clipboard.writeText(full).then(done).catch(function () { prompt("Copia este texto:", full); });
+      else prompt("Copia este texto:", full);
+    };
+    grid.appendChild(copy);
+    const close = document.createElement("button");
+    close.type = "button"; close.textContent = "Cerrar";
+    close.style.cssText = "width:100%;padding:10px;border:0;background:transparent;color:#888;cursor:pointer;";
+    close.onclick = function () { overlay.remove(); };
+    grid.appendChild(close);
+    box.append(h, p, grid); overlay.appendChild(box); document.body.appendChild(overlay);
+  };
+})();
+`;
+
 function injectFixes(html) {
-  const all = FIREBASE_FIX_SCRIPT + ROBUST_USERS_SCRIPT + STARTUP_RECOVERY_SCRIPT;
+  const all = FIREBASE_FIX_SCRIPT + ROBUST_USERS_SCRIPT + STARTUP_RECOVERY_SCRIPT + SOCIAL_SHARE_SCRIPT;
   const marker = '    const DEFAULT = {';
-  if (html.includes(marker)) return html.replace(marker, all + "\n" + marker);
+  if (html.includes(marker)) return html.replace(marker, all + "\\n" + marker);
   if (html.includes("</body>")) return html.replace("</body>", "<script>" + all + "</script></body>");
   return html + "<script>" + all + "</script>";
 }
@@ -132,11 +167,9 @@ self.addEventListener("install", function (event) {
           if (!res.ok) continue;
           if (asset === "./index.html") {
             const html = await res.text();
-            const fixed = html.includes("GLOBAL_FIREBASE_CONFIG") ? html : injectFixes(html);
+            const fixed = injectFixes(html);
             await cache.put(asset, new Response(fixed, { status: res.status, statusText: res.statusText, headers: { "Content-Type": "text/html; charset=utf-8" } }));
-          } else {
-            await cache.put(asset, res);
-          }
+          } else await cache.put(asset, res);
         } catch (_) {}
       }
     })
@@ -145,27 +178,22 @@ self.addEventListener("install", function (event) {
 });
 
 self.addEventListener("activate", function (event) {
-  event.waitUntil(
-    caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (key) { return key !== CACHE; }).map(function (key) { return caches.delete(key); }));
-    })
-  );
+  event.waitUntil(caches.keys().then(function (keys) {
+    return Promise.all(keys.filter(function (key) { return key !== CACHE; }).map(function (key) { return caches.delete(key); }));
+  }));
   self.clients.claim();
 });
 
 self.addEventListener("fetch", function (event) {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
   event.respondWith(
     fetch(event.request, { cache: "no-store" }).then(async function (res) {
       if (url.pathname.endsWith("/index.html") || url.pathname.endsWith("/Los-Morruos-ap/") || url.pathname === "/") {
         try {
           const html = await res.clone().text();
-          if (!html.includes("GLOBAL_FIREBASE_CONFIG")) {
-            const fixed = injectFixes(html);
-            res = new Response(fixed, { status: res.status, statusText: res.statusText, headers: res.headers });
-          }
+          const fixed = injectFixes(html);
+          res = new Response(fixed, { status: res.status, statusText: res.statusText, headers: res.headers });
         } catch (_) {}
       }
       const clone = res.clone();
