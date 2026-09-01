@@ -2,7 +2,7 @@
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
 // v18: Firebase global + migración automática de usuarios antiguos.
-const CACHE = "morruos-v18-firebase-global";
+const CACHE = "morruos-v19-firebase-global";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 const FIREBASE_FIX_SCRIPT = `
@@ -50,6 +50,31 @@ const FIREBASE_FIX_SCRIPT = `
 })();
 </script>`;
 
+const STARTUP_RECOVERY_SCRIPT = `
+<script>
+(function () {
+  // Recuperación: si una promesa de arranque falla (red, caché o datos),
+  // la portada se pinta igualmente con DEFAULT en vez de quedarse vacía.
+  function recover() {
+    try {
+      if (typeof data !== "undefined" && !data && typeof DEFAULT !== "undefined") {
+        data = JSON.parse(JSON.stringify(DEFAULT));
+        if (typeof normalizeNextMatches === "function") data.nextMatches = normalizeNextMatches(data);
+      }
+      if (typeof renderAll === "function") renderAll();
+    } catch (_) {}
+  }
+  window.addEventListener("unhandledrejection", recover);
+  // Seguridad adicional: si la portada sigue vacía unos segundos después de abrir, repintamos.
+  setTimeout(function () {
+    try {
+      const box = document.getElementById("home-next-matches");
+      if (box && !box.innerHTML.trim()) recover();
+    } catch (_) {}
+  }, 3500);
+})();
+</script>`;
+
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(CACHE).then(async (c) => {
@@ -61,8 +86,8 @@ self.addEventListener("install", (e) => {
               const html = await res.text();
               const marker = '    const DEFAULT = {';
               const fixed = html.includes(marker)
-                ? html.replace(marker, FIREBASE_FIX_SCRIPT + '\n' + marker)
-                : html.includes("</body>") ? html.replace("</body>", FIREBASE_FIX_SCRIPT + "</body>") : html + FIREBASE_FIX_SCRIPT;
+                ? html.replace(marker, FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + '\n' + marker)
+                : html.includes("</body>") ? html.replace("</body>", FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + "</body>") : html + FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT;
               await c.put(asset, new Response(fixed, { headers: { "Content-Type": "text/html; charset=utf-8" } }));
             } else await c.put(asset, res);
           }
@@ -89,8 +114,8 @@ self.addEventListener("fetch", (e) => {
           if (!html.includes("GLOBAL_FIREBASE_CONFIG")) {
             const marker = '    const DEFAULT = {';
             const fixed = html.includes(marker)
-              ? html.replace(marker, FIREBASE_FIX_SCRIPT + '\n' + marker)
-              : html.includes("</body>") ? html.replace("</body>", FIREBASE_FIX_SCRIPT + "</body>") : html + FIREBASE_FIX_SCRIPT;
+              ? html.replace(marker, FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + '\n' + marker)
+              : html.includes("</body>") ? html.replace("</body>", FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT + "</body>") : html + FIREBASE_FIX_SCRIPT + STARTUP_RECOVERY_SCRIPT;
             res = new Response(fixed, { status: res.status, statusText: res.statusText, headers: res.headers });
           }
         } catch (_) {}

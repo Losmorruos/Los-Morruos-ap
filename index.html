@@ -1270,7 +1270,12 @@ Chándal|45€|Chándal completo|si"></textarea>
     async function loadData() {
       loadRemoteCfg();
       loadOneSignalCfg();
-      const remote = await fetchRemote();
+      let remote = null;
+      try {
+        remote = await fetchRemote();
+      } catch (e) {
+        console.warn("No se pudo cargar data.json remoto; se usará la copia local/default:", e);
+      }
       if (remote) {
         data = {
           ...JSON.parse(JSON.stringify(DEFAULT)),
@@ -1704,7 +1709,11 @@ Chándal|45€|Chándal completo|si"></textarea>
     }
     // ── Firebase (usuarios + actividad en tiempo real) ──
     function loadFirebaseConfig() {
+      // Firebase es global para todos los dispositivos; localStorage solo queda como respaldo.
       try {
+        if (typeof firebaseConfig !== "undefined" && firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId) {
+          return { ...firebaseConfig };
+        }
         const raw = localStorage.getItem(FIREBASE_CFG_KEY);
         return raw ? JSON.parse(raw) : null;
       } catch { return null; }
@@ -3077,12 +3086,30 @@ Chándal|45€|Chándal completo|si"></textarea>
     });
 
     (async function init() {
-      await loadData();
-      if (sessionStorage.getItem("morruos_admin") === "1") adminOk = true;
-      // Intentar conectar Firebase si ya hay configuración guardada
-      initFirebase();
-      if (firebaseReady) startFirebaseListeners();
-      renderAll();
+      // Nunca dejamos la pantalla a medias si falla una red, Firebase o un dato remoto.
+      try {
+        await loadData();
+      } catch (e) {
+        console.error("Error cargando los datos de la app:", e);
+        if (!data) data = JSON.parse(JSON.stringify(DEFAULT));
+        try { data.nextMatches = normalizeNextMatches(data); } catch {}
+      }
+      try {
+        if (sessionStorage.getItem("morruos_admin") === "1") adminOk = true;
+      } catch {}
+      try {
+        initFirebase();
+        if (firebaseReady) startFirebaseListeners();
+      } catch (e) {
+        console.warn("Firebase no disponible:", e);
+      }
+      try {
+        renderAll();
+      } catch (e) {
+        console.error("Error pintando la interfaz:", e);
+        // Intento final: al menos pintar la portada con los datos básicos.
+        try { renderHome(); } catch {}
+      }
       checkRegistration();
       if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
       // En iOS mostrar banner de instalación si no está en modo standalone
