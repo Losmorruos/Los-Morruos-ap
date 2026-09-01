@@ -6,7 +6,7 @@ const CACHE = "morruos-v19-firebase-global";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 const FIREBASE_FIX_SCRIPT = `
-<script>
+
 (function () {
   const GLOBAL_FIREBASE_CONFIG = {
     apiKey: "AIzaSyD975LbcmD-5roITCDT8SFBQVo1Kb2g_es",
@@ -48,10 +48,10 @@ const FIREBASE_FIX_SCRIPT = `
     }
   }, 1000);
 })();
-</script>`;
+`;
 
 const STARTUP_RECOVERY_SCRIPT = `
-<script>
+
 (function () {
   // Recuperación: si una promesa de arranque falla (red, caché o datos),
   // la portada se pinta igualmente con DEFAULT en vez de quedarse vacía.
@@ -73,7 +73,7 @@ const STARTUP_RECOVERY_SCRIPT = `
     } catch (_) {}
   }, 3500);
 })();
-</script>`;
+`;
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
