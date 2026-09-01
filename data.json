@@ -34,36 +34,52 @@
   "matches": [],
   "players": [
     {
-      "name": "Juan Pérez",
+      "name": "Alexis Rosa Gonzáles",
       "team": "A"
     },
     {
-      "name": "Manuel Rodríguez",
+      "name": "Amadeu Rosa Barbosa",
       "team": "A"
     },
     {
-      "name": "Antonio García",
+      "name": "Pedro Acosta Francés",
       "team": "A"
     },
     {
-      "name": "Francisco Díaz",
+      "name": "Guanárteme Gonzáles Estupiñán",
       "team": "A"
     },
     {
-      "name": "José Hernández",
-      "team": "B"
+      "name": "Jonathan Diz Padin",
+      "team": "A"
     },
     {
-      "name": "Pedro Cabrera",
-      "team": "B"
+      "name": "Juan Ramon Fernández Acosta",
+      "team": "A"
     },
     {
-      "name": "Luis Morales",
-      "team": "B"
+      "name": "Oscar Araya Gopar",
+      "team": "A"
+    }
+  ],
+  "merch": [
+    {
+      "name": "Camiseta",
+      "price": "Consultar",
+      "desc": "Camiseta oficial negra y dorada",
+      "available": true
     },
     {
-      "name": "Carlos Medina",
-      "team": "B"
+      "name": "Suéter",
+      "price": "Consultar",
+      "desc": "Suéter oficial del club",
+      "available": true
+    },
+    {
+      "name": "Chándal",
+      "price": "Consultar",
+      "desc": "Chándal completo Los Morruos",
+      "available": true
     }
   ],
   "news": [
@@ -93,7 +109,7 @@
     "x": ""
   },
   "chat": [],
-  "_syncStamp": "mtegkq65igp9",
+  "_syncStamp": "mthwr1awmpit",
   "trainings": [
     {
       "date": "2026-09-02",
@@ -128,25 +144,5 @@
       "Participación en asambleas"
     ],
     "contact": "+34650858521 / ClubdeportivolosMorruos@gmail.com"
-  },
-  "merch": [
-    {
-      "name": "Camiseta",
-      "price": "Consultar",
-      "desc": "Camiseta oficial negra y dorada",
-      "available": true
-    },
-    {
-      "name": "Suéter",
-      "price": "Consultar",
-      "desc": "Suéter oficial del club",
-      "available": true
-    },
-    {
-      "name": "Chándal",
-      "price": "Consultar",
-      "desc": "Chándal completo Los Morruos",
-      "available": true
-    }
-  ]
+  }
 }
