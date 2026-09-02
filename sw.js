@@ -1,8 +1,8 @@
 // Service Worker de Los Morruos + OneSignal.
-// v28: compartir partidos forzado a menú propio y renovación de caché.
+// v29: no sobrescribir los datos remotos/locales al iniciar y compartir partidos.
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE = "morruos-v28-social-share";
+const CACHE = "morruos-v29-data-share";
 const ASSETS = ["./index.html", "./logo.png", "./logo-192.png", "./logo-512.png", "./manifest.json"];
 
 const FIREBASE_FIX_SCRIPT = `
@@ -63,30 +63,6 @@ const ROBUST_USERS_SCRIPT = `
   }
   const timer = setInterval(function(){ install(); if(installed) clearInterval(timer); }, 700);
   setTimeout(install, 3500);
-})();
-`;
-
-const STARTUP_RECOVERY_SCRIPT = `
-(function () {
-  function recover(force) {
-    try {
-      if ((force || typeof data === "undefined" || !data) && typeof DEFAULT !== "undefined") {
-        let base = null;
-        try { base = JSON.parse(localStorage.getItem("morruos_data") || "null"); } catch (_) {}
-        data = base && typeof base === "object" ? Object.assign(JSON.parse(JSON.stringify(DEFAULT)), base) : JSON.parse(JSON.stringify(DEFAULT));
-        if (typeof normalizeNextMatches === "function") data.nextMatches = normalizeNextMatches(data);
-      }
-      if (typeof renderAll === "function") renderAll();
-    } catch (_) {}
-  }
-  window.addEventListener("unhandledrejection", function(){ recover(false); });
-  setTimeout(function(){ recover(true); }, 300);
-  setTimeout(function(){
-    try {
-      const box = document.getElementById("home-next-matches");
-      if (box && !box.innerHTML.trim()) recover(true);
-    } catch (_) {}
-  }, 2200);
 })();
 `;
 
@@ -157,7 +133,7 @@ const SOCIAL_SHARE_SCRIPT = `
 `;
 
 function injectFixes(html) {
-  const all = FIREBASE_FIX_SCRIPT + ROBUST_USERS_SCRIPT + STARTUP_RECOVERY_SCRIPT + SOCIAL_SHARE_SCRIPT;
+  const all = FIREBASE_FIX_SCRIPT + ROBUST_USERS_SCRIPT + SOCIAL_SHARE_SCRIPT;
   const tag = "<script>" + all + "</script>";
   if (html.includes("</body>")) return html.replace("</body>", tag + "</body>");
   return html + tag;
